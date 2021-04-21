@@ -123,7 +123,7 @@
         "kaikosdk": {
             "file": "https://s3.us-east-2.wasabisys.com/kaiko-sdk/python-sdk/kaikosdk-0.0.6.tar.gz",
             "hashes": [
-                "sha256:97cb8e5b9457f8b16d102f55617d600c37a3a9654d963b9940dbe3f9d92adeef"
+                "sha256:fb441c1e93bb02d2760edacbc371ec894ce51f868409da4ded0dddae3c6c1cbd"
             ],
             "version": "==0.0.6"
         },
