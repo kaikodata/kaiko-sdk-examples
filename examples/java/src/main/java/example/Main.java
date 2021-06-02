@@ -1,9 +1,12 @@
 package example;
 
 import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc;
+import com.kaiko.sdk.StreamTradesServiceV1Grpc;
 import com.kaiko.sdk.core.InstrumentCriteria;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
+import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
+import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
 import io.grpc.*;
 
 import java.util.List;
@@ -47,7 +50,14 @@ public class Main {
             }
         };
 
-        // Create a request with SDK
+        // Create a streaming trades request with SDK
+        trades_request(channel, callCredentials);
+
+        // Create a streaming ohlcv request with SDK
+        ohlcv_request(channel, callCredentials);
+    }
+
+    public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
         StreamAggregatesOHLCVRequestV1 request = StreamAggregatesOHLCVRequestV1.newBuilder()
                 .setInstrumentCriteria(
                         InstrumentCriteria.newBuilder()
@@ -63,6 +73,31 @@ public class Main {
 
         // Run the request and get results
         List<StreamAggregatesOHLCVResponseV1> elts = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                        stub.subscribe(request),
+                        Spliterator.ORDERED)
+                , false)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        System.out.println(elts);
+    }
+
+    public static void trades_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamTradesRequestV1 request = StreamTradesRequestV1.newBuilder()
+                .setInstrumentCriteria(
+                        InstrumentCriteria.newBuilder()
+                                .setExchange("cbse")
+                                .setInstrumentClass("spot")
+                                .setCode("btc-usd")
+                                .build()
+                )
+                .build();
+
+        StreamTradesServiceV1Grpc.StreamTradesServiceV1BlockingStub stub = StreamTradesServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        List<StreamTradesResponseV1> elts = StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(
                         stub.subscribe(request),
                         Spliterator.ORDERED)
