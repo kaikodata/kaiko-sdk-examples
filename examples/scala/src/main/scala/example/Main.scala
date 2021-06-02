@@ -1,9 +1,11 @@
 package example
 
 import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc
+import com.kaiko.sdk.StreamTradesServiceV1Grpc
 import com.kaiko.sdk.core.InstrumentCriteria
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
-import io.grpc.{CallCredentials, ManagedChannelBuilder, Metadata, Status}
+import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1
+import io.grpc.{CallCredentials, Channel, ManagedChannelBuilder, Metadata, Status}
 
 import java.util.concurrent.Executor
 import scala.concurrent.ExecutionContext
@@ -35,6 +37,15 @@ object Main {
 
       override def thisUsesUnstableApi(): Unit = {}
     }
+
+    // Create a streaming trades request with SDK
+    trades_request(channel, callCredentials)
+
+    // Create a streaming ohlcv request with SDK
+    ohlcv_request(channel, callCredentials)
+  }
+
+  def ohlcv_request(channel: Channel, callCredentials: CallCredentials) = {
     val stub = StreamAggregatesOHLCVServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     // Create a request with SDK
@@ -45,6 +56,26 @@ object Main {
         code = "btc-usd"
       )),
       aggregate = "1s",
+    )
+
+    // Run the request and get results
+    val results = stub.subscribe(request)
+      .take(10)
+      .toSeq
+
+    println(results)
+  }
+
+  def trades_request(channel: Channel, callCredentials: CallCredentials) = {
+    val stub = StreamTradesServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamTradesRequestV1(
+      instrumentCriteria = Some(InstrumentCriteria(
+        exchange = "cbse",
+        instrumentClass = "spot",
+        code = "btc-usd"
+      ))
     )
 
     // Run the request and get results
