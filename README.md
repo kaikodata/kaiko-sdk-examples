@@ -9,6 +9,7 @@ Each language folder specifies tool requirements.
 Documentations :
 
 - GRPC: <https://sdk-documentation.kaiko.ovh>
+- Go : <https://sdk-documentation.kaiko.ovh/go>
 - Java : <https://sdk-documentation.kaiko.ovh/java>
 - Node : <https://sdk-documentation.kaiko.ovh/node>
 - Python: <https://sdk-documentation.kaiko.ovh/python>
