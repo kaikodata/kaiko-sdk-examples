@@ -1,10 +1,20 @@
 package example;
 
 import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc;
+import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc;
+import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc;
+import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc;
 import com.kaiko.sdk.StreamTradesServiceV1Grpc;
 import com.kaiko.sdk.core.InstrumentCriteria;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
+import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1;
+import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateResponseV1;
+import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1;
+import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPResponseV1;
+import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity;
+import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1;
+import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateResponseV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
 import io.grpc.*;
@@ -55,6 +65,15 @@ public class Main {
 
         // Create a streaming ohlcv request with SDK
         ohlcv_request(channel, callCredentials);
+
+        // Create a streaming vwap request with SDK
+        vwap_request(channel, callCredentials);
+
+        // Create a streaming spot exchange rate request with SDK
+        spot_exchange_rate_request(channel, callCredentials);
+
+        // Create a streaming market update request with SDK
+        market_update_request(channel, callCredentials);
     }
 
     public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -73,6 +92,78 @@ public class Main {
 
         // Run the request and get results
         List<StreamAggregatesOHLCVResponseV1> elts = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                        stub.subscribe(request),
+                        Spliterator.ORDERED)
+                , false)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        System.out.println(elts);
+    }
+
+    public static void vwap_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamAggregatesVWAPRequestV1 request = StreamAggregatesVWAPRequestV1.newBuilder()
+                .setInstrumentCriteria(
+                        InstrumentCriteria.newBuilder()
+                                .setExchange("bnce")
+                                .setInstrumentClass("spot")
+                                .setCode("btc-usdt")
+                                .build()
+                )
+                .setAggregate("1s")
+                .build();
+
+        StreamAggregatesVWAPServiceV1Grpc.StreamAggregatesVWAPServiceV1BlockingStub stub = StreamAggregatesVWAPServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        List<StreamAggregatesVWAPResponseV1> elts = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                        stub.subscribe(request),
+                        Spliterator.ORDERED)
+                , false)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        System.out.println(elts);
+    }
+
+    public static void spot_exchange_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamAggregatesSpotExchangeRateRequestV1 request = StreamAggregatesSpotExchangeRateRequestV1.newBuilder()
+                .setCode("btc-usd")
+                .setAggregate("1s")
+                .build();
+
+        StreamAggregatesSpotExchangeRateServiceV1Grpc.StreamAggregatesSpotExchangeRateServiceV1BlockingStub stub = StreamAggregatesSpotExchangeRateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        List<StreamAggregatesSpotExchangeRateResponseV1> elts = StreamSupport.stream(
+                Spliterators.spliteratorUnknownSize(
+                        stub.subscribe(request),
+                        Spliterator.ORDERED)
+                , false)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        System.out.println(elts);
+    }
+
+    public static void market_update_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamMarketUpdateRequestV1 request = StreamMarketUpdateRequestV1.newBuilder()
+                .setInstrumentCriteria(
+                        InstrumentCriteria.newBuilder()
+                                .setExchange("krkn")
+                                .setInstrumentClass("spot")
+                                .setCode("*")
+                                .build()
+                )
+		.addCommodities(StreamMarketUpdateCommodity.SMUC_TRADE)
+                .build();
+
+        StreamMarketUpdateServiceV1Grpc.StreamMarketUpdateServiceV1BlockingStub stub = StreamMarketUpdateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        List<StreamMarketUpdateResponseV1> elts = StreamSupport.stream(
                 Spliterators.spliteratorUnknownSize(
                         stub.subscribe(request),
                         Spliterator.ORDERED)
