@@ -1,14 +1,18 @@
-import { StreamAggregatesOHLCVServiceV1Client, StreamTradesServiceV1Client } from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
+import * as grpc from '@grpc/grpc-js';
+
 import { InstrumentCriteria } from '@kaiko-sdk/node/sdk/core/instrument_criteria_pb';
 import { StreamAggregatesOHLCVRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/request_pb';
 import { StreamAggregatesOHLCVResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/response_pb';
-import { StreamAggregatesSpotExchangeRateServiceV1Client } from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
+import { StreamAggregatesOHLCVServiceV1Client, StreamAggregatesSpotExchangeRateServiceV1Client, StreamAggregatesVWAPServiceV1Client, StreamMarketUpdateServiceV1Client, StreamTradesServiceV1Client } from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
 import { StreamAggregatesSpotExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
 import { StreamAggregatesSpotExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
-
-import * as grpc from '@grpc/grpc-js';
-import { StreamTradesResponseV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/response_pb';
+import { StreamAggregatesVWAPRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_vwap_v1/request_pb';
+import { StreamAggregatesVWAPResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_vwap_v1/response_pb';
+import { StreamMarketUpdateRequestV1 } from '@kaiko-sdk/node/sdk/stream/market_update_v1/request_pb';
+import { StreamMarketUpdateResponseV1 } from '@kaiko-sdk/node/sdk/stream/market_update_v1/response_pb';
+import { StreamMarketUpdateCommodity } from '@kaiko-sdk/node/sdk/stream/market_update_v1/commodity_pb';
 import { StreamTradesRequestV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/request_pb';
+import { StreamTradesResponseV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/response_pb';
 
 const main = () => {
 
@@ -24,14 +28,20 @@ const main = () => {
     const callCreds = grpc.credentials.createFromMetadataGenerator(metaCallback);
     const creds = grpc.credentials.combineCallCredentials(channelCreds, callCreds);
 
-    // Create a request for streaming trades with SDK
-    tradeRequest(creds);
-
     // Create a request for streaming ohlcv with SDK
     ohlcvRequest(creds);
 
+    // Create a request for streaming vwap with SDK
+    vwapRequest(creds);
+
     // Create a request for streaming spot exchange rate with SDK
     spotExchangeRateRequest(creds);
+
+    // Create a request for streaming market updates with SDK
+    marketUpdatesRequest(creds);
+
+    // Create a request for streaming trades with SDK
+    tradeRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -69,23 +79,24 @@ const ohlcvRequest = (creds: grpc.CallCredentials): void => {
     })
 }
 
-const tradeRequest = (creds: grpc.CallCredentials): void => {
-    const client = new StreamTradesServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
-    const request = new StreamTradesRequestV1();
+const vwapRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatesVWAPServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatesVWAPRequestV1();
 
     const criteria = new InstrumentCriteria();
-    criteria.setExchange('cbse');
+    criteria.setExchange('bnce');
     criteria.setInstrumentClass('spot');
     criteria.setCode('*');
 
     request.setInstrumentCriteria(criteria);
+    request.setAggregate('1s');
 
     // Run the request and get results
     const call = client.subscribe(request);
 
     let count = 0;
-    call.on('data', (response: StreamTradesResponseV1) => {
-        console.log(`[TRADE] code: ${response.getCode()}, price: ${response.getPrice()}`);
+    call.on('data', (response: StreamAggregatesVWAPResponseV1) => {
+        console.log(`[VWAP] aggregate: ${response.getAggregate()}, code: ${response.getCode()}, price: ${response.getPrice()}`);
         // console.log(response);
         count++;
         if (count >= 5) {
@@ -94,7 +105,7 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
     });
 
     call.on('end', () => {
-        console.log('[TRADE] Stream ended')
+        console.log('[VWAP] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
@@ -126,6 +137,75 @@ const spotExchangeRateRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[SPOT EXCHANGE RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const marketUpdatesRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamMarketUpdateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamMarketUpdateRequestV1();
+
+    const criteria = new InstrumentCriteria();
+    criteria.setExchange('krkn');
+    criteria.setInstrumentClass('spot');
+    criteria.setCode('*');
+
+    request.setInstrumentCriteria(criteria);
+    request.addCommodities(StreamMarketUpdateCommodity.SMUC_TRADE);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamMarketUpdateResponseV1) => {
+        console.log(`[MARKET UPDATE] commodity: ${response.getCommodity()}, code: ${response.getCode()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[MARKET UPDATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const tradeRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamTradesServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamTradesRequestV1();
+
+    const criteria = new InstrumentCriteria();
+    criteria.setExchange('cbse');
+    criteria.setInstrumentClass('spot');
+    criteria.setCode('*');
+
+    request.setInstrumentCriteria(criteria);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamTradesResponseV1) => {
+        console.log(`[TRADE] code: ${response.getCode()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[TRADE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
