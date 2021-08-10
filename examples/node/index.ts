@@ -2,6 +2,9 @@ import { StreamAggregatesOHLCVServiceV1Client, StreamTradesServiceV1Client } fro
 import { InstrumentCriteria } from '@kaiko-sdk/node/sdk/core/instrument_criteria_pb';
 import { StreamAggregatesOHLCVRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/request_pb';
 import { StreamAggregatesOHLCVResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/response_pb';
+import { StreamAggregatesSpotExchangeRateServiceV1Client } from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
+import { StreamAggregatesSpotExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
+import { StreamAggregatesSpotExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
 
 import * as grpc from '@grpc/grpc-js';
 import { StreamTradesResponseV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/response_pb';
@@ -26,6 +29,9 @@ const main = () => {
 
     // Create a request for streaming ohlcv with SDK
     ohlcvRequest(creds);
+
+    // Create a request for streaming spot exchange rate with SDK
+    spotExchangeRateRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -45,7 +51,7 @@ const ohlcvRequest = (creds: grpc.CallCredentials): void => {
 
     let count = 0;
     call.on('data', (response: StreamAggregatesOHLCVResponseV1) => {
-        console.log(`aggregate: ${response.getAggregate()}, code: ${response.getCode()}, close: ${response.getClose()}`);
+        console.log(`[OHLCV] aggregate: ${response.getAggregate()}, code: ${response.getCode()}, close: ${response.getClose()}`);
         // console.log(response);
         count++;
         if (count >= 5) {
@@ -54,7 +60,7 @@ const ohlcvRequest = (creds: grpc.CallCredentials): void => {
     });
 
     call.on('end', () => {
-        console.log('Stream ended')
+        console.log('[OHLCV] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
@@ -79,7 +85,7 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
 
     let count = 0;
     call.on('data', (response: StreamTradesResponseV1) => {
-        console.log(`code: ${response.getCode()}, price: ${response.getPrice()}`);
+        console.log(`[TRADE] code: ${response.getCode()}, price: ${response.getPrice()}`);
         // console.log(response);
         count++;
         if (count >= 5) {
@@ -88,7 +94,38 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
     });
 
     call.on('end', () => {
-        console.log('Stream ended')
+        console.log('[TRADE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const spotExchangeRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatesSpotExchangeRateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatesSpotExchangeRateRequestV1();
+
+    request.setCode('btc-usd');
+    request.setSources(false);
+    request.setAggregate('1s');
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatesSpotExchangeRateResponseV1) => {
+        console.log(`[SPOT EXCHANGE RATE] aggregate: ${response.getAggregate()}, code: ${response.getCode()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[SPOT EXCHANGE RATE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
