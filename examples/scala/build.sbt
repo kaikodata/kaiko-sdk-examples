@@ -24,4 +24,3 @@ lazy val root = (project in file("."))
   )
 
 resolvers +="Kaiko" at "https://s3.us-east-2.wasabisys.com/kaiko-sdk/scala-sdk/releases"
-
