@@ -10,8 +10,12 @@ import (
 	"os"
 
 	pb "github.com/challengerdeep/kaiko-go-sdk"
-	core "github.com/challengerdeep/kaiko-go-sdk/core"
-	trades_v1 "github.com/challengerdeep/kaiko-go-sdk/stream/trades_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/core"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_vwap_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/market_update_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/trades_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
@@ -32,10 +36,42 @@ func main() {
 	apiKey := getEnv("KAIKO_API_KEY", "1234") // Put your api key here
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+apiKey)
 
-	// Create a streaming trades request with SDK
-	err = tradesRequest(ctx, conn)
+	go func() {
+		// Create a streaming trades request with SDK
+		err = tradesRequest(ctx, conn)
+		if err != nil {
+			log.Fatalf("could not get trades: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming market update request with SDK
+		err = marketUpdateRequest(ctx, conn)
+		if err != nil {
+			log.Fatalf("could not get market updates: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming ohlcv request with SDK
+		err = ohlcvRequest(ctx, conn)
+		if err != nil {
+			log.Fatalf("could not get ohlcvs: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming vwap request with SDK
+		err = vwapRequest(ctx, conn)
+		if err != nil {
+			log.Fatalf("could not get vwaps: %v", err)
+		}
+	}()
+
+	// Create a streaming spot exchange rate request with SDK
+	err = spotExchangeRateRequest(ctx, conn)
 	if err != nil {
-		log.Fatalf("could not get trades: %v", err)
+		log.Fatalf("could not get spot exchange rates: %v", err)
 	}
 }
 
@@ -44,6 +80,134 @@ func getEnv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+func ohlcvRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesOHLCVServiceV1Client(conn)
+	request := aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1{
+		InstrumentCriteria: &core.InstrumentCriteria{
+			Exchange:        "cbse",
+			InstrumentClass: "spot",
+			Code:            "btc-usd",
+		},
+		Aggregate: "1s",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		trade, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[OHLCV] %+v\n", trade)
+	}
+}
+
+func vwapRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesVWAPServiceV1Client(conn)
+	request := aggregates_vwap_v1.StreamAggregatesVWAPRequestV1{
+		InstrumentCriteria: &core.InstrumentCriteria{
+			Exchange:        "cbse",
+			InstrumentClass: "spot",
+			Code:            "btc-usd",
+		},
+		Aggregate: "1s",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		trade, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[VWAP] %+v\n", trade)
+	}
+}
+
+func spotExchangeRateRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesSpotExchangeRateServiceV1Client(conn)
+	request := aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1{
+		Code: "btc-usd",
+		Aggregate: "1s",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		trade, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[SPOT EXCHANGE RATE] %+v\n", trade)
+	}
+}
+
+func marketUpdateRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamMarketUpdateServiceV1Client(conn)
+	request := market_update_v1.StreamMarketUpdateRequestV1{
+		InstrumentCriteria: &core.InstrumentCriteria{
+			Exchange:        "cbse",
+			InstrumentClass: "spot",
+			Code:            "btc-usd",
+		},
+		Commodities: []market_update_v1.StreamMarketUpdateCommodity{market_update_v1.StreamMarketUpdateCommodity_SMUC_TRADE},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		trade, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[MARKET UPDATE] %+v\n", trade)
+	}
 }
 
 func tradesRequest(
@@ -74,6 +238,6 @@ func tradesRequest(
 			return err
 		}
 
-		fmt.Printf("%+v\n", trade)
+		fmt.Printf("[TRADE] %+v\n", trade)
 	}
 }
