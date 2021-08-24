@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "2441c11c7a6e8222d5e35646cf7c8b6239629144718b90c93ec9321b25c2e576"
+            "sha256": "28540b234553ab69de13ccf04b3683bff5baafcd84ea7ca4ece4c7e75cbc75a4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -121,11 +121,11 @@
             "version": "==1.34.1"
         },
         "kaikosdk": {
-            "file": "https://s3.us-east-2.wasabisys.com/kaiko-sdk/python-sdk/kaikosdk-0.0.14.tar.gz",
+            "file": "https://s3.us-east-2.wasabisys.com/kaiko-sdk/python-sdk/kaikosdk-0.0.15.tar.gz",
             "hashes": [
-                "sha256:07bd838a5b62d521826eca16a1e51ee466dfac97c1358b7cb8e7c2ed217eee60"
+                "sha256:799d55e937e9d4bcb205952afe8c5746c2b3ffa602daa8c536a59f4af296d48f"
             ],
-            "version": "==0.0.14"
+            "version": "==0.0.15"
         },
         "protobuf": {
             "hashes": [

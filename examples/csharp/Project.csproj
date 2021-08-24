@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="KaikoSdk" Version="0.0.14" />
+    <PackageReference Include="KaikoSdk" Version="0.0.15" />
     <PackageReference Include="Google.Protobuf" Version="3.14.0" />
     <PackageReference Include="Grpc" Version="2.33.1" />
     <PackageReference Include="Grpc.Tools" Version="2.33.1">
