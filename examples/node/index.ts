@@ -3,7 +3,16 @@ import * as grpc from '@grpc/grpc-js';
 import { InstrumentCriteria } from '@kaiko-sdk/node/sdk/core/instrument_criteria_pb';
 import { StreamAggregatesOHLCVRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/request_pb';
 import { StreamAggregatesOHLCVResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/response_pb';
-import { StreamAggregatesOHLCVServiceV1Client, StreamAggregatesSpotExchangeRateServiceV1Client, StreamAggregatesVWAPServiceV1Client, StreamMarketUpdateServiceV1Client, StreamTradesServiceV1Client } from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
+import {
+    StreamAggregatesOHLCVServiceV1Client,
+    StreamAggregatesDirectExchangeRateServiceV1Client,
+    StreamAggregatesSpotExchangeRateServiceV1Client,
+    StreamAggregatesVWAPServiceV1Client,
+    StreamMarketUpdateServiceV1Client,
+    StreamTradesServiceV1Client
+} from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
+import { StreamAggregatesDirectExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_direct_exchange_rate_v1/request_pb';
+import { StreamAggregatesDirectExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_direct_exchange_rate_v1/response_pb';
 import { StreamAggregatesSpotExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
 import { StreamAggregatesSpotExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_vwap_v1/request_pb';
@@ -33,6 +42,9 @@ const main = () => {
 
     // Create a request for streaming vwap with SDK
     vwapRequest(creds);
+
+    // Create a request for streaming direct exchange rate with SDK
+    directExchangeRateRequest(creds);
 
     // Create a request for streaming spot exchange rate with SDK
     spotExchangeRateRequest(creds);
@@ -106,6 +118,37 @@ const vwapRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[VWAP] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const directExchangeRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatesDirectExchangeRateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatesDirectExchangeRateRequestV1();
+
+    request.setCode('btc-usd');
+    request.setSources(false);
+    request.setAggregate('1s');
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatesDirectExchangeRateResponseV1) => {
+        console.log(`[DIRECT EXCHANGE RATE] aggregate: ${response.getAggregate()}, code: ${response.getCode()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[DIRECT EXCHANGE RATE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {

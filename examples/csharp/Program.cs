@@ -3,6 +3,7 @@ using KaikoSdk;
 using KaikoSdk.Stream.MarketUpdateV1;
 using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
+using KaikoSdk.Stream.AggregatesDirectExchangeRateV1;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
@@ -20,6 +21,44 @@ namespace TestSdk
             var pass = Environment.GetEnvironmentVariable("KAIKO_API_KEY") ?? "1234"; // Put your api key here
             var secure = new SslCredentials();
             Channel channel = new Channel("gateway-v0-grpc.kaiko.ovh", Program.CreateAuthenticatedChannel(secure, pass));
+
+            // trades
+            await Program.tradesRequest(channel);
+
+            // market update
+            await Program.muRequest(channel);
+
+            // ohlcv
+            await Program.ohlcvRequest(channel);
+
+            // vwap
+            await Program.vwapRequest(channel);
+
+            // direct exchange rate
+            await Program.derRequest(channel);
+
+            // spot exchange rate
+            await Program.serRequest(channel);
+
+            channel.ShutdownAsync().Wait();
+        }
+
+        private static ChannelCredentials CreateAuthenticatedChannel(ChannelCredentials creds, string token)
+        {
+            var interceptor = CallCredentials.FromInterceptor((context, metadata) =>
+            {
+                if (!string.IsNullOrEmpty(token))
+                {
+                    metadata.Add("Authorization", $"Bearer {token}");
+                }
+                return Task.CompletedTask;
+            });
+
+            return ChannelCredentials.Create(creds, interceptor);
+        }
+
+        private static async Task tradesRequest(Grpc.Core.Channel channel)
+        {
             var clientt = new StreamTradesServiceV1.StreamTradesServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
@@ -62,7 +101,10 @@ namespace TestSdk
                     Console.WriteLine(e);
                 }
             }
+        }
 
+        private static async Task muRequest(Grpc.Core.Channel channel)
+        {
             var clientmu = new StreamMarketUpdateServiceV1.StreamMarketUpdateServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
@@ -80,7 +122,7 @@ namespace TestSdk
                         Exchange = "krkn",
                         InstrumentClass = "spot"
                     },
-                    Commodities = {StreamMarketUpdateCommodity.SmucTrade}
+                    Commodities = { StreamMarketUpdateCommodity.SmucTrade }
                 };
                 var reply = clientmu.Subscribe(req, null, null, sourcemu.Token);
                 var stream = reply.ResponseStream;
@@ -106,7 +148,10 @@ namespace TestSdk
                     Console.WriteLine(e);
                 }
             }
+        }
 
+        private static async Task ohlcvRequest(Grpc.Core.Channel channel)
+        {
             var clientohlcv = new StreamAggregatesOHLCVServiceV1.StreamAggregatesOHLCVServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
@@ -150,7 +195,52 @@ namespace TestSdk
                     Console.WriteLine(e);
                 }
             }
+        }
 
+        private static async Task derRequest(Grpc.Core.Channel channel)
+        {
+            var clientder = new StreamAggregatesDirectExchangeRateServiceV1.StreamAggregatesDirectExchangeRateServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourceser = new CancellationTokenSource();
+            sourceser.CancelAfter(TimeSpan.FromSeconds(5));
+
+            // Create a streaming ser request with SDK
+            try
+            {
+                var req = new StreamAggregatesDirectExchangeRateRequestV1
+                {
+                    Code = "btc-usd",
+                    Aggregate = "1s"
+                };
+                var reply = clientder.Subscribe(req, null, null, sourceser.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 3)
+                    {
+                        sourceser.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task serRequest(Grpc.Core.Channel channel)
+        {
             var clientser = new StreamAggregatesSpotExchangeRateServiceV1.StreamAggregatesSpotExchangeRateServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
@@ -189,7 +279,10 @@ namespace TestSdk
                     Console.WriteLine(e);
                 }
             }
+        }
 
+        private static async Task vwapRequest(Grpc.Core.Channel channel)
+        {
             var clientvwap = new StreamAggregatesVWAPServiceV1.StreamAggregatesVWAPServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
@@ -233,22 +326,8 @@ namespace TestSdk
                     Console.WriteLine(e);
                 }
             }
-
-            channel.ShutdownAsync().Wait();
-        }
-
-        private static ChannelCredentials CreateAuthenticatedChannel(ChannelCredentials creds, string token)
-        {
-            var interceptor = CallCredentials.FromInterceptor((context, metadata) =>
-            {
-                if (!string.IsNullOrEmpty(token))
-                {
-                    metadata.Add("Authorization", $"Bearer {token}");
-                }
-                return Task.CompletedTask;
-            });
-
-            return ChannelCredentials.Create(creds, interceptor);
         }
     }
 }
+
+

@@ -11,6 +11,7 @@ import (
 
 	pb "github.com/challengerdeep/kaiko-go-sdk"
 	"github.com/challengerdeep/kaiko-go-sdk/core"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_vwap_v1"
@@ -38,7 +39,7 @@ func main() {
 
 	go func() {
 		// Create a streaming trades request with SDK
-		err = tradesRequest(ctx, conn)
+		err := tradesRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get trades: %v", err)
 		}
@@ -46,7 +47,7 @@ func main() {
 
 	go func() {
 		// Create a streaming market update request with SDK
-		err = marketUpdateRequest(ctx, conn)
+		err := marketUpdateRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get market updates: %v", err)
 		}
@@ -54,7 +55,7 @@ func main() {
 
 	go func() {
 		// Create a streaming ohlcv request with SDK
-		err = ohlcvRequest(ctx, conn)
+		err := ohlcvRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get ohlcvs: %v", err)
 		}
@@ -62,9 +63,17 @@ func main() {
 
 	go func() {
 		// Create a streaming vwap request with SDK
-		err = vwapRequest(ctx, conn)
+		err := vwapRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get vwaps: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming direct exchange rate request with SDK
+		err := directExchangeRateRequest(ctx, conn)
+		if err != nil {
+			log.Fatalf("could not get direct exchange rates: %v", err)
 		}
 	}()
 
@@ -102,7 +111,7 @@ func ohlcvRequest(
 	}
 
 	for {
-		trade, err := sub.Recv()
+		elt, err := sub.Recv()
 		if err == io.EOF {
 			return nil
 		}
@@ -111,7 +120,7 @@ func ohlcvRequest(
 			return err
 		}
 
-		fmt.Printf("[OHLCV] %+v\n", trade)
+		fmt.Printf("[OHLCV] %+v\n", elt)
 	}
 }
 
@@ -135,7 +144,7 @@ func vwapRequest(
 	}
 
 	for {
-		trade, err := sub.Recv()
+		elt, err := sub.Recv()
 		if err == io.EOF {
 			return nil
 		}
@@ -144,17 +153,17 @@ func vwapRequest(
 			return err
 		}
 
-		fmt.Printf("[VWAP] %+v\n", trade)
+		fmt.Printf("[VWAP] %+v\n", elt)
 	}
 }
 
-func spotExchangeRateRequest(
+func directExchangeRateRequest(
 	ctx context.Context,
 	conn *grpc.ClientConn,
 ) error {
-	cli := pb.NewStreamAggregatesSpotExchangeRateServiceV1Client(conn)
-	request := aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1{
-		Code: "btc-usd",
+	cli := pb.NewStreamAggregatesDirectExchangeRateServiceV1Client(conn)
+	request := aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1{
+		Code:      "btc-usd",
 		Aggregate: "1s",
 	}
 
@@ -164,7 +173,7 @@ func spotExchangeRateRequest(
 	}
 
 	for {
-		trade, err := sub.Recv()
+		elt, err := sub.Recv()
 		if err == io.EOF {
 			return nil
 		}
@@ -173,7 +182,36 @@ func spotExchangeRateRequest(
 			return err
 		}
 
-		fmt.Printf("[SPOT EXCHANGE RATE] %+v\n", trade)
+		fmt.Printf("[DIRECT EXCHANGE RATE] %+v\n", elt)
+	}
+}
+
+func spotExchangeRateRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesSpotExchangeRateServiceV1Client(conn)
+	request := aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1{
+		Code:      "btc-usd",
+		Aggregate: "1s",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[SPOT EXCHANGE RATE] %+v\n", elt)
 	}
 }
 
@@ -197,7 +235,7 @@ func marketUpdateRequest(
 	}
 
 	for {
-		trade, err := sub.Recv()
+		elt, err := sub.Recv()
 		if err == io.EOF {
 			return nil
 		}
@@ -206,7 +244,7 @@ func marketUpdateRequest(
 			return err
 		}
 
-		fmt.Printf("[MARKET UPDATE] %+v\n", trade)
+		fmt.Printf("[MARKET UPDATE] %+v\n", elt)
 	}
 }
 
@@ -229,7 +267,7 @@ func tradesRequest(
 	}
 
 	for {
-		trade, err := sub.Recv()
+		elt, err := sub.Recv()
 		if err == io.EOF {
 			return nil
 		}
@@ -238,6 +276,6 @@ func tradesRequest(
 			return err
 		}
 
-		fmt.Printf("[TRADE] %+v\n", trade)
+		fmt.Printf("[TRADE] %+v\n", elt)
 	}
 }
