@@ -29,7 +29,7 @@ npm start
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
-## Build the example (Node only)
+## Build the example (Node only, recommended for production)
 
 - Install:
 
