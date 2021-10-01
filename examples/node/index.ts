@@ -1,8 +1,8 @@
 import * as grpc from '@grpc/grpc-js';
 
-import { InstrumentCriteria } from '@kaiko-sdk/node/sdk/core/instrument_criteria_pb';
-import { StreamAggregatesOHLCVRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/request_pb';
-import { StreamAggregatesOHLCVResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_ohlcv_v1/response_pb';
+import { InstrumentCriteria } from '@kaiko-data/sdk-node/sdk/core/instrument_criteria_pb';
+import { StreamAggregatesOHLCVRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_ohlcv_v1/request_pb';
+import { StreamAggregatesOHLCVResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_ohlcv_v1/response_pb';
 import {
     StreamAggregatesOHLCVServiceV1Client,
     StreamAggregatesDirectExchangeRateServiceV1Client,
@@ -10,18 +10,18 @@ import {
     StreamAggregatesVWAPServiceV1Client,
     StreamMarketUpdateServiceV1Client,
     StreamTradesServiceV1Client
-} from '@kaiko-sdk/node/sdk/sdk_grpc_pb';
-import { StreamAggregatesDirectExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_direct_exchange_rate_v1/request_pb';
-import { StreamAggregatesDirectExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_direct_exchange_rate_v1/response_pb';
-import { StreamAggregatesSpotExchangeRateRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
-import { StreamAggregatesSpotExchangeRateResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
-import { StreamAggregatesVWAPRequestV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_vwap_v1/request_pb';
-import { StreamAggregatesVWAPResponseV1 } from '@kaiko-sdk/node/sdk/stream/aggregates_vwap_v1/response_pb';
-import { StreamMarketUpdateRequestV1 } from '@kaiko-sdk/node/sdk/stream/market_update_v1/request_pb';
-import { StreamMarketUpdateResponseV1 } from '@kaiko-sdk/node/sdk/stream/market_update_v1/response_pb';
-import { StreamMarketUpdateCommodity } from '@kaiko-sdk/node/sdk/stream/market_update_v1/commodity_pb';
-import { StreamTradesRequestV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/request_pb';
-import { StreamTradesResponseV1 } from '@kaiko-sdk/node/sdk/stream/trades_v1/response_pb';
+} from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
+import { StreamAggregatesDirectExchangeRateRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/request_pb';
+import { StreamAggregatesDirectExchangeRateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/response_pb';
+import { StreamAggregatesSpotExchangeRateRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/request_pb';
+import { StreamAggregatesSpotExchangeRateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v1/response_pb';
+import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
+import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
+import { StreamMarketUpdateRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/market_update_v1/request_pb';
+import { StreamMarketUpdateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/market_update_v1/response_pb';
+import { StreamMarketUpdateCommodity } from '@kaiko-data/sdk-node/sdk/stream/market_update_v1/commodity_pb';
+import { StreamTradesRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1/request_pb';
+import { StreamTradesResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1/response_pb';
 
 const main = () => {
 
