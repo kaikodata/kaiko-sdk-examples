@@ -6,7 +6,7 @@ plugins {
 
 ext.versions = [
         grpc: '1.35.0',
-        sdk : '0.0.33'
+        sdk : '0.0.37'
 ]
 
 repositories {
