@@ -19,8 +19,8 @@ namespace TestSdk
         {
             // Setup authentication
             var pass = Environment.GetEnvironmentVariable("KAIKO_API_KEY") ?? "1234"; // Put your api key here
-            var secure = new SslCredentials();
-            Channel channel = new Channel("gateway-v0-grpc.kaiko.ovh", Program.CreateAuthenticatedChannel(secure, pass));
+
+            Channel channel = new Channel("gateway-v0-grpc.kaiko.ovh", Program.CreateAuthenticatedChannel(pass));
 
             // trades
             await Program.tradesRequest(channel);
@@ -43,7 +43,7 @@ namespace TestSdk
             channel.ShutdownAsync().Wait();
         }
 
-        private static ChannelCredentials CreateAuthenticatedChannel(ChannelCredentials creds, string token)
+        private static ChannelCredentials CreateAuthenticatedChannel(string token)
         {
             var interceptor = CallCredentials.FromInterceptor((context, metadata) =>
             {
@@ -54,7 +54,7 @@ namespace TestSdk
                 return Task.CompletedTask;
             });
 
-            return ChannelCredentials.Create(creds, interceptor);
+            return ChannelCredentials.Create(new SslCredentials(), interceptor);
         }
 
         private static async Task tradesRequest(Grpc.Core.Channel channel)
