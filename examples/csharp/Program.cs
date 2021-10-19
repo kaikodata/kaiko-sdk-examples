@@ -5,6 +5,7 @@ using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatesDirectExchangeRateV1;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV1;
+using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
 using System;
@@ -26,7 +27,7 @@ namespace TestSdk
             await Program.tradesRequest(channel);
 
             // market update
-            await Program.muRequest(channel);
+            await Program.marketUpdateRequest(channel);
 
             // ohlcv
             await Program.ohlcvRequest(channel);
@@ -35,10 +36,13 @@ namespace TestSdk
             await Program.vwapRequest(channel);
 
             // direct exchange rate
-            await Program.derRequest(channel);
+            await Program.directExchangeRateRequest(channel);
 
             // spot exchange rate
-            await Program.serRequest(channel);
+            await Program.spotExchangeRateRequest(channel);
+
+            // index
+            await Program.indicesRequest(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -103,7 +107,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task muRequest(Grpc.Core.Channel channel)
+        private static async Task marketUpdateRequest(Grpc.Core.Channel channel)
         {
             var clientmu = new StreamMarketUpdateServiceV1.StreamMarketUpdateServiceV1Client(channel);
 
@@ -197,7 +201,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task derRequest(Grpc.Core.Channel channel)
+        private static async Task directExchangeRateRequest(Grpc.Core.Channel channel)
         {
             var clientder = new StreamAggregatesDirectExchangeRateServiceV1.StreamAggregatesDirectExchangeRateServiceV1Client(channel);
 
@@ -239,7 +243,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task serRequest(Grpc.Core.Channel channel)
+        private static async Task spotExchangeRateRequest(Grpc.Core.Channel channel)
         {
             var clientser = new StreamAggregatesSpotExchangeRateServiceV1.StreamAggregatesSpotExchangeRateServiceV1Client(channel);
 
@@ -314,6 +318,48 @@ namespace TestSdk
                     if (i > 3)
                     {
                         sourcevwap.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indicesRequest(Grpc.Core.Channel channel)
+        {
+            var clientindex = new StreamIndexServiceV1.StreamIndexServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourceindex = new CancellationTokenSource();
+            sourceindex.CancelAfter(TimeSpan.FromSeconds(5));
+
+            // Create a streaming index request with SDK
+            try
+            {
+                var req = new StreamIndexServiceRequestV1
+                {
+                    IndexCode = "indexCode", // fill it with actual value
+                    EventType = "eventType" // fill it with actual value
+                };
+                var reply = clientindex.Subscribe(req, null, null, sourceindex.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 3)
+                    {
+                        sourceindex.Cancel();
                     }
 
                     i++;

@@ -6,6 +6,7 @@ import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc;
 import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc;
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc;
 import com.kaiko.sdk.StreamTradesServiceV1Grpc;
+import com.kaiko.sdk.StreamIndexServiceV1Grpc;
 import com.kaiko.sdk.core.InstrumentCriteria;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
@@ -20,6 +21,8 @@ import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1;
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateResponseV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
+import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
+import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
 import io.grpc.*;
 
 import java.util.List;
@@ -80,6 +83,9 @@ public class Main {
 
         // Create a streaming market update request with SDK
         market_update_request(channel, callCredentials);
+
+        // Create a streaming index request with SDK
+        index_request(channel, callCredentials);
     }
 
     public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -223,5 +229,29 @@ public class Main {
                 .collect(Collectors.toList());
 
         System.out.println(elts);
+    }
+
+    public static void index_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamIndexServiceRequestV1 request = StreamIndexServiceRequestV1.newBuilder()
+                .setIndexCode("indexCode") // fill it with actual value
+                .setEventType("eventTyoe") // fill it with actual value
+                .build();
+
+        StreamIndexServiceV1Grpc.StreamIndexServiceV1BlockingStub stub = StreamIndexServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        try {
+            List<StreamIndexServiceResponseV1> elts = StreamSupport.stream(
+                            Spliterators.spliteratorUnknownSize(
+                                    stub.subscribe(request),
+                                    Spliterator.ORDERED)
+                            , false)
+                    .limit(10)
+                    .collect(Collectors.toList());
+
+            System.out.println(elts);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
