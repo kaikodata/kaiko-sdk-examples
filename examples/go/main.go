@@ -15,6 +15,7 @@ import (
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/aggregates_vwap_v1"
+	"github.com/challengerdeep/kaiko-go-sdk/stream/index_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/market_update_v1"
 	"github.com/challengerdeep/kaiko-go-sdk/stream/trades_v1"
 	"google.golang.org/grpc"
@@ -74,6 +75,14 @@ func main() {
 		err := directExchangeRateRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get direct exchange rates: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming index request with SDK
+		err = indexRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get index: %v", err)
 		}
 	}()
 
@@ -277,5 +286,34 @@ func tradesRequest(
 		}
 
 		fmt.Printf("[TRADE] %+v\n", elt)
+	}
+}
+
+func indexRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexServiceV1Client(conn)
+	request := index_v1.StreamIndexServiceRequestV1{
+		IndexCode: "indexCode", // fill it with actual value
+		EventType: "eventType", // fill it with actual value
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX] %+v\n", elt)
 	}
 }

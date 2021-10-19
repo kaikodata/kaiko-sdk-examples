@@ -9,7 +9,8 @@ import {
     StreamAggregatesSpotExchangeRateServiceV1Client,
     StreamAggregatesVWAPServiceV1Client,
     StreamMarketUpdateServiceV1Client,
-    StreamTradesServiceV1Client
+    StreamTradesServiceV1Client,
+    StreamIndexServiceV1Client,
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesDirectExchangeRateRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/request_pb';
 import { StreamAggregatesDirectExchangeRateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/response_pb';
@@ -22,6 +23,8 @@ import { StreamMarketUpdateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/ma
 import { StreamMarketUpdateCommodity } from '@kaiko-data/sdk-node/sdk/stream/market_update_v1/commodity_pb';
 import { StreamTradesRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1/request_pb';
 import { StreamTradesResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1/response_pb';
+import { StreamIndexServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_v1/request_pb';
+import { StreamIndexServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_v1/response_pb';
 
 const main = () => {
 
@@ -54,6 +57,9 @@ const main = () => {
 
     // Create a request for streaming trades with SDK
     tradeRequest(creds);
+
+    // Create a request for streaming index with SDK
+    indexRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -249,6 +255,36 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[TRADE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const indexRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexServiceRequestV1();
+
+    request.setIndexCode("index_code"); // fill it with actual value
+    request.setEventType("event_type"); // fill it with actual value
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexServiceResponseV1) => {
+        console.log(`[INDEX] indexCode: ${response.getIndexCode()}, eventType: ${response.getEventType()}, eventType: ${response.getPercentagesList()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {

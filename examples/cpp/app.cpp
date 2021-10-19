@@ -31,6 +31,9 @@ using kaikosdk::StreamMarketUpdateServiceV1;
 using kaikosdk::StreamTradesRequestV1;
 using kaikosdk::StreamTradesResponseV1;
 using kaikosdk::StreamTradesServiceV1;
+using kaikosdk::StreamIndexServiceRequestV1;
+using kaikosdk::StreamIndexServiceResponseV1;
+using kaikosdk::StreamIndexServiceV1;
 
 void setupContext(ClientContext *context)
 {
@@ -347,6 +350,55 @@ private:
   std::unique_ptr<StreamAggregatesSpotExchangeRateServiceV1::Stub> stub_;
 };
 
+class IndexClient
+{
+public:
+  IndexClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamIndexServiceRequestV1 request;
+
+    request.set_index_code("index_code"); // fill it with actual value
+    request.set_event_type("event_type"); // fill it with actual value
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexServiceResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexServiceResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexServiceV1::Stub> stub_;
+};
+
 int main(int argc, char **argv)
 {
   ChannelArguments args;
@@ -360,6 +412,7 @@ int main(int argc, char **argv)
   // VWAPClient client = VWAPClient(channel);
   // SpotExchangeRateClient client = SpotExchangeRateClient(channel);
   // DirectExchangeRateClient client = DirectExchangeRateClient(channel);
+  // IndexClient client = IndexClient(channel);
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;
 

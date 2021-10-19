@@ -6,6 +6,7 @@ import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc
 import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
 import com.kaiko.sdk.StreamTradesServiceV1Grpc
+import com.kaiko.sdk.StreamIndexServiceV1Grpc
 import com.kaiko.sdk.core.InstrumentCriteria
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1
@@ -14,6 +15,7 @@ import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1
+import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1
 import io.grpc.{CallCredentials, Channel, ManagedChannelBuilder, Metadata, Status}
 
 import java.util.concurrent.Executor
@@ -21,7 +23,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 object Main {
-  def main(args: Array[String]) = {
+  def main(args: Array[String]): Unit = {
     implicit val ec = ExecutionContext.global
 
     // Setup runtime
@@ -64,6 +66,9 @@ object Main {
 
     // Create a streaming market update request with SDK
     market_update_request(channel, callCredentials)
+
+    // Create a streaming index request with SDK
+    index_request(channel, callCredentials)
   }
 
   def market_update_request(channel: Channel, callCredentials: CallCredentials) = {
@@ -181,5 +186,24 @@ object Main {
       .toSeq
 
     println(results)
+  }
+
+  def index_request(channel: Channel, callCredentials: CallCredentials) = {
+    val stub = StreamIndexServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+
+    Try {
+      // Create a request with SDK
+      val request = StreamIndexServiceRequestV1(
+        indexCode = "indexCode", // fill it with actual value
+        eventType = "eventType" // fill it with actual value
+      )
+
+      // Run the request and get results
+      val results = stub.subscribe(request)
+        .take(10)
+        .toSeq
+
+      println(results)
+    }.recover(println(_))
   }
 }
