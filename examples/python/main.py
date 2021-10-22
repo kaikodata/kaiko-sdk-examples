@@ -14,6 +14,7 @@ from kaikosdk.stream.market_update_v1 import request_pb2 as pb_market_update
 from kaikosdk.stream.market_update_v1 import commodity_pb2 as pb_commodity
 from kaikosdk.stream.trades_v1 import request_pb2 as pb_trades
 from kaikosdk.stream.index_v1 import request_pb2 as pb_index
+from kaikosdk.stream.derivatives_price_v2 import request_pb2 as pb_derivatives_price
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -130,6 +131,24 @@ def index_request(channel: grpc.Channel):
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
+def derivatives_price_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamDerivativesPriceServiceV2Stub(channel)
+            responses = stub.Subscribe(pb_derivatives_price.StreamDerivativesPriceRequestV2(
+                instrument_criteria = instrument_criteria_pb2.InstrumentCriteria(
+                    exchange = "drbt",
+                    instrument_class = "*",
+                    code = "btc-usd"
+                )
+            ))
+            for response in responses:
+                print("Received message %s" % (response))
+                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+
 def run():
     credentials = grpc.ssl_channel_credentials(root_certificates=None)
     call_credentials = grpc.access_token_call_credentials(os.environ['KAIKO_API_KEY'])
@@ -142,7 +161,8 @@ def run():
     # direct_exchange_rate_request(channel)
     # spot_exchange_rate_request(channel)
     # index_request(channel)
-    
+    # derivatives_price_request(channel)
+
     market_update_request(channel)
 
 if __name__ == '__main__':
