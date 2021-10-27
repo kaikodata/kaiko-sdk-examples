@@ -2,12 +2,7 @@
 
 ## Requirements
 
-You will need `python3`, `pip`, and `conan`, and `make` installed on your machine.
-You can install `conan` through `pip` with this command:
-
-```bash
-pip install conan
-```
+You will need `cmake` and a C++11 compatible compiler installed on your machine.
 
 ## Build the example
 

@@ -1,8 +1,5 @@
 [build_requires]
 cmake/3.21.3
 
-[requires]
-grpc/1.39.1
-
 [generators]
 cmake
