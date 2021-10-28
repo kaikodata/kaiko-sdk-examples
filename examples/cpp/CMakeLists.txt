@@ -2,17 +2,40 @@ cmake_minimum_required(VERSION 3.15)
 
 project(testsdk)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-
 add_executable(app app.cpp)
 
-# Include kaikosdk library
-# TODO: publish it as a prebuilt package on conan-center to cut compilation times
 include(FetchContent)
+
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW) # required to make sure sets are taken into account
+
+set(gRPC_INSTALL OFF)
+set(gRPC_BUILD_GRPC_CPP_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_CSHARP_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_NODE_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_OBJECTIVE_C_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_PHP_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_PYTHON_PLUGIN OFF)
+set(gRPC_BUILD_GRPC_RUBY_PLUGIN OFF)
+set(gRPC_BUILD_CSHARP_EXT OFF)
+set(gRPC_BUILD_CODEGEN OFF)
+
+# see https://github.com/grpc/grpc/tree/master/examples/cpp/
+FetchContent_Declare(
+        grpc
+        GIT_REPOSITORY "https://github.com/grpc/grpc"
+        GIT_TAG "v1.41.1"
+)
+
+FetchContent_MakeAvailable(grpc)
+
+set(_PROTOBUF_LIBPROTOBUF libprotobuf)
+set(_GRPC_GRPCPP grpc++)
+
+# Include kaikosdk library
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/challengerdeep/kaiko-cpp-sdk"
-        GIT_TAG "v1.0.4"
+        GIT_TAG "v1.0.5"
 )
 
 FetchContent_GetProperties(kaikosdk)
@@ -24,5 +47,5 @@ if(NOT kaikosdk_POPULATED)
   add_subdirectory(${kaikosdk_SOURCE_DIR}/src)
 endif()
 
-conan_basic_setup(TARGETS)
-target_link_libraries(app PRIVATE kaikosdk CONAN_PKG::grpc)
+target_link_libraries(kaikosdk PRIVATE ${_PROTOBUF_LIBPROTOBUF} ${_GRPC_GRPCPP})
+target_link_libraries(app PRIVATE kaikosdk ${_GRPC_GRPCPP})
