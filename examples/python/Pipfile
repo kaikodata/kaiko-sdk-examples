@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 grpcio = "==1.41.1"
 grpcio-tools = "==1.41.1"
-kaikosdk = "==1.0.4"
+kaikosdk = "==1.0.5"
 protobuf = "==3.15.8"
 
 [dev-packages]
