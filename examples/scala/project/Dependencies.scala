@@ -7,5 +7,5 @@ object Dependencies {
 
   lazy val grpcio = "com.google.protobuf" % "protobuf-java" % "3.14.0"
   lazy val netty = "io.grpc" % "grpc-netty" % "1.35.0"
-  lazy val sdk = "com.kaiko" %% "scala-sdk" % "1.0.5"
+  lazy val sdk = "com.kaiko" %% "scala-sdk" % "1.0.6"
 }

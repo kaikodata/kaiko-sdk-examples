@@ -305,7 +305,6 @@ func indexRequest(
 	cli := pb.NewStreamIndexServiceV1Client(conn)
 	request := index_v1.StreamIndexServiceRequestV1{
 		IndexCode: "indexCode", // fill it with actual value
-		EventType: "eventType", // fill it with actual value
 	}
 
 	sub, err := cli.Subscribe(ctx, &request)
