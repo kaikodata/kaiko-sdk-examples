@@ -240,7 +240,6 @@ public class Main {
     public static void index_request(ManagedChannel channel, CallCredentials callCredentials) {
         StreamIndexServiceRequestV1 request = StreamIndexServiceRequestV1.newBuilder()
                 .setIndexCode("indexCode") // fill it with actual value
-                .setEventType("eventTyoe") // fill it with actual value
                 .build();
 
         StreamIndexServiceV1Grpc.StreamIndexServiceV1BlockingStub stub = StreamIndexServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);

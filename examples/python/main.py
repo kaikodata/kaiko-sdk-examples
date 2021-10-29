@@ -122,8 +122,7 @@ def index_request(channel: grpc.Channel):
         with channel:
             stub = sdk_pb2_grpc.StreamIndexServiceV1Stub(channel)
             responses = stub.Subscribe(pb_index.StreamIndexServiceRequestV1(
-                index_code = "index_code", # fill it with actual value
-                event_type = "event_type"  # fill it with actual value
+                index_code = "index_code" # fill it with actual value
             ))
             for response in responses:
                 print("Received message %s" % (response))

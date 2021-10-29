@@ -199,8 +199,7 @@ object Main {
     Try {
       // Create a request with SDK
       val request = StreamIndexServiceRequestV1(
-        indexCode = "indexCode", // fill it with actual value
-        eventType = "eventType" // fill it with actual value
+        indexCode = "indexCode" // fill it with actual value
       )
 
       // Run the request and get results

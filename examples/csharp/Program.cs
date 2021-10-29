@@ -350,7 +350,6 @@ namespace TestSdk
                 var req = new StreamIndexServiceRequestV1
                 {
                     IndexCode = "indexCode", // fill it with actual value
-                    EventType = "eventType" // fill it with actual value
                 };
                 var reply = clientindex.Subscribe(req, null, null, sourceindex.Token);
                 var stream = reply.ResponseStream;

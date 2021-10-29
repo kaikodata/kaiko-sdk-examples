@@ -274,14 +274,13 @@ const indexRequest = (creds: grpc.CallCredentials): void => {
     const request = new StreamIndexServiceRequestV1();
 
     request.setIndexCode("index_code"); // fill it with actual value
-    request.setEventType("event_type"); // fill it with actual value
 
     // Run the request and get results
     const call = client.subscribe(request);
 
     let count = 0;
     call.on('data', (response: StreamIndexServiceResponseV1) => {
-        console.log(`[INDEX] indexCode: ${response.getIndexCode()}, eventType: ${response.getEventType()}, eventType: ${response.getPercentagesList()}`);
+        console.log(`[INDEX] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, percentage: ${response.getPercentagesList()}`);
         // console.log(response);
         count++;
         if (count >= 5) {

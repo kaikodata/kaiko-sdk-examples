@@ -367,7 +367,6 @@ public:
     StreamIndexServiceRequestV1 request;
 
     request.set_index_code("index_code"); // fill it with actual value
-    request.set_event_type("event_type"); // fill it with actual value
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
