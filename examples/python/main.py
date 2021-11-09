@@ -3,6 +3,7 @@ import logging
 import os
 
 import grpc
+from google.protobuf.json_format import MessageToJson
 
 from kaikosdk import sdk_pb2, sdk_pb2_grpc
 from kaikosdk.core import instrument_criteria_pb2
@@ -29,7 +30,7 @@ def ohlcv_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -47,7 +48,7 @@ def vwap_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -62,7 +63,7 @@ def direct_exchange_rate_request(channel: grpc.Channel):
                 sources=False,
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -77,7 +78,7 @@ def spot_exchange_rate_request(channel: grpc.Channel):
                 sources=False,
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -95,7 +96,7 @@ def market_update_request(channel: grpc.Channel):
                 commodities=[pb_commodity.SMUC_TRADE]
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -112,7 +113,7 @@ def trades_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -125,7 +126,7 @@ def index_request(channel: grpc.Channel):
                 index_code = "index_code" # fill it with actual value
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -142,7 +143,7 @@ def derivatives_price_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
-                print("Received message %s" % (response))
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
