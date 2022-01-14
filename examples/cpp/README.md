@@ -1,15 +1,19 @@
 # C++ SDK
 
-## Requirements
+## Build the example using CMake
+
+This is the most common tool used for building C++ projects.
+
+### Requirements (CMake)
 
 You will need `cmake` and a C++11 compatible compiler installed on your machine.
 
-## Build the example
+### Build (CMake)
 
 - Build :
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=8 ./build.sh
+CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_cmake.sh
 ```
 
 - Run the example and get data from Kaiko API:
@@ -20,15 +24,39 @@ CMAKE_BUILD_PARALLEL_LEVEL=8 ./build.sh
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
-## Fast rebuild
+### Fast rebuild (CMake)
 
 - Build :
 
-Once you have run the `build.sh` script once, you can do fast rebuild through `make`:
+Once you have run the `build_cmake.sh` script once, you can do fast rebuild through `make`:
 
 ```bash
 (cd build && make all)
 ```
+
+
+## Build the example with conan (pre built binaries)
+
+This allows you building faster as binaries are pre-built.
+
+### Requirements (conan)
+
+You will need `python3`, `pip`, and `conan`, and make installed on your machine. You can install conan through `pip` with this command: `pip install conan`
+
+### Build (conan)
+
+- Build :
+
+```bash
+CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_conan.sh
+```
+
+- Run the example and get data from Kaiko API:
+
+```bash
+./buildconan/bin/app
+```
+
 
 ## Build and run the example with docker
 
