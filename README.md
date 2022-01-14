@@ -9,6 +9,7 @@ GRPC overview documentation is available here: <https://grpc.io/docs/what-is-grp
 ## Documentation
 
 High level documentation on SDK can be found here: <http://sdk.kaiko.com>.
+
 General SDK API can be found here: <https://sdk-documentation.kaiko.ovh>.
 
 API References for each language :
