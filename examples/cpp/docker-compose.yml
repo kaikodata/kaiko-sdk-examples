@@ -7,7 +7,7 @@ services:
     network_mode: host
     environment:
     - CMAKE_BUILD_PARALLEL_LEVEL=8
-    command: ./build.sh
+    command: ./build_conan.sh
     volumes:
       - ./:/build
 

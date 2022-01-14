@@ -5,7 +5,7 @@ plugins {
 }
 
 ext.versions = [
-        grpc: '1.35.0',
+        grpc: '1.43.2',
         sdk : '1.0.6'
 ]
 
@@ -18,7 +18,7 @@ dependencies {
     implementation "com.kaiko:java-sdk:${versions.sdk}"
     implementation "io.grpc:grpc-netty:${versions.grpc}"
     implementation "io.grpc:grpc-stub:${versions.grpc}"
-    implementation 'com.google.protobuf:protobuf-java:3.14.0'
+    implementation 'com.google.protobuf:protobuf-java:3.19.3'
 
     testImplementation "io.grpc:grpc-testing:${versions.grpc}"
     testImplementation 'org.mockito:mockito-core:3.7.7'
