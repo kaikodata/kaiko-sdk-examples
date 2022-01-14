@@ -1,10 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(testsdk)
-
 add_executable(app ../app.cpp)
-
-include(FetchContent)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW) # required to make sure sets are taken into account
 
@@ -20,6 +16,7 @@ set(gRPC_BUILD_CSHARP_EXT OFF)
 set(gRPC_BUILD_CODEGEN OFF)
 
 # see https://github.com/grpc/grpc/tree/master/examples/cpp/
+include(FetchContent)
 FetchContent_Declare(
         grpc
         GIT_REPOSITORY "https://github.com/grpc/grpc"

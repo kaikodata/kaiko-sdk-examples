@@ -19,7 +19,7 @@ CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_cmake.sh
 - Run the example and get data from Kaiko API:
 
 ```bash
-./build/app
+./build_cmake/app
 ```
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
@@ -54,7 +54,7 @@ CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_conan.sh
 - Run the example and get data from Kaiko API:
 
 ```bash
-./buildconan/bin/app
+./build_conan/bin/app
 ```
 
 

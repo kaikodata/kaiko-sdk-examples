@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # change binary dir to "bin"
 
 add_executable(app ../app.cpp)
 
