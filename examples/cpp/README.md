@@ -70,6 +70,13 @@ You will only need `docker` and `docker-compose` installed on your machine.
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
+## Non blocking API (using C++20 couroutines)
+
+If you're looking for non-blocking API because you have strict constraints against thread-pooling, take a look at <https://github.com/Tradias/asio-grpc>.
+This library will allow you to use a wrapper of C++ GRPC using Boost Asio and C++20 `co_await` feature.
+
+An example usage is provided here : <https://github.com/Tradias/asio-grpc/blob/v1.3.1/example/streaming-client.cpp#L62>.
+
 ## Check for more recent versions
 
 ```bash
