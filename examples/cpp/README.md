@@ -80,5 +80,5 @@ An example usage is provided here : <https://github.com/Tradias/asio-grpc/blob/v
 ## Check for more recent versions
 
 ```bash
-git ls-remote -t --refs https://github.com/challengerdeep/kaiko-cpp-sdk
+git ls-remote -t --refs https://github.com/kaikodata/kaiko-cpp-sdk
 ```

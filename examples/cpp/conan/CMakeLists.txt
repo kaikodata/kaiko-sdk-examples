@@ -11,7 +11,7 @@ add_executable(app ../app.cpp)
 include(FetchContent)
 FetchContent_Declare(
         kaikosdk
-        GIT_REPOSITORY "https://github.com/challengerdeep/kaiko-cpp-sdk"
+        GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
         GIT_TAG "v1.3.1"
 )
 
