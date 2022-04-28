@@ -31,7 +31,7 @@ set(_GRPC_GRPCPP grpc++)
 # Include kaikosdk library
 FetchContent_Declare(
         kaikosdk
-        GIT_REPOSITORY "https://github.com/challengerdeep/kaiko-cpp-sdk"
+        GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
         GIT_TAG "v1.3.1"
 )
 
