@@ -17,4 +17,4 @@ Note that for this particular step, you will need to setup an environment variab
 
 ## Check for more recent versions
 
-Check latest version of <https://github.com/challengerdeep/kaiko-go-sdk>
+Check latest version of <https://github.com/kaikodata/kaiko-go-sdk>
