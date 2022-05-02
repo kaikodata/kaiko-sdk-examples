@@ -3,7 +3,7 @@ module example.com/m
 go 1.17
 
 require (
-	github.com/kaikodata/kaiko-go-sdk v1.3.1
+	github.com/kaikodata/kaiko-go-sdk v1.4.0
 	google.golang.org/grpc v1.43.0
 )
 
