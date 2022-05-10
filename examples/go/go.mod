@@ -3,6 +3,7 @@ module example.com/m
 go 1.17
 
 require (
+	github.com/cenkalti/backoff/v4 v4.1.3
 	github.com/kaikodata/kaiko-go-sdk v1.4.0
 	google.golang.org/grpc v1.43.0
 )
