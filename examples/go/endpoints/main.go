@@ -29,6 +29,8 @@ func main() {
 	defer cancel()
 
 	// Set up a connection to the server.
+	// WARNING: reconnection is automatically handled by client, you should never have
+	// 2 connections at the same time otherwise you're likely to leak connections.
 	conn, err := grpc.Dial("gateway-v0-grpc.kaiko.ovh:443", grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
@@ -114,6 +116,7 @@ func ohlcvRequest(
 	conn *grpc.ClientConn,
 ) error {
 	cli := pb.NewStreamAggregatesOHLCVServiceV1Client(conn)
+	// Wildcards (*) are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
 	request := aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1{
 		InstrumentCriteria: &core.InstrumentCriteria{
 			Exchange:        "cbse",
