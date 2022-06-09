@@ -4,6 +4,7 @@
   "description": "Example project",
   "scripts": {
     "start": "ts-node index.ts",
+    "reconnect": "ts-node reconnect.ts",
     "build": "npm run tsc",
     "tsc": "tsc"
   },
@@ -12,7 +13,9 @@
   "dependencies": {
     "@grpc/grpc-js": "^1.2.12",
     "@kaiko-data/sdk-node": "^1.4.0",
-    "google-protobuf": "^3.15.8"
+    "exponential-backoff": "^3.1.0",
+    "google-protobuf": "^3.15.8",
+    "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.7.4",
