@@ -205,6 +205,7 @@ const marketUpdatesRequest = (creds: grpc.CallCredentials): void => {
     const request = new StreamMarketUpdateRequestV1();
 
     const criteria = new InstrumentCriteria();
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     criteria.setExchange('krkn');
     criteria.setInstrumentClass('spot');
     criteria.setCode('*');
@@ -240,6 +241,7 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
     const request = new StreamTradesRequestV1();
 
     const criteria = new InstrumentCriteria();
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     criteria.setExchange('cbse');
     criteria.setInstrumentClass('spot');
     criteria.setCode('*');

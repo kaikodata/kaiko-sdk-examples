@@ -12,5 +12,6 @@
   },
   "files": [
     "index.ts",
+    "reconnect.ts"
   ]
 }

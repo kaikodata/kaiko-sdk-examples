@@ -116,7 +116,6 @@ func ohlcvRequest(
 	conn *grpc.ClientConn,
 ) error {
 	cli := pb.NewStreamAggregatesOHLCVServiceV1Client(conn)
-	// Wildcards (*) are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
 	request := aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1{
 		InstrumentCriteria: &core.InstrumentCriteria{
 			Exchange:        "cbse",
@@ -241,6 +240,7 @@ func marketUpdateRequest(
 	conn *grpc.ClientConn,
 ) error {
 	cli := pb.NewStreamMarketUpdateServiceV1Client(conn)
+	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
 	request := market_update_v1.StreamMarketUpdateRequestV1{
 		InstrumentCriteria: &core.InstrumentCriteria{
 			Exchange:        "cbse",
@@ -274,6 +274,7 @@ func tradesRequest(
 	conn *grpc.ClientConn,
 ) error {
 	cli := pb.NewStreamTradesServiceV1Client(conn)
+	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
 	request := trades_v1.StreamTradesRequestV1{
 		InstrumentCriteria: &core.InstrumentCriteria{
 			Exchange:        "cbse",
