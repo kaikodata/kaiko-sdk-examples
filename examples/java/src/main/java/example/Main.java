@@ -187,6 +187,7 @@ public class Main {
     }
 
     public static void market_update_request(ManagedChannel channel, CallCredentials callCredentials) {
+        // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
         StreamMarketUpdateRequestV1 request = StreamMarketUpdateRequestV1.newBuilder()
                 .setInstrumentCriteria(
                         InstrumentCriteria.newBuilder()
@@ -213,6 +214,7 @@ public class Main {
     }
 
     public static void trades_request(ManagedChannel channel, CallCredentials callCredentials) {
+        // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
         StreamTradesRequestV1 request = StreamTradesRequestV1.newBuilder()
                 .setInstrumentCriteria(
                         InstrumentCriteria.newBuilder()
