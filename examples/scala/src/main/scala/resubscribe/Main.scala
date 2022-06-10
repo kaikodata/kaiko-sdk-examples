@@ -1,4 +1,4 @@
-package reconnect
+package resubscribe
 
 import com.evanlennick.retry4j.CallExecutorBuilder
 import com.evanlennick.retry4j.config.RetryConfigBuilder

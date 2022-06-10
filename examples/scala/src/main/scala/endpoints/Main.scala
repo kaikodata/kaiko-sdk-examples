@@ -1,4 +1,4 @@
-package example
+package endpoints
 
 import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc
 import com.kaiko.sdk.StreamAggregatesDirectExchangeRateServiceV1Grpc

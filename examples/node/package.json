@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Example project",
   "scripts": {
-    "start": "ts-node example.ts",
-    "reconnect": "ts-node reconnect.ts",
+    "start": "ts-node endpoints.ts",
+    "resubscribe": "ts-node resubscribe.ts",
     "build": "npm run tsc",
     "tsc": "tsc"
   },
