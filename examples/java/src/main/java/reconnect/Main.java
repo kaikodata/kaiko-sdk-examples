@@ -73,17 +73,6 @@ public class Main {
     }
 
     public static void subscribe(StreamTradesServiceV1Grpc.StreamTradesServiceV1BlockingStub stub, StreamTradesRequestV1 request) {
-        Callable<Void> callable = () -> {
-            //code that you want to retry until success OR retries are exhausted OR an unexpected exception is thrown
-            Iterator<StreamTradesResponseV1> it = stub.subscribe(request);
-
-            System.out.println("[TRADES] Stream started");
-            it.forEachRemaining(System.out::println);
-
-
-            throw new InterruptedException();
-        };
-
         RetryConfig config = new RetryConfigBuilder()
                 .retryOnSpecificExceptions(InterruptedException.class)
                 .withMaxNumberOfTries(10)
@@ -92,14 +81,21 @@ public class Main {
                 .build();
 
         try {
-            com.evanlennick.retry4j.Status<Void> status = new CallExecutorBuilder<Void>()
+            new CallExecutorBuilder<Void>()
                     .config(config)
                     .beforeNextTryListener(s -> {
                         System.out.println("[TRADES] Stream ended");
                         System.out.println("[TRADES] Resubscribing");
                     })
                     .build()
-                    .execute(callable);
+                    .execute(() -> {
+                        Iterator<StreamTradesResponseV1> it = stub.subscribe(request);
+
+                        System.out.println("[TRADES] Stream started");
+                        it.forEachRemaining(System.out::println);
+
+                        throw new InterruptedException();
+                    });
         } catch (RetriesExhaustedException ree) {
             //the call exhausted all tries without succeeding
             throw ree;
