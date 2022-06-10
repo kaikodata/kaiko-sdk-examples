@@ -5,6 +5,8 @@ ThisBuild / version          := "0.1.0-SNAPSHOT"
 ThisBuild / organization     := "com.kaiko"
 ThisBuild / organizationName := "Kaiko"
 
+mainClass in (Compile, run) := Some("reconnect.Main")
+
 val testDependencies = Seq(
   scalaTest,
   grpcTesting,
@@ -14,7 +16,8 @@ val testDependencies = Seq(
 val libDependencies = Seq(
     netty,
     grpcio,
-    sdk
+    sdk,
+    retry
 )
 
 lazy val root = (project in file("."))

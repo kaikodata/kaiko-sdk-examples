@@ -80,6 +80,7 @@ object Main {
     val stub = StreamMarketUpdateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     // Create a request with SDK
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamMarketUpdateRequestV1(
       instrumentCriteria = Some(InstrumentCriteria(
         exchange = "krkn",
@@ -177,6 +178,7 @@ object Main {
     val stub = StreamTradesServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     // Create a request with SDK
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamTradesRequestV1(
       instrumentCriteria = Some(InstrumentCriteria(
         exchange = "cbse",
@@ -212,22 +214,22 @@ object Main {
   }
 
   def derivatives_price_request(channel: Channel, callCredentials: CallCredentials) = {
-      val stub = StreamDerivativesPriceServiceV2Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamDerivativesPriceServiceV2Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
-      // Create a request with SDK
-      val request = StreamDerivativesPriceRequestV2(
-        instrumentCriteria = Some(InstrumentCriteria(
-          exchange = "drbt",
-          instrumentClass = "*",
-          code = "btc-usd"
-        ))
-      )
+    // Create a request with SDK
+    val request = StreamDerivativesPriceRequestV2(
+      instrumentCriteria = Some(InstrumentCriteria(
+        exchange = "drbt",
+        instrumentClass = "*",
+        code = "btc-usd"
+      ))
+    )
 
-      // Run the request and get results
-      val results = stub.subscribe(request)
-        .take(10)
-        .toSeq
+    // Run the request and get results
+    val results = stub.subscribe(request)
+      .take(10)
+      .toSeq
 
-      println(results)
-    }
+    println(results)
+  }
 }
