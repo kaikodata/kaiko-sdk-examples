@@ -5,7 +5,7 @@ import os
 import grpc
 from google.protobuf.json_format import MessageToJson
 
-from kaikosdk import sdk_pb2, sdk_pb2_grpc
+from kaikosdk import sdk_pb2_grpc
 from kaikosdk.core import instrument_criteria_pb2
 from kaikosdk.stream.aggregates_ohlcv_v1 import request_pb2 as pb_ohlcv
 from kaikosdk.stream.aggregates_direct_exchange_rate_v1 import request_pb2 as pb_direct_exchange_rate
@@ -87,9 +87,10 @@ def market_update_request(channel: grpc.Channel):
     try:
         with channel:
             stub = sdk_pb2_grpc.StreamMarketUpdateServiceV1Stub(channel)
+            # Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
             responses = stub.Subscribe(pb_market_update.StreamMarketUpdateRequestV1(
                 instrument_criteria = instrument_criteria_pb2.InstrumentCriteria(
-                    exchange = "krkn",
+                    exchange = "cbse",
                     instrument_class = "spot",
                     code = "*"
                 ),
@@ -105,6 +106,7 @@ def trades_request(channel: grpc.Channel):
     try:
         with channel:
             stub = sdk_pb2_grpc.StreamTradesServiceV1Stub(channel)
+            # Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
             responses = stub.Subscribe(pb_trades.StreamTradesRequestV1(
                 instrument_criteria = instrument_criteria_pb2.InstrumentCriteria(
                     exchange = "cbse",
