@@ -11,7 +11,7 @@
     ],
   },
   "files": [
-    "example.ts",
-    "reconnect.ts"
+    "endpoints.ts",
+    "resubscribe.ts"
   ]
 }
