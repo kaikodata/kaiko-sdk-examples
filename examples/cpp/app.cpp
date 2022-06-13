@@ -25,18 +25,18 @@ using kaikosdk::StreamAggregatesSpotExchangeRateServiceV1;
 using kaikosdk::StreamAggregatesVWAPRequestV1;
 using kaikosdk::StreamAggregatesVWAPResponseV1;
 using kaikosdk::StreamAggregatesVWAPServiceV1;
+using kaikosdk::StreamDerivativesPriceRequestV2;
+using kaikosdk::StreamDerivativesPriceResponseV2;
+using kaikosdk::StreamDerivativesPriceServiceV2;
+using kaikosdk::StreamIndexServiceRequestV1;
+using kaikosdk::StreamIndexServiceResponseV1;
+using kaikosdk::StreamIndexServiceV1;
 using kaikosdk::StreamMarketUpdateRequestV1;
 using kaikosdk::StreamMarketUpdateResponseV1;
 using kaikosdk::StreamMarketUpdateServiceV1;
 using kaikosdk::StreamTradesRequestV1;
 using kaikosdk::StreamTradesResponseV1;
 using kaikosdk::StreamTradesServiceV1;
-using kaikosdk::StreamIndexServiceRequestV1;
-using kaikosdk::StreamIndexServiceResponseV1;
-using kaikosdk::StreamIndexServiceV1;
-using kaikosdk::StreamDerivativesPriceRequestV2;
-using kaikosdk::StreamDerivativesPriceResponseV2;
-using kaikosdk::StreamDerivativesPriceServiceV2;
 
 void setupContext(ClientContext *context)
 {
@@ -60,6 +60,7 @@ public:
     // Data we are sending to the server.
     StreamTradesRequestV1 request;
 
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     InstrumentCriteria *instrument_criteria = request.mutable_instrument_criteria();
     instrument_criteria->set_exchange("cbse");
     instrument_criteria->set_instrument_class("spot");
@@ -111,6 +112,7 @@ public:
     // Data we are sending to the server.
     StreamMarketUpdateRequestV1 request;
 
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     InstrumentCriteria *instrument_criteria = request.mutable_instrument_criteria();
     instrument_criteria->set_exchange("cbse");
     instrument_criteria->set_instrument_class("spot");
