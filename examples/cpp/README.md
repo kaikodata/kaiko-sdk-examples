@@ -40,7 +40,7 @@ This allows you building faster as binaries are pre-built.
 
 ### Requirements (conan)
 
-You will need `python3`, `pip`, and `conan`, and make installed on your machine. You can install conan through `pip` with this command: `pip install conan`
+You will need `python3`, `pip`, and `conan` (>=1.47), and make installed on your machine. You can install conan through `pip` with this command: `pip install conan`
 
 ### Build (conan)
 
