@@ -1,6 +1,7 @@
 [requires]
-grpc/1.43.0
+grpc/1.43.2
 protobuf/3.19.2
+openssl/1.1.1o # explicit version of openssl to fix potential conflict between dependencies
 
 [build_requires]
 cmake/3.22.0
