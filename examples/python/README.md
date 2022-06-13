@@ -1,5 +1,10 @@
 # Python SDK
 
+- [how to use the various endpoints and their APIs](endpoints.py).
+This should be "quickstart" point for any user new to the SDK.
+- [how to handle end of stream / resubscription](resubscribe.py).
+Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by GRPC client library.
+
 ## Requirements
 
 You will need to have Python 3.9 installed on your machine
