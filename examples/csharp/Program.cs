@@ -78,6 +78,7 @@ namespace TestSdk
             {
                 var req = new StreamTradesRequestV1
                 {
+                    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
                     InstrumentCriteria = new InstrumentCriteria
                     {
                         Code = "btc-usd",
@@ -124,6 +125,7 @@ namespace TestSdk
             {
                 var req = new StreamMarketUpdateRequestV1
                 {
+                    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
                     InstrumentCriteria = new InstrumentCriteria
                     {
                         Code = "*",

@@ -8,11 +8,13 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Polly" Version="7.2.3" /> <!-- optional dependency to demonstrate resubscribe -->
   </ItemGroup>
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <StartupObject>TestSdk.Program</StartupObject>
   </PropertyGroup>
 
 </Project>
