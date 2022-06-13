@@ -34,7 +34,6 @@ Once you have run the `build_cmake.sh` script once, you can do fast rebuild thro
 (cd build && make all)
 ```
 
-
 ## Build the example with conan (pre built binaries)
 
 This allows you building faster as binaries are pre-built.
@@ -56,7 +55,6 @@ CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_conan.sh
 ```bash
 ./build_conan/bin/app
 ```
-
 
 ## Build and run the example with docker
 
