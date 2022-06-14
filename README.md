@@ -7,6 +7,17 @@ This repository shows how to use Kaiko SDK in different languages and integratin
 Kaiko SDK offers a ready to use client in each language for accessing Kaiko API, leveraging GRPC Protocol and its capabilities.
 GRPC overview documentation is available here: <https://grpc.io/docs/what-is-grpc/introduction/>.
 
+## Using stream
+
+Stream works with *subscriptions*. Once you have a client connected to our services, you can one or more *subscriptions*.
+Generally speaking, when the endpoint is providing this ability, you should have only 1 subscription for all instruments you're interested in.
+
+This is done through [globbing patterns](http://sdk.kaiko.com/#instrument-selection).
+A simple example of this would be : `krkn,bfnx:*:btc-usd` (means `Kraken and Bitfinex exchange AND all kinds of class AND btc-usd`).
+In stream terminology, it would generally be split in an `InstrumentCriteria`, with `<exchange>:<class>:<code>` corresponding to criteria fields (see [criteria documentation](http://sdk.kaiko.com/#tocS_kaikosdkInstrumentCriteria))
+
+Re-connection is handled automatically by the SDK.
+
 ## Documentation
 
 High level documentation on SDK can be found here: <http://sdk.kaiko.com>.
