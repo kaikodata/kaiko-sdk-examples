@@ -8,9 +8,11 @@ import (
 	"io"
 	"log"
 	"os"
+	"time"
 
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
+	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_price_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
@@ -41,11 +43,15 @@ func main() {
 	apiKey := getEnv("KAIKO_API_KEY", "1234") // Put your api key here
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+apiKey)
 
+	timeout := 15 * time.Second // demo timeout
+	ctx, cancel = context.WithTimeout(ctx, timeout)
+	defer cancel()
+
 	go func() {
-		// Create a streaming trades request with SDK
-		err := tradesRequest(ctx, conn)
+		// Create a streaming spot exchange rate request with SDK
+		err = spotExchangeRateRequest(ctx, conn)
 		if err != nil {
-			log.Fatalf("could not get trades: %v", err)
+			log.Fatalf("could not get spot exchange rates: %v", err)
 		}
 	}()
 
@@ -83,7 +89,7 @@ func main() {
 
 	go func() {
 		// Create a streaming index request with SDK
-		err = indexRequest(ctx, conn)
+		err := indexRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get index: %v", err)
 		}
@@ -91,16 +97,24 @@ func main() {
 
 	go func() {
 		// Create a streaming index request with SDK
-		err = derivativesPriceRequest(ctx, conn)
+		err := derivativesPriceRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get derivatives price: %v", err)
 		}
 	}()
 
-	// Create a streaming spot exchange rate request with SDK
-	err = spotExchangeRateRequest(ctx, conn)
+	go func() {
+		// Create a streaming aggregated quote request with SDK
+		err := aggregatedQuoteRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get aggregated quote: %v", err)
+		}
+	}()
+
+	// Create a streaming trades request with SDK
+	err = tradesRequest(ctx, conn)
 	if err != nil {
-		log.Fatalf("could not get spot exchange rates: %v", err)
+		log.Fatalf("could not get trades: %v", err)
 	}
 }
 
@@ -359,5 +373,34 @@ func derivativesPriceRequest(
 		}
 
 		fmt.Printf("[DERIVATIVES PRICE] %+v\n", elt)
+	}
+}
+
+func aggregatedQuoteRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatedPriceServiceV1Client(conn)
+	request := aggregated_price_v1.StreamAggregatedPriceRequestV1{
+		InstrumentClass: "spot",
+		Code:            "btc-usd",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[AGGREGATED QUOTE] %+v\n", elt)
 	}
 }
