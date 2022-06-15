@@ -6,6 +6,7 @@ using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatesDirectExchangeRateV1;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV1;
 using KaikoSdk.Stream.DerivativesPriceV2;
+using KaikoSdk.Stream.AggregatedPriceV1;
 using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
@@ -47,6 +48,9 @@ namespace TestSdk
 
             // derivatives price
             await Program.derivativesPriceRequest(channel);
+
+            // aggregated quote
+            await Program.aggregatedQuoteRequest(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -409,6 +413,48 @@ namespace TestSdk
                     Console.WriteLine(response);
 
                     if (i > 3)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task aggregatedQuoteRequest(Grpc.Core.Channel channel)
+        {
+            var clientaq = new StreamAggregatedPriceServiceV1.StreamAggregatedPriceServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming aggregated quote request with SDK
+            try
+            {
+                var req = new StreamAggregatedPriceRequestV1
+                {
+                    InstrumentClass = "spot",
+                    Code = "btc-usd"
+                };
+                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
                     {
                         sourcet.Cancel();
                     }
