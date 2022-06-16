@@ -37,6 +37,9 @@ using kaikosdk::StreamMarketUpdateServiceV1;
 using kaikosdk::StreamTradesRequestV1;
 using kaikosdk::StreamTradesResponseV1;
 using kaikosdk::StreamTradesServiceV1;
+using kaikosdk::StreamAggregatedPriceRequestV1;
+using kaikosdk::StreamAggregatedPriceResponseV1;
+using kaikosdk::StreamAggregatedPriceServiceV1;
 
 void setupContext(ClientContext *context)
 {
@@ -454,6 +457,55 @@ private:
   std::unique_ptr<StreamDerivativesPriceServiceV2::Stub> stub_;
 };
 
+class AggregatedQuoteClient
+{
+public:
+  AggregatedQuoteClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamAggregatedPriceServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamAggregatedPriceRequestV1 request;
+
+    request.set_instrument_class("spot");
+    request.set_code("btc-usd");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamAggregatedPriceResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamAggregatedPriceResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamAggregatedPriceServiceV1::Stub> stub_;
+};
+
 int main(int argc, char **argv)
 {
   ChannelArguments args;
@@ -469,6 +521,8 @@ int main(int argc, char **argv)
   // DirectExchangeRateClient client = DirectExchangeRateClient(channel);
   // IndexClient client = IndexClient(channel);
   // DerivativesPriceClient client = DerivativesPriceClient(channel);
+  // AggregatedQuoteClient client = AggregatedQuoteClient(channel);
+  
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;
 
