@@ -12,6 +12,7 @@ import {
     StreamTradesServiceV1Client,
     StreamIndexServiceV1Client,
     StreamDerivativesPriceServiceV2Client,
+    StreamAggregatedPriceServiceV1Client,
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesDirectExchangeRateRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/request_pb';
 import { StreamAggregatesDirectExchangeRateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v1/response_pb';
@@ -28,6 +29,8 @@ import { StreamIndexServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/ind
 import { StreamIndexServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_v1/response_pb';
 import { StreamDerivativesPriceRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/derivatives_price_v2/request_pb';
 import { StreamDerivativesPriceResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/derivatives_price_v2/response_pb';
+import { StreamAggregatedPriceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_price_v1/request_pb';
+import { StreamAggregatedPriceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_price_v1/response_pb';
 
 const main = () => {
 
@@ -66,6 +69,9 @@ const main = () => {
 
     // Create a request for streaming derivatives price with SDK
     derivativesPriceRequest(creds);
+
+    // Create a request for stream aggregated quote with SDK
+    aggregatedQuoteRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -326,6 +332,38 @@ const derivativesPriceRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[DERIVATIVES PRICE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const aggregatedQuoteRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatedPriceServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatedPriceRequestV1();
+
+    request.setInstrumentClass("spot");
+    request.setCode("btc-usd");
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatedPriceResponseV1) => {
+        const value = response.getValue();
+        if (value) {
+            console.log(`[AGGREGATED QUOTE] code: ${response.getCode()}, price: ${JSON.stringify(value.getPrice())}, volume: ${JSON.stringify(value.getVolume())}`);
+        }
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[AGGREGATED QUOTE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
