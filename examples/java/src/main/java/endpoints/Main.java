@@ -8,7 +8,11 @@ import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc;
 import com.kaiko.sdk.StreamTradesServiceV1Grpc;
 import com.kaiko.sdk.StreamIndexServiceV1Grpc;
 import com.kaiko.sdk.StreamDerivativesPriceServiceV2Grpc;
+import com.kaiko.sdk.StreamAggregatedPriceServiceV1Grpc;
+
 import com.kaiko.sdk.core.InstrumentCriteria;
+import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1;
+import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceResponseV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1;
@@ -92,6 +96,9 @@ public class Main {
 
         // Create a streaming derivatives price request with SDK
         derivatives_price_request(channel, callCredentials);
+
+        // Create a streaming aggregated quote request with SDK
+        aggregated_quote_request(channel, callCredentials);
     }
 
     public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -263,27 +270,47 @@ public class Main {
     }
 
     public static void derivatives_price_request(ManagedChannel channel, CallCredentials callCredentials) {
-            StreamDerivativesPriceRequestV2 request = StreamDerivativesPriceRequestV2.newBuilder()
-                    .setInstrumentCriteria(
-                            InstrumentCriteria.newBuilder()
-                                    .setExchange("drbt")
-                                    .setInstrumentClass("*")
-                                    .setCode("*")
-                                    .build()
-                    )
-                    .build();
+        StreamDerivativesPriceRequestV2 request = StreamDerivativesPriceRequestV2.newBuilder()
+                .setInstrumentCriteria(
+                        InstrumentCriteria.newBuilder()
+                                .setExchange("drbt")
+                                .setInstrumentClass("*")
+                                .setCode("*")
+                                .build()
+                )
+                .build();
 
-            StreamDerivativesPriceServiceV2Grpc.StreamDerivativesPriceServiceV2BlockingStub stub = StreamDerivativesPriceServiceV2Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+        StreamDerivativesPriceServiceV2Grpc.StreamDerivativesPriceServiceV2BlockingStub stub = StreamDerivativesPriceServiceV2Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
 
-            // Run the request and get results
-            List<StreamDerivativesPriceResponseV2> elts = StreamSupport.stream(
-                            Spliterators.spliteratorUnknownSize(
-                                    stub.subscribe(request),
-                                    Spliterator.ORDERED)
-                            , false)
-                    .limit(10)
-                    .collect(Collectors.toList());
+        // Run the request and get results
+        List<StreamDerivativesPriceResponseV2> elts = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(
+                                stub.subscribe(request),
+                                Spliterator.ORDERED)
+                        , false)
+                .limit(10)
+                .collect(Collectors.toList());
 
-            System.out.println(elts);
-        }
+        System.out.println(elts);
+    }
+
+    public static void aggregated_quote_request(ManagedChannel channel, CallCredentials callCredentials) {
+        StreamAggregatedPriceRequestV1 request = StreamAggregatedPriceRequestV1.newBuilder()
+                .setInstrumentClass("spot")
+                .setCode("btc-usd")
+                .build();
+
+        StreamAggregatedPriceServiceV1Grpc.StreamAggregatedPriceServiceV1BlockingStub stub = StreamAggregatedPriceServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+
+        // Run the request and get results
+        List<StreamAggregatedPriceResponseV1> elts = StreamSupport.stream(
+                        Spliterators.spliteratorUnknownSize(
+                                stub.subscribe(request),
+                                Spliterator.ORDERED)
+                        , false)
+                .limit(10)
+                .collect(Collectors.toList());
+
+        System.out.println(elts);
+    }
 }
