@@ -155,6 +155,7 @@ def aggregated_quote_request(channel: grpc.Channel):
     try:
         with channel:
             stub = sdk_pb2_grpc.StreamAggregatedPriceServiceV1Stub(channel)
+            # Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
             responses = stub.Subscribe(pb_aggregated_price.StreamAggregatedPriceRequestV1(
                 instrument_class = "spot",
                 code = "btc-usd"

@@ -344,6 +344,7 @@ const aggregatedQuoteRequest = (creds: grpc.CallCredentials): void => {
     const client = new StreamAggregatedPriceServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
     const request = new StreamAggregatedPriceRequestV1();
 
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     request.setInstrumentClass("spot");
     request.setCode("btc-usd");
 

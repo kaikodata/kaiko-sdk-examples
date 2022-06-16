@@ -381,6 +381,7 @@ func aggregatedQuoteRequest(
 	conn *grpc.ClientConn,
 ) error {
 	cli := pb.NewStreamAggregatedPriceServiceV1Client(conn)
+	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
 	request := aggregated_price_v1.StreamAggregatedPriceRequestV1{
 		InstrumentClass: "spot",
 		Code:            "btc-usd",

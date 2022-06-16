@@ -295,6 +295,7 @@ public class Main {
     }
 
     public static void aggregated_quote_request(ManagedChannel channel, CallCredentials callCredentials) {
+        // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
         StreamAggregatedPriceRequestV1 request = StreamAggregatedPriceRequestV1.newBuilder()
                 .setInstrumentClass("spot")
                 .setCode("btc-usd")

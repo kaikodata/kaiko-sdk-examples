@@ -440,6 +440,7 @@ namespace TestSdk
             // Create a streaming aggregated quote request with SDK
             try
             {
+                // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
                 var req = new StreamAggregatedPriceRequestV1
                 {
                     InstrumentClass = "spot",

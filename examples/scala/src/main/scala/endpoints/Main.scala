@@ -234,6 +234,7 @@ object Main {
     val stub = StreamAggregatedPriceServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     // Create a request with SDK
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamAggregatedPriceRequestV1(
       instrumentClass = "spot",
       code = "btc-usd"
