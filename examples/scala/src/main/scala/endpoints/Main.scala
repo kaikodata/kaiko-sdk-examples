@@ -1,14 +1,8 @@
 package endpoints
 
-import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc
-import com.kaiko.sdk.StreamAggregatesDirectExchangeRateServiceV1Grpc
-import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc
-import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc
-import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
-import com.kaiko.sdk.StreamTradesServiceV1Grpc
-import com.kaiko.sdk.StreamIndexServiceV1Grpc
-import com.kaiko.sdk.StreamDerivativesPriceServiceV2Grpc
+import com.kaiko.sdk.{StreamAggregatedPriceServiceV1Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamDerivativesPriceServiceV2Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
 import com.kaiko.sdk.core.InstrumentCriteria
+import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1
 import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1
@@ -74,6 +68,9 @@ object Main {
 
     // Create a streaming derivatives price request with SDK
     derivatives_price_request(channel, callCredentials)
+
+    // Create a streaming aggregated quote request with SDK
+    aggregated_quote_request(channel, callCredentials)
   }
 
   def market_update_request(channel: Channel, callCredentials: CallCredentials) = {
@@ -228,6 +225,23 @@ object Main {
     // Run the request and get results
     val results = stub.subscribe(request)
       .take(10)
+      .toSeq
+
+    println(results)
+  }
+
+  def aggregated_quote_request(channel: Channel, callCredentials: CallCredentials) = {
+    val stub = StreamAggregatedPriceServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamAggregatedPriceRequestV1(
+      instrumentClass = "spot",
+      code = "btc-usd"
+    )
+
+    // Run the request and get results
+    val results = stub.subscribe(request)
+      .take(4)
       .toSeq
 
     println(results)
