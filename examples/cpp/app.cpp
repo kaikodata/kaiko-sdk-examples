@@ -470,6 +470,7 @@ public:
     // Data we are sending to the server.
     StreamAggregatedPriceRequestV1 request;
 
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     request.set_instrument_class("spot");
     request.set_code("btc-usd");
 
