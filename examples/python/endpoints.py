@@ -16,6 +16,7 @@ from kaikosdk.stream.market_update_v1 import commodity_pb2 as pb_commodity
 from kaikosdk.stream.trades_v1 import request_pb2 as pb_trades
 from kaikosdk.stream.index_v1 import request_pb2 as pb_index
 from kaikosdk.stream.derivatives_price_v2 import request_pb2 as pb_derivatives_price
+from kaikosdk.stream.aggregated_price_v1 import request_pb2 as pb_aggregated_price
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -150,6 +151,20 @@ def derivatives_price_request(channel: grpc.Channel):
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
+def aggregated_quote_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamAggregatedPriceServiceV1Stub(channel)
+            responses = stub.Subscribe(pb_aggregated_price.StreamAggregatedPriceRequestV1(
+                instrument_class = "spot",
+                code = "btc-usd"
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
 
 def run():
     credentials = grpc.ssl_channel_credentials(root_certificates=None)
@@ -164,6 +179,7 @@ def run():
     # spot_exchange_rate_request(channel)
     # index_request(channel)
     # derivatives_price_request(channel)
+    # aggregated_quote_request(channel)
 
     market_update_request(channel)
 
