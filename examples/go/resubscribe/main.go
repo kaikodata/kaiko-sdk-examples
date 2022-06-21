@@ -49,7 +49,7 @@ func tradesRequest(
 ) error {
 	cli := pb.NewStreamTradesServiceV1Client(conn)
 	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-	request := trades_v1.StreamTradesRequestV1{
+	request := &trades_v1.StreamTradesRequestV1{
 		InstrumentCriteria: &core.InstrumentCriteria{
 			Exchange:        "cbse",
 			InstrumentClass: "spot",
@@ -89,7 +89,7 @@ func getEnv(key, fallback string) string {
 func subscribe(
 	ctx context.Context,
 	cli pb.StreamTradesServiceV1Client,
-	request trades_v1.StreamTradesRequestV1,
+	request *trades_v1.StreamTradesRequestV1,
 ) pb.StreamTradesServiceV1_SubscribeClient {
 	var subscription pb.StreamTradesServiceV1_SubscribeClient
 
@@ -101,7 +101,7 @@ func subscribe(
 	err := backoff.Retry(func() error {
 		time.Sleep(retryWaitMin) // give a bit of time before retry
 
-		sub, err := cli.Subscribe(ctx, &request)
+		sub, err := cli.Subscribe(ctx, request)
 		if err != nil {
 			return err
 		}
