@@ -75,7 +75,13 @@ You will only need `docker` and `docker-compose` installed on your machine.
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
-## Non blocking API (using C++20 couroutines)
+## Non-blocking (async) API using standard gRPC
+
+C++ gRPC offers 2 different APIs (sync and async). Most of the examples are written using sync API (thread pool handled by gRPC), but an example of async API use is provided [here](https://github.com/kaikodata/kaiko-sdk-examples/blob/master/examples/cpp/async_api.cpp).
+
+This API should mostly be used for high traffic subscriptions (such as Market update with all commodities for example).
+
+## Non-blocking (async) API using C++20 coroutines and asio-boost
 
 If you're looking for non-blocking API because you have strict constraints against thread-pooling, take a look at <https://github.com/Tradias/asio-grpc>.
 This library will allow you to use a wrapper of C++ GRPC using Boost Asio and C++20 `co_await` feature.
