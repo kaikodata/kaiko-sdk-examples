@@ -25,9 +25,6 @@ using kaikosdk::StreamAggregatesSpotExchangeRateServiceV1;
 using kaikosdk::StreamAggregatesVWAPRequestV1;
 using kaikosdk::StreamAggregatesVWAPResponseV1;
 using kaikosdk::StreamAggregatesVWAPServiceV1;
-using kaikosdk::StreamDerivativesPriceRequestV2;
-using kaikosdk::StreamDerivativesPriceResponseV2;
-using kaikosdk::StreamDerivativesPriceServiceV2;
 using kaikosdk::StreamIndexServiceRequestV1;
 using kaikosdk::StreamIndexServiceResponseV1;
 using kaikosdk::StreamIndexServiceV1;
@@ -406,57 +403,6 @@ private:
   std::unique_ptr<StreamIndexServiceV1::Stub> stub_;
 };
 
-class DerivativesPriceClient
-{
-public:
-  DerivativesPriceClient(std::shared_ptr<Channel> channel)
-      : stub_(StreamDerivativesPriceServiceV2::NewStub(channel)) {}
-
-  // Assembles the client's payload, sends it and presents the response back
-  // from the server.
-  std::string Subscribe()
-  {
-    // Data we are sending to the server.
-    StreamDerivativesPriceRequestV2 request;
-
-    InstrumentCriteria *instrument_criteria = request.mutable_instrument_criteria();
-    instrument_criteria->set_exchange("drbt");
-    instrument_criteria->set_instrument_class("future");
-    instrument_criteria->set_code("btc31dec21");
-
-    // Context for the client. It could be used to convey extra information to
-    // the server and/or tweak certain RPC behaviors.
-    ClientContext context;
-    setupContext(&context);
-
-    std::unique_ptr<ClientReader<StreamDerivativesPriceResponseV2>> reader(stub_->Subscribe(&context, request));
-
-    // Container for the data we expect from the server.
-    StreamDerivativesPriceResponseV2 response;
-
-    while (reader->Read(&response))
-    {
-      std::cout << response.DebugString() << std::endl;
-    }
-
-    // Act upon its status.
-    Status status = reader->Finish();
-
-    if (!status.ok())
-    {
-      std::stringstream ss;
-      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
-
-      return ss.str();
-    }
-
-    return "";
-  }
-
-private:
-  std::unique_ptr<StreamDerivativesPriceServiceV2::Stub> stub_;
-};
-
 class AggregatedQuoteClient
 {
 public:
@@ -521,7 +467,6 @@ int main(int argc, char **argv)
   // SpotExchangeRateClient client = SpotExchangeRateClient(channel);
   // DirectExchangeRateClient client = DirectExchangeRateClient(channel);
   // IndexClient client = IndexClient(channel);
-  // DerivativesPriceClient client = DerivativesPriceClient(channel);
   // AggregatedQuoteClient client = AggregatedQuoteClient(channel);
   
   std::string reply = client.Subscribe();

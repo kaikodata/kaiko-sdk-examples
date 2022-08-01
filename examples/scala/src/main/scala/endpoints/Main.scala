@@ -1,6 +1,6 @@
 package endpoints
 
-import com.kaiko.sdk.{StreamAggregatedPriceServiceV1Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamDerivativesPriceServiceV2Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
+import com.kaiko.sdk.{StreamAggregatedPriceServiceV1Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
 import com.kaiko.sdk.core.InstrumentCriteria
 import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
@@ -11,7 +11,6 @@ import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1
-import com.kaiko.sdk.stream.derivatives_price_v2.StreamDerivativesPriceRequestV2
 import io.grpc.{CallCredentials, Channel, ManagedChannelBuilder, Metadata, Status}
 
 import java.util.concurrent.Executor
@@ -65,9 +64,6 @@ object Main {
 
     // Create a streaming index request with SDK
     index_request(channel, callCredentials)
-
-    // Create a streaming derivatives price request with SDK
-    derivatives_price_request(channel, callCredentials)
 
     // Create a streaming aggregated quote request with SDK
     aggregated_quote_request(channel, callCredentials)
@@ -208,26 +204,6 @@ object Main {
 
       println(results)
     }.recover(println(_))
-  }
-
-  def derivatives_price_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamDerivativesPriceServiceV2Grpc.blockingStub(channel).withCallCredentials(callCredentials)
-
-    // Create a request with SDK
-    val request = StreamDerivativesPriceRequestV2(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "drbt",
-        instrumentClass = "*",
-        code = "btc-usd"
-      ))
-    )
-
-    // Run the request and get results
-    val results = stub.subscribe(request)
-      .take(10)
-      .toSeq
-
-    println(results)
   }
 
   def aggregated_quote_request(channel: Channel, callCredentials: CallCredentials) = {
