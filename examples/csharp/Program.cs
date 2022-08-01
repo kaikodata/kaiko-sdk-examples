@@ -5,7 +5,6 @@ using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatesDirectExchangeRateV1;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV1;
-using KaikoSdk.Stream.DerivativesPriceV2;
 using KaikoSdk.Stream.AggregatedPriceV1;
 using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.TradesV1;
@@ -45,9 +44,6 @@ namespace TestSdk
 
             // index
             await Program.indicesRequest(channel);
-
-            // derivatives price
-            await Program.derivativesPriceRequest(channel);
 
             // aggregated quote
             await Program.aggregatedQuoteRequest(channel);
@@ -369,52 +365,6 @@ namespace TestSdk
                     if (i > 3)
                     {
                         sourceindex.Cancel();
-                    }
-
-                    i++;
-                }
-            }
-            catch (RpcException e)
-            {
-                if (e.StatusCode != StatusCode.Cancelled)
-                {
-                    Console.WriteLine(e);
-                }
-            }
-        }
-
-        private static async Task derivativesPriceRequest(Grpc.Core.Channel channel)
-        {
-            var clientt = new StreamDerivativesPriceServiceV2.StreamDerivativesPriceServiceV2Client(channel);
-
-            // Setup runtime (run for few seconds or stop after receiving some results)
-            var sourcet = new CancellationTokenSource();
-            sourcet.CancelAfter(TimeSpan.FromSeconds(5));
-
-            // Create a streaming trades request with SDK
-            try
-            {
-                var req = new StreamDerivativesPriceRequestV2
-                {
-                    InstrumentCriteria = new InstrumentCriteria
-                    {
-                        Code = "btc31dec21",
-                        Exchange = "drbt",
-                        InstrumentClass = "future"
-                    }
-                };
-                var reply = clientt.Subscribe(req, null, null, sourcet.Token);
-                var stream = reply.ResponseStream;
-
-                var i = 0;
-                while (await stream.MoveNext())
-                {
-                    var response = stream.Current;
-                    Console.WriteLine(response);
-
-                    if (i > 3)
-                    {
-                        sourcet.Cancel();
                     }
 
                     i++;

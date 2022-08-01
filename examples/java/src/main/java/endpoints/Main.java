@@ -7,7 +7,6 @@ import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc;
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc;
 import com.kaiko.sdk.StreamTradesServiceV1Grpc;
 import com.kaiko.sdk.StreamIndexServiceV1Grpc;
-import com.kaiko.sdk.StreamDerivativesPriceServiceV2Grpc;
 import com.kaiko.sdk.StreamAggregatedPriceServiceV1Grpc;
 
 import com.kaiko.sdk.core.InstrumentCriteria;
@@ -28,8 +27,6 @@ import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
-import com.kaiko.sdk.stream.derivatives_price_v2.StreamDerivativesPriceRequestV2;
-import com.kaiko.sdk.stream.derivatives_price_v2.StreamDerivativesPriceResponseV2;
 import io.grpc.*;
 
 import java.util.List;
@@ -93,9 +90,6 @@ public class Main {
 
         // Create a streaming index request with SDK
         index_request(channel, callCredentials);
-
-        // Create a streaming derivatives price request with SDK
-        derivatives_price_request(channel, callCredentials);
 
         // Create a streaming aggregated quote request with SDK
         aggregated_quote_request(channel, callCredentials);
@@ -267,31 +261,6 @@ public class Main {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-    }
-
-    public static void derivatives_price_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamDerivativesPriceRequestV2 request = StreamDerivativesPriceRequestV2.newBuilder()
-                .setInstrumentCriteria(
-                        InstrumentCriteria.newBuilder()
-                                .setExchange("drbt")
-                                .setInstrumentClass("*")
-                                .setCode("*")
-                                .build()
-                )
-                .build();
-
-        StreamDerivativesPriceServiceV2Grpc.StreamDerivativesPriceServiceV2BlockingStub stub = StreamDerivativesPriceServiceV2Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamDerivativesPriceResponseV2> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
     }
 
     public static void aggregated_quote_request(ManagedChannel channel, CallCredentials callCredentials) {

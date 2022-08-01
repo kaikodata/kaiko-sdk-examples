@@ -17,7 +17,6 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
-	"github.com/kaikodata/kaiko-go-sdk/stream/derivatives_price_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
@@ -92,14 +91,6 @@ func main() {
 		err := indexRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get index: %v", err)
-		}
-	}()
-
-	go func() {
-		// Create a streaming index request with SDK
-		err := derivativesPriceRequest(ctx, conn)
-		if err != nil {
-			log.Printf("could not get derivatives price: %v", err)
 		}
 	}()
 
@@ -341,38 +332,6 @@ func indexRequest(
 		}
 
 		fmt.Printf("[INDEX] %+v\n", elt)
-	}
-}
-
-func derivativesPriceRequest(
-	ctx context.Context,
-	conn *grpc.ClientConn,
-) error {
-	cli := pb.NewStreamDerivativesPriceServiceV2Client(conn)
-	request := derivatives_price_v2.StreamDerivativesPriceRequestV2{
-		InstrumentCriteria: &core.InstrumentCriteria{
-			Exchange:        "drbt",
-			InstrumentClass: "future",
-			Code:            "btc31dec21",
-		},
-	}
-
-	sub, err := cli.Subscribe(ctx, &request)
-	if err != nil {
-		log.Fatalf("could not subscribe: %v", err)
-	}
-
-	for {
-		elt, err := sub.Recv()
-		if err == io.EOF {
-			return nil
-		}
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("[DERIVATIVES PRICE] %+v\n", elt)
 	}
 }
 
