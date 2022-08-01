@@ -32,7 +32,7 @@ set(_GRPC_GRPCPP grpc++)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.4.1"
+        GIT_TAG "v1.4.2"
 )
 
 FetchContent_GetProperties(kaikosdk)

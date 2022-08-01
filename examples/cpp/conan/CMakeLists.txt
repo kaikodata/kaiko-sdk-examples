@@ -4,7 +4,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # change binary dir to "bin"
 
-add_executable(app ../app.cpp)
+add_executable(app ../resubscribe.cpp)
 
 # Include kaikosdk library
 # TODO: publish it as a prebuilt package on conan-center to cut compilation times
@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.4.1"
+        GIT_TAG "v1.4.2"
 )
 
 FetchContent_GetProperties(kaikosdk)
