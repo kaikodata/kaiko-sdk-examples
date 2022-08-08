@@ -63,8 +63,8 @@ func marketUpdateRequest(
 		},
 		Commodities: []market_update_v1.StreamMarketUpdateCommodity{market_update_v1.StreamMarketUpdateCommodity_SMUC_FULL_ORDER_BOOK},
 		Interval: &core.DataInterval{
-			StartTime: timestamppb.New(time.Date(2022, time.Month(8), 3, 12, 0, 0, 0, time.UTC)),
-			EndTime:   timestamppb.New(time.Date(2022, time.Month(8), 3, 12, 2, 0, 0, time.UTC)),
+			StartTime: timestamppb.New(time.Unix(1659484800, 0)),
+			EndTime:   timestamppb.New(time.Unix(1659571200, 0)),
 		},
 	}
 
