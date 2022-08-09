@@ -1,10 +1,10 @@
 [requires]
 grpc/1.43.2
-protobuf/3.19.2
-openssl/1.1.1o # explicit version of openssl to fix potential conflict between dependencies
+protobuf/3.19.4
+openssl/1.1.1q # explicit version of openssl to fix potential conflict between dependencies
 
 [build_requires]
-cmake/3.22.5
+cmake/3.23.3
 
 [generators]
 cmake
