@@ -87,8 +87,8 @@ def spot_exchange_rate_request(channel: grpc.Channel):
 def market_update_request(channel: grpc.Channel):
     try:
         with channel:
-            start_timestamp=Timestamp(seconds=1659484800)
-            end_timestamp=Timestamp(seconds=1659571200)
+            start_timestamp=Timestamp(seconds=1660608000)
+            end_timestamp=Timestamp(seconds=1660694400)
             stub = sdk_pb2_grpc.StreamMarketUpdateServiceV1Stub(channel)
             # Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
             responses = stub.Subscribe(pb_market_update.StreamMarketUpdateRequestV1(
