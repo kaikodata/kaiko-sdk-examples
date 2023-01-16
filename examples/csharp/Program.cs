@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+using Grpc.Net.Client;
+using Grpc.Core;
 using KaikoSdk;
 using KaikoSdk.Stream.MarketUpdateV1;
 using KaikoSdk.Stream.AggregatesOHLCVV1;
@@ -22,7 +23,8 @@ namespace TestSdk
             // Setup authentication
             var pass = Environment.GetEnvironmentVariable("KAIKO_API_KEY") ?? "1234"; // Put your api key here
 
-            Channel channel = new Channel("gateway-v0-grpc.kaiko.ovh", Program.CreateAuthenticatedChannel(pass));
+            var channelOptions = new GrpcChannelOptions { Credentials = Program.CreateAuthenticatedChannel(pass) };
+            GrpcChannel channel = GrpcChannel.ForAddress("https://gateway-v0-grpc.kaiko.ovh", channelOptions);
 
             // trades
             await Program.tradesRequest(channel);
@@ -65,7 +67,7 @@ namespace TestSdk
             return ChannelCredentials.Create(new SslCredentials(), interceptor);
         }
 
-        private static async Task tradesRequest(Grpc.Core.Channel channel)
+        private static async Task tradesRequest(GrpcChannel channel)
         {
             var clientt = new StreamTradesServiceV1.StreamTradesServiceV1Client(channel);
 
@@ -112,7 +114,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task marketUpdateRequest(Grpc.Core.Channel channel)
+        private static async Task marketUpdateRequest(GrpcChannel channel)
         {
             var clientmu = new StreamMarketUpdateServiceV1.StreamMarketUpdateServiceV1Client(channel);
 
@@ -160,7 +162,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task ohlcvRequest(Grpc.Core.Channel channel)
+        private static async Task ohlcvRequest(GrpcChannel channel)
         {
             var clientohlcv = new StreamAggregatesOHLCVServiceV1.StreamAggregatesOHLCVServiceV1Client(channel);
 
@@ -207,7 +209,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task directExchangeRateRequest(Grpc.Core.Channel channel)
+        private static async Task directExchangeRateRequest(GrpcChannel channel)
         {
             var clientder = new StreamAggregatesDirectExchangeRateServiceV1.StreamAggregatesDirectExchangeRateServiceV1Client(channel);
 
@@ -249,7 +251,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task spotExchangeRateRequest(Grpc.Core.Channel channel)
+        private static async Task spotExchangeRateRequest(GrpcChannel channel)
         {
             var clientser = new StreamAggregatesSpotExchangeRateServiceV1.StreamAggregatesSpotExchangeRateServiceV1Client(channel);
 
@@ -291,7 +293,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task vwapRequest(Grpc.Core.Channel channel)
+        private static async Task vwapRequest(GrpcChannel channel)
         {
             var clientvwap = new StreamAggregatesVWAPServiceV1.StreamAggregatesVWAPServiceV1Client(channel);
 
@@ -338,7 +340,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task indicesRequest(Grpc.Core.Channel channel)
+        private static async Task indicesRequest(GrpcChannel channel)
         {
             var clientindex = new StreamIndexServiceV1.StreamIndexServiceV1Client(channel);
 
@@ -379,7 +381,7 @@ namespace TestSdk
             }
         }
 
-        private static async Task aggregatedQuoteRequest(Grpc.Core.Channel channel)
+        private static async Task aggregatedQuoteRequest(GrpcChannel channel)
         {
             var clientaq = new StreamAggregatedPriceServiceV1.StreamAggregatedPriceServiceV1Client(channel);
 
