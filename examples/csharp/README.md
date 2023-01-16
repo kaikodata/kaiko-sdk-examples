@@ -7,7 +7,7 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-You will need .Net Core 5 or later installed on your machine.
+You will need .Net Core 6 or later installed on your machine.
 Installation can be done through official website <https://docs.microsoft.com/en-us/dotnet/core/install/>.
 
 ## Build the example
