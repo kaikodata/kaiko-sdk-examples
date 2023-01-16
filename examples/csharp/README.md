@@ -8,7 +8,10 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 ## Requirements
 
 You will need .Net Core 6 or later installed on your machine.
+
 Installation can be done through official website <https://docs.microsoft.com/en-us/dotnet/core/install/>.
+
+If you were previously using .Net 5 with Kaiko SDK, see migration path which should be straightforward: <https://github.com/kaikodata/kaiko-sdk-examples/pull/49/commits/80ea172a01a64604395b3faf56f41ef6bf7e74c2>.
 
 ## Build the example
 
