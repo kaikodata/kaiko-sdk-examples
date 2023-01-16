@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Grpc.Net.Client;
+using Grpc.Core;
 using KaikoSdk;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
@@ -17,7 +18,8 @@ namespace TestSdk
             // Setup authentication
             var pass = Environment.GetEnvironmentVariable("KAIKO_API_KEY") ?? "1234"; // Put your api key here
 
-            Channel channel = new Channel("gateway-v0-grpc.kaiko.ovh", Resubscribe.CreateAuthenticatedChannel(pass));
+            var channelOptions = new GrpcChannelOptions { Credentials = Resubscribe.CreateAuthenticatedChannel(pass) };
+            GrpcChannel channel = GrpcChannel.ForAddress("https://gateway-v0-grpc.kaiko.ovh", channelOptions);
 
             // trades
             await Resubscribe.tradesRequest(channel);
@@ -39,7 +41,7 @@ namespace TestSdk
             return ChannelCredentials.Create(new SslCredentials(), interceptor);
         }
 
-        private static async Task tradesRequest(Grpc.Core.Channel channel)
+        private static async Task tradesRequest(GrpcChannel channel)
         {
             var clientt = new StreamTradesServiceV1.StreamTradesServiceV1Client(channel);
 
