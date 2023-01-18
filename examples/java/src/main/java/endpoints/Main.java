@@ -1,5 +1,6 @@
 package endpoints;
 
+import com.google.protobuf.Timestamp;
 import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc;
 import com.kaiko.sdk.StreamAggregatesDirectExchangeRateServiceV1Grpc;
 import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc;
@@ -9,6 +10,7 @@ import com.kaiko.sdk.StreamTradesServiceV1Grpc;
 import com.kaiko.sdk.StreamIndexServiceV1Grpc;
 import com.kaiko.sdk.StreamAggregatedPriceServiceV1Grpc;
 
+import com.kaiko.sdk.core.DataInterval;
 import com.kaiko.sdk.core.InstrumentCriteria;
 import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1;
 import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceResponseV1;
@@ -29,6 +31,9 @@ import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
 import io.grpc.*;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -70,133 +75,37 @@ public class Main {
             }
         };
 
-        // Create a streaming trades request with SDK
-        trades_request(channel, callCredentials);
-
-        // Create a streaming ohlcv request with SDK
-        ohlcv_request(channel, callCredentials);
-
-        // Create a streaming vwap request with SDK
-        vwap_request(channel, callCredentials);
-
-        // Create a streaming direct exchange rate request with SDK
-        direct_exchange_rate_request(channel, callCredentials);
-
-        // Create a streaming spot exchange rate request with SDK
-        spot_exchange_rate_request(channel, callCredentials);
-
         // Create a streaming market update request with SDK
         market_update_request(channel, callCredentials);
-
-        // Create a streaming index request with SDK
-        index_request(channel, callCredentials);
-
-        // Create a streaming aggregated quote request with SDK
-        aggregated_quote_request(channel, callCredentials);
-    }
-
-    public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesOHLCVRequestV1 request = StreamAggregatesOHLCVRequestV1.newBuilder()
-                .setInstrumentCriteria(
-                        InstrumentCriteria.newBuilder()
-                                .setExchange("cbse")
-                                .setInstrumentClass("spot")
-                                .setCode("btc-usd")
-                                .build()
-                )
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesOHLCVServiceV1Grpc.StreamAggregatesOHLCVServiceV1BlockingStub stub = StreamAggregatesOHLCVServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesOHLCVResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void vwap_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesVWAPRequestV1 request = StreamAggregatesVWAPRequestV1.newBuilder()
-                .setInstrumentCriteria(
-                        InstrumentCriteria.newBuilder()
-                                .setExchange("bnce")
-                                .setInstrumentClass("spot")
-                                .setCode("btc-usdt")
-                                .build()
-                )
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesVWAPServiceV1Grpc.StreamAggregatesVWAPServiceV1BlockingStub stub = StreamAggregatesVWAPServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesVWAPResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void direct_exchange_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesDirectExchangeRateRequestV1 request = StreamAggregatesDirectExchangeRateRequestV1.newBuilder()
-                .setCode("btc-usd")
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesDirectExchangeRateServiceV1Grpc.StreamAggregatesDirectExchangeRateServiceV1BlockingStub stub = StreamAggregatesDirectExchangeRateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesDirectExchangeRateResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void spot_exchange_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesSpotExchangeRateRequestV1 request = StreamAggregatesSpotExchangeRateRequestV1.newBuilder()
-                .setCode("btc-usd")
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesSpotExchangeRateServiceV1Grpc.StreamAggregatesSpotExchangeRateServiceV1BlockingStub stub = StreamAggregatesSpotExchangeRateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesSpotExchangeRateResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
     }
 
     public static void market_update_request(ManagedChannel channel, CallCredentials callCredentials) {
+        Instant end = Instant.now();
+        Instant start = end.minus(1, ChronoUnit.MINUTES);
+
+        DataInterval interval = DataInterval.newBuilder()
+                .setStartTime(Timestamp
+                        .newBuilder()
+                        .setSeconds(start.getEpochSecond())
+                        .setNanos(start.getNano())
+                        .build())
+                .setEndTime(Timestamp
+                        .newBuilder()
+                        .setSeconds(end.getEpochSecond())
+                        .setNanos(end.getNano())
+                        .build()
+                ).build();
+
         // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
         StreamMarketUpdateRequestV1 request = StreamMarketUpdateRequestV1.newBuilder()
                 .setInstrumentCriteria(
                         InstrumentCriteria.newBuilder()
-                                .setExchange("krkn")
+                                .setExchange("*")
                                 .setInstrumentClass("spot")
                                 .setCode("*")
                                 .build()
                 )
+                .setInterval(interval)
                 .addCommodities(StreamMarketUpdateCommodity.SMUC_TRADE)
                 .build();
 
@@ -204,76 +113,6 @@ public class Main {
 
         // Run the request and get results
         List<StreamMarketUpdateResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void trades_request(ManagedChannel channel, CallCredentials callCredentials) {
-        // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-        StreamTradesRequestV1 request = StreamTradesRequestV1.newBuilder()
-                .setInstrumentCriteria(
-                        InstrumentCriteria.newBuilder()
-                                .setExchange("cbse")
-                                .setInstrumentClass("spot")
-                                .setCode("btc-usd")
-                                .build()
-                )
-                .build();
-
-        StreamTradesServiceV1Grpc.StreamTradesServiceV1BlockingStub stub = StreamTradesServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamTradesResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void index_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamIndexServiceRequestV1 request = StreamIndexServiceRequestV1.newBuilder()
-                .setIndexCode("indexCode") // fill it with actual value
-                .build();
-
-        StreamIndexServiceV1Grpc.StreamIndexServiceV1BlockingStub stub = StreamIndexServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        try {
-            List<StreamIndexServiceResponseV1> elts = StreamSupport.stream(
-                            Spliterators.spliteratorUnknownSize(
-                                    stub.subscribe(request),
-                                    Spliterator.ORDERED)
-                            , false)
-                    .limit(10)
-                    .collect(Collectors.toList());
-
-            System.out.println(elts);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void aggregated_quote_request(ManagedChannel channel, CallCredentials callCredentials) {
-        // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-        StreamAggregatedPriceRequestV1 request = StreamAggregatedPriceRequestV1.newBuilder()
-                .setInstrumentClass("spot")
-                .setCode("btc-usd")
-                .build();
-
-        StreamAggregatedPriceServiceV1Grpc.StreamAggregatedPriceServiceV1BlockingStub stub = StreamAggregatedPriceServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatedPriceResponseV1> elts = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(
                                 stub.subscribe(request),
                                 Spliterator.ORDERED)
