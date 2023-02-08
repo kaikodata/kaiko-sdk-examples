@@ -52,7 +52,7 @@ There is a note in the official gRPC [documentation](https://grpc.io/docs/guides
 /!\ *Non-POSIX-compliant systems (such as Windows) need to specify the root certificates in SslCredentialsOptions, since the defaults are only configured for POSIX filesystems.*
 
 There is a feature [request](https://github.com/grpc/grpc/issues/25533) on the gRPC repository to add out-of-the-box support for this on Windows to make the behavior of default SslCredentials() the same on all systems.
-Until this functionality is added in a future version of GRPC, you can add a snippet of code, in order to populate **SslCredentialsOptions**,  as described [here](https://github.com/grpc/grpc/issues/25167)
+Until this functionality is added in a future version of GRPC, you can add a snippet of code, in order to populate `SslCredentialsOptions`,  as described [here](https://github.com/grpc/grpc/issues/25167)
 
 ### Fast rebuild (CMake)
 
