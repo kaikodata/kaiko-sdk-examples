@@ -20,7 +20,7 @@ include(FetchContent)
 FetchContent_Declare(
         grpc
         GIT_REPOSITORY "https://github.com/grpc/grpc"
-        GIT_TAG "29c25a190bc7818031d3963489e59a79686b9ffe" # 1.43.0 updated to protoc 3.19.2
+        GIT_TAG "90ccf24d22b6fc909a1021ebd89fd8c838467d26" # 1.50.1 updated to protoc 3.21.4
 )
 
 FetchContent_MakeAvailable(grpc)
@@ -32,7 +32,7 @@ set(_GRPC_GRPCPP grpc++)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.6.0"
+        GIT_TAG "v1.7.1"
 )
 
 FetchContent_GetProperties(kaikosdk)

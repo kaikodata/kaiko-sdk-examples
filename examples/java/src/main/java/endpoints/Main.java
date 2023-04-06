@@ -1,17 +1,10 @@
 package endpoints;
 
-import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc;
-import com.kaiko.sdk.StreamAggregatesDirectExchangeRateServiceV1Grpc;
-import com.kaiko.sdk.StreamAggregatesSpotExchangeRateServiceV1Grpc;
-import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc;
-import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc;
-import com.kaiko.sdk.StreamTradesServiceV1Grpc;
-import com.kaiko.sdk.StreamIndexServiceV1Grpc;
-import com.kaiko.sdk.StreamAggregatedPriceServiceV1Grpc;
+import com.kaiko.sdk.*;
 
 import com.kaiko.sdk.core.InstrumentCriteria;
-import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1;
-import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceResponseV1;
+import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2;
+import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteResponseV2;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1;
@@ -265,15 +258,15 @@ public class Main {
 
     public static void aggregated_quote_request(ManagedChannel channel, CallCredentials callCredentials) {
         // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-        StreamAggregatedPriceRequestV1 request = StreamAggregatedPriceRequestV1.newBuilder()
+        StreamAggregatedQuoteRequestV2 request = StreamAggregatedQuoteRequestV2.newBuilder()
                 .setInstrumentClass("spot")
                 .setCode("btc-usd")
                 .build();
 
-        StreamAggregatedPriceServiceV1Grpc.StreamAggregatedPriceServiceV1BlockingStub stub = StreamAggregatedPriceServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
+        StreamAggregatedQuoteServiceV2Grpc.StreamAggregatedQuoteServiceV2BlockingStub stub = StreamAggregatedQuoteServiceV2Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
 
         // Run the request and get results
-        List<StreamAggregatedPriceResponseV1> elts = StreamSupport.stream(
+        List<StreamAggregatedQuoteResponseV2> elts = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(
                                 stub.subscribe(request),
                                 Spliterator.ORDERED)

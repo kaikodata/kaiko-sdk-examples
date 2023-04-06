@@ -32,7 +32,7 @@ public class GrpcTest {
     private final StreamAggregatesOHLCVServiceV1Grpc.StreamAggregatesOHLCVServiceV1ImplBase serviceImpl =
             mock(StreamAggregatesOHLCVServiceV1Grpc.StreamAggregatesOHLCVServiceV1ImplBase.class, delegatesTo(
                     new StreamAggregatesOHLCVServiceV1Grpc.StreamAggregatesOHLCVServiceV1ImplBase() {
-                        // By default the client will receive Status.UNIMPLEMENTED for all RPCs.
+                        // By default, the client will receive Status.UNIMPLEMENTED for all RPCs.
                         // You might need to implement necessary behaviors for your test here, like this:
                         @Override
                         public void subscribe(StreamAggregatesOHLCVRequestV1 request, StreamObserver<StreamAggregatesOHLCVResponseV1> responseObserver) {
@@ -73,7 +73,7 @@ public class GrpcTest {
      * changes from the server side.
      */
     @Test
-    public void grpcImpl_replyMessage() throws Exception {
+    public void grpcImpl_replyMessage() {
         Iterator<StreamAggregatesOHLCVResponseV1> reply = client.subscribe(StreamAggregatesOHLCVRequestV1.newBuilder().build());
         assertEquals("42", reply.next().getHigh());
     }
