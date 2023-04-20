@@ -6,7 +6,7 @@ using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatesDirectExchangeRateV1;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV1;
-using KaikoSdk.Stream.AggregatedPriceV1;
+using KaikoSdk.Stream.AggregatedQuoteV2;
 using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
@@ -383,7 +383,7 @@ namespace TestSdk
 
         private static async Task aggregatedQuoteRequest(GrpcChannel channel)
         {
-            var clientaq = new StreamAggregatedPriceServiceV1.StreamAggregatedPriceServiceV1Client(channel);
+            var clientaq = new StreamAggregatedQuoteServiceV2.StreamAggregatedQuoteServiceV2Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
             var sourcet = new CancellationTokenSource();
@@ -393,7 +393,7 @@ namespace TestSdk
             try
             {
                 // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-                var req = new StreamAggregatedPriceRequestV1
+                var req = new StreamAggregatedQuoteRequestV2
                 {
                     InstrumentClass = "spot",
                     Code = "btc-usd"

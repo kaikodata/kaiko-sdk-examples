@@ -15,7 +15,7 @@ from kaikosdk.stream.market_update_v1 import request_pb2 as pb_market_update
 from kaikosdk.stream.market_update_v1 import commodity_pb2 as pb_commodity
 from kaikosdk.stream.trades_v1 import request_pb2 as pb_trades
 from kaikosdk.stream.index_v1 import request_pb2 as pb_index
-from kaikosdk.stream.aggregated_price_v1 import request_pb2 as pb_aggregated_price
+from kaikosdk.stream.aggregated_quote_v2 import request_pb2 as pb_aggregated_quote
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -136,9 +136,9 @@ def index_request(channel: grpc.Channel):
 def aggregated_quote_request(channel: grpc.Channel):
     try:
         with channel:
-            stub = sdk_pb2_grpc.StreamAggregatedPriceServiceV1Stub(channel)
+            stub = sdk_pb2_grpc.StreamAggregatedQuoteServiceV2Stub(channel)
             # Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-            responses = stub.Subscribe(pb_aggregated_price.StreamAggregatedPriceRequestV1(
+            responses = stub.Subscribe(pb_aggregated_quote.StreamAggregatedQuoteRequestV2(
                 instrument_class = "spot",
                 code = "btc-usd"
             ))
@@ -155,7 +155,7 @@ def run():
     composite_credentials = grpc.composite_channel_credentials(credentials, call_credentials)
     channel = grpc.secure_channel('gateway-v0-grpc.kaiko.ovh', composite_credentials)
 
-    # trades_request(channel)
+    trades_request(channel)
     # ohlcv_request(channel)
     # vwap_request(channel)
     # direct_exchange_rate_request(channel)
@@ -163,7 +163,7 @@ def run():
     # index_request(channel)
     # aggregated_quote_request(channel)
 
-    market_update_request(channel)
+    # market_update_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()

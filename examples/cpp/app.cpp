@@ -34,9 +34,9 @@ using kaikosdk::StreamMarketUpdateServiceV1;
 using kaikosdk::StreamTradesRequestV1;
 using kaikosdk::StreamTradesResponseV1;
 using kaikosdk::StreamTradesServiceV1;
-using kaikosdk::StreamAggregatedPriceRequestV1;
-using kaikosdk::StreamAggregatedPriceResponseV1;
-using kaikosdk::StreamAggregatedPriceServiceV1;
+using kaikosdk::StreamAggregatedQuoteRequestV2;
+using kaikosdk::StreamAggregatedQuoteResponseV2;
+using kaikosdk::StreamAggregatedQuoteServiceV2;
 
 void setupContext(ClientContext *context)
 {
@@ -407,14 +407,14 @@ class AggregatedQuoteClient
 {
 public:
   AggregatedQuoteClient(std::shared_ptr<Channel> channel)
-      : stub_(StreamAggregatedPriceServiceV1::NewStub(channel)) {}
+      : stub_(StreamAggregatedQuoteServiceV2::NewStub(channel)) {}
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
   std::string Subscribe()
   {
     // Data we are sending to the server.
-    StreamAggregatedPriceRequestV1 request;
+    StreamAggregatedQuoteRequestV2 request;
 
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     request.set_instrument_class("spot");
@@ -425,10 +425,10 @@ public:
     ClientContext context;
     setupContext(&context);
 
-    std::unique_ptr<ClientReader<StreamAggregatedPriceResponseV1>> reader(stub_->Subscribe(&context, request));
+    std::unique_ptr<ClientReader<StreamAggregatedQuoteResponseV2>> reader(stub_->Subscribe(&context, request));
 
     // Container for the data we expect from the server.
-    StreamAggregatedPriceResponseV1 response;
+    StreamAggregatedQuoteResponseV2 response;
 
     while (reader->Read(&response))
     {
@@ -450,7 +450,7 @@ public:
   }
 
 private:
-  std::unique_ptr<StreamAggregatedPriceServiceV1::Stub> stub_;
+  std::unique_ptr<StreamAggregatedQuoteServiceV2::Stub> stub_;
 };
 
 int main(int argc, char **argv)

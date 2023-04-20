@@ -1,8 +1,8 @@
 package endpoints
 
-import com.kaiko.sdk.{StreamAggregatedPriceServiceV1Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
+import com.kaiko.sdk.{StreamAggregatedQuoteServiceV2Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
 import com.kaiko.sdk.core.InstrumentCriteria
-import com.kaiko.sdk.stream.aggregated_price_v1.StreamAggregatedPriceRequestV1
+import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1
 import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1
@@ -207,11 +207,11 @@ object Main {
   }
 
   def aggregated_quote_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatedPriceServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamAggregatedQuoteServiceV2Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     // Create a request with SDK
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-    val request = StreamAggregatedPriceRequestV1(
+    val request = StreamAggregatedQuoteRequestV2(
       instrumentClass = "spot",
       code = "btc-usd"
     )

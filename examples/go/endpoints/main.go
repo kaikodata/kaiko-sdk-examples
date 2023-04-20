@@ -12,7 +12,7 @@ import (
 
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
-	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_price_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_quote_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
@@ -339,9 +339,9 @@ func aggregatedQuoteRequest(
 	ctx context.Context,
 	conn *grpc.ClientConn,
 ) error {
-	cli := pb.NewStreamAggregatedPriceServiceV1Client(conn)
+	cli := pb.NewStreamAggregatedQuoteServiceV2Client(conn)
 	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
-	request := aggregated_price_v1.StreamAggregatedPriceRequestV1{
+	request := aggregated_quote_v2.StreamAggregatedQuoteRequestV2{
 		InstrumentClass: "spot",
 		Code:            "btc-usd",
 	}
