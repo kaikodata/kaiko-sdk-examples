@@ -14,7 +14,7 @@ pushd $BUILD_TEST_PATH
 # install app with default compiler to work with libstdc++11 (protobuf requirement), otherwise linking fails.
 conan install .. --build=missing -s compiler.libcxx=libstdc++11
 
-CMAKE="$(conan info cmake/3.25.1@ --package-filter cmake* --path --only package_folder | grep package_folder | cut -d ":" -f2)/bin/cmake"
+CMAKE="$(conan info cmake/3.26.3@ --package-filter cmake* --path --only package_folder | grep package_folder | cut -d ":" -f2)/bin/cmake"
 $CMAKE .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_BINARY_DIR=$BUILD_TEST_PATH -DINCLUDE_DIR=$INCLUDE_DIR
 $CMAKE --build .
 
