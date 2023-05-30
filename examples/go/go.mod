@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.3
-	github.com/kaikodata/kaiko-go-sdk v1.7.1
+	github.com/kaikodata/kaiko-go-sdk v1.9.0
 	google.golang.org/grpc v1.54.0
 )
 

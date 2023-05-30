@@ -6,11 +6,11 @@ name = "pypi"
 [packages]
 grpcio = "==1.53.0"
 grpcio-tools = "==1.53.0"
-kaikosdk = "==1.7.1"
+kaikosdk = "==1.9.0"
 protobuf = "==4.21.12"
 retrying = "===1.3.3" # optional dependency for demonstrating resubscribe
 
 [dev-packages]
 
 [requires]
-python_version = "3.9"
+python_version = "3.11"
