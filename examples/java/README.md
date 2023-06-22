@@ -37,3 +37,9 @@ Note that for this particular step, you will need to setup an environment variab
 ```bash
 ./gradlew dependencyUpdates
 ```
+
+## Closing an existing subscription
+
+Closing a subscription is done through a `CancellableContext` and `context.cancel(...)`, which should be used accordingly with your `executor`.
+
+Example can be found at <https://github.com/grpc/grpc-java/blob/master/examples/src/main/java/io/grpc/examples/cancellation/CancellationClient.java#L66>.
