@@ -1,0 +1,28 @@
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2021"
+
+default-run = "endpoints"
+
+[[bin]]
+name = "endpoints"
+path = "src/endpoints.rs"
+
+[[bin]]
+name = "resubscribe"
+path = "src/resubscribe.rs"
+
+[dependencies]
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.11.0"}
+tonic = { version = "0.10", default-features = false }
+tokio = { version = "1.0", default-features = false, features = [
+    "macros",
+    "rt-multi-thread",
+] }
+tokio-stream = { version = "0.1", default-features = false }
+hyper-rustls = { version = "0.24", default-features = false, features = [
+    "http2",
+    "acceptor",
+    "rustls-native-certs",
+] }

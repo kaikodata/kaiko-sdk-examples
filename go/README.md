@@ -3,7 +3,7 @@
 - [how to use the various endpoints and their APIs](endpoints/main.go).
 This should be "quickstart" point for any user new to the SDK.
 - [how to handle end of stream / resubscription](resubscribe/main.go).
-Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by GRPC client library.
+Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by gRPC client library.
 
 ## Requirements
 

@@ -4,8 +4,8 @@ This repository shows how to use Kaiko SDK in different languages and integratin
 
 ## How it works
 
-Kaiko SDK offers a ready to use client in each language for accessing Kaiko API, leveraging GRPC Protocol and its capabilities.
-GRPC overview documentation is available here: <https://grpc.io/docs/what-is-grpc/introduction/>.
+Kaiko SDK offers a ready to use client in each language for accessing Kaiko API, leveraging gRPC Protocol and its capabilities.
+gRPC overview documentation is available here: <https://grpc.io/docs/what-is-grpc/introduction/>.
 
 ## Using stream
 
