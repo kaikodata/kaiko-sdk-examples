@@ -1,39 +1,30 @@
-# Scala SDK
+# Rust SDK
 
-- [how to use the various endpoints and their APIs](src/main/scala/endpoints/Main.scala).
+- [how to use the various endpoints and their APIs](src/endpoints.rs).
 This should be "quickstart" point for any user new to the SDK.
-- [how to handle end of stream / resubscription](src/main/scala/resubscribe/Main.scala).
+- [how to handle end of stream / resubscription](src/resubscribe.ts).
 Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by gRPC client library.
 
 ## Requirements
 
-You will need a Java 1.8+ JDK and Scala 2.12 or 2.13 installed on your machine.
-Installation can be done through third-party tools like SDKMAN (<https://sdkman.io/>).
+Rust stable toolchain (with cargo).
 
-## Build the example
-
-- Build :
-
-```bash
-./sbtx compile
-```
-
-- Test :
-
-```bash
-./sbtx test
-```
+## Build the example (endpoints)
 
 - Run :
 
 ```bash
-./sbtx run
+cargo run --bin=endpoints
 ```
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
-## Check for more recent versions
+## Build the example (resubscribe)
+
+- Run :
 
 ```bash
-./sbtx dependencyUpdates
+cargo run --bin=resubscribe
 ```
+
+Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.

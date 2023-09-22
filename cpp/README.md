@@ -5,7 +5,7 @@ This repository contains 2 kinds of example:
 - [how to use the various endpoints and their APIs](app.cpp).
 This should be "quickstart" point for any user new to the SDK.
 - [how to handle end of stream / resubscription](resubscribe.cpp).
-Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by GRPC client library.
+Disconnection can happen for lots of reasons (client or server side network, idle consumer for a very long time, etc.) and should be handled by resubscribing. Reconnection is already handled automatically by gRPC client library.
 
 ## Build the example using CMake
 
@@ -52,7 +52,7 @@ There is a note in the official gRPC [documentation](https://grpc.io/docs/guides
 /!\ *Non-POSIX-compliant systems (such as Windows) need to specify the root certificates in SslCredentialsOptions, since the defaults are only configured for POSIX filesystems.*
 
 There is a feature [request](https://github.com/grpc/grpc/issues/25533) on the gRPC repository to add out-of-the-box support for this on Windows to make the behavior of default `SslCredentials()` the same on all systems.
-Until this functionality is added in a future version of GRPC, you can add a snippet of code, in order to populate `SslCredentialsOptions`,  as described [here](https://github.com/grpc/grpc/issues/25167)
+Until this functionality is added in a future version of gRPC, you can add a snippet of code, in order to populate `SslCredentialsOptions`,  as described [here](https://github.com/grpc/grpc/issues/25167)
 
 ### Fast rebuild (CMake)
 
@@ -107,7 +107,7 @@ This API should mostly be used for high traffic subscriptions (such as Market up
 ## Non-blocking (async) API using C++20 coroutines and asio-boost
 
 If you're looking for non-blocking API because you have strict constraints against thread-pooling, take a look at <https://github.com/Tradias/asio-grpc>.
-This library will allow you to use a wrapper of C++ GRPC using Boost Asio and C++20 `co_await` feature.
+This library will allow you to use a wrapper of C++ gRPC using Boost Asio and C++20 `co_await` feature.
 
 An example usage is provided here : <https://github.com/Tradias/asio-grpc/blob/v1.3.1/example/streaming-client.cpp#L62>.
 
