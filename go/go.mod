@@ -1,6 +1,6 @@
 module example.com/m
 
-go 1.17
+go 1.21
 
 require (
 	github.com/cenkalti/backoff/v4 v4.1.3
