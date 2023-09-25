@@ -37,7 +37,7 @@ Note that for this particular step, you will need to setup an environment variab
 
 `error LNK2038: mismatch detected for 'RuntimeLibrary': value 'MTd_StaticDebug' doesn't match value 'MDd_DynamicDebug' in app.obj` 
 
-```
+```bash
 cmake .. -DFETCHCONTENT_QUIET=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreadedDebug -DINCLUDE_DIR=$INCLUDE_DIR
 ```
 
