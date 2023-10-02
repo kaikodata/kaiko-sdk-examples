@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "a2244c3de329456a604f056d3a7deb4b6ac7ad8ff612d1ed827a02baea3b67c4"
+            "sha256": "34f4e50671815bcb3383cf4cd35d3a45814f5df16c7350a0037442b695bd3e45"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -122,10 +122,10 @@
         },
         "kaikosdk": {
             "hashes": [
-                "sha256:6a86e078bddb0a44bd364363d4eb1630a1f94709f2f1f09eaecb965e7cdb305c"
+                "sha256:bcf22efd517d6b746b080130b7a1e839a2a45d56ef90276b672d54dfa70ce65b"
             ],
             "index": "pypi",
-            "version": "==1.11.0"
+            "version": "==1.12.0"
         },
         "protobuf": {
             "hashes": [
