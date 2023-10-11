@@ -13,6 +13,10 @@ path = "src/endpoints.rs"
 name = "resubscribe"
 path = "src/resubscribe.rs"
 
+[[bin]]
+name = "market_update"
+path = "src/market_update.rs"
+
 [dependencies]
 kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.12.0"}
 tonic = { version = "0.10", default-features = false }
