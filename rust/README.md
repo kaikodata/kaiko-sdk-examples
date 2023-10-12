@@ -9,7 +9,11 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 Rust stable toolchain (with cargo).
 
-## Build the example (endpoints)
+## Build the example
+
+Note that for the steps below, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
+
+### Endpoints
 
 - Run :
 
@@ -17,7 +21,29 @@ Rust stable toolchain (with cargo).
 cargo run --bin=endpoints
 ```
 
-Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
+### Indices
+
+- Run :
+
+```bash
+cargo run --bin=indices
+```
+
+### Market Update
+
+- Run :
+
+```bash
+cargo run --bin=market_update
+```
+
+### Rate
+
+- Run :
+
+```bash
+cargo run --bin=rate
+```
 
 ## Build the example (resubscribe)
 

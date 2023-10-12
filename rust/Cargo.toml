@@ -10,12 +10,20 @@ name = "endpoints"
 path = "src/endpoints.rs"
 
 [[bin]]
-name = "resubscribe"
-path = "src/resubscribe.rs"
+name = "indices"
+path = "src/indices.rs"
 
 [[bin]]
 name = "market_update"
 path = "src/market_update.rs"
+
+[[bin]]
+name = "resubscribe"
+path = "src/resubscribe.rs"
+
+[[bin]]
+name = "vwap"
+path = "src/vwap.rs"
 
 [dependencies]
 kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.12.0"}
