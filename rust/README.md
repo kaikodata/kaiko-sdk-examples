@@ -7,7 +7,7 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-Rust stable toolchain (with cargo).
+Rust stable toolchain (with cargo). The gRPC services are backed by Tonic. Follow the [getting-started guide](https://github.com/hyperium/tonic#getting-started) if you have any dependencies issues.
 
 ## Build the example
 
@@ -37,12 +37,12 @@ cargo run --bin=indices
 cargo run --bin=market_update
 ```
 
-### Rate
+### Vwap
 
 - Run :
 
 ```bash
-cargo run --bin=rate
+cargo run --bin=vwap
 ```
 
 ## Build the example (resubscribe)
