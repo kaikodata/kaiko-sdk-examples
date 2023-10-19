@@ -516,7 +516,7 @@ dependencies = [
 [[package]]
 name = "kaikosdk"
 version = "0.1.0"
-source = "git+https://github.com/kaikodata/kaiko-rust-sdk.git?tag=1.12.0#823ac3498ea321cb1636300ec2dd8bbbd534e942"
+source = "git+https://github.com/kaikodata/kaiko-rust-sdk.git?tag=1.13.0#e7089535f9f90315610fc5db1c0ba016068e4884"
 dependencies = [
  "pbjson",
  "pbjson-types",
