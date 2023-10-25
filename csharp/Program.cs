@@ -6,12 +6,15 @@ using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatedQuoteV2;
 using KaikoSdk.Stream.IndexV1;
+using KaikoSdk.Stream.IndexMultiAssetsV1;
+using KaikoSdk.Stream.IndexForexRateV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+// Run with `dotnet run -p:StartupObject=TestSdk.Program` or `dotnet run`
 namespace TestSdk
 {
     class Program
@@ -25,22 +28,28 @@ namespace TestSdk
             GrpcChannel channel = GrpcChannel.ForAddress("https://gateway-v0-grpc.kaiko.ovh", channelOptions);
 
             // trades
-            await Program.tradesRequest(channel);
+            await tradesRequest(channel);
 
             // market update
-            await Program.marketUpdateRequest(channel);
+            await marketUpdateRequest(channel);
 
             // ohlcv
-            await Program.ohlcvRequest(channel);
+            await ohlcvRequest(channel);
 
             // vwap
-            await Program.vwapRequest(channel);
+            await vwapRequest(channel);
 
-            // index
-            await Program.indicesRequest(channel);
+            // index rates
+            await indexRatesRequest(channel);
+
+            // index multi asset
+            await indexMultiAssetRequest(channel);
+
+            // index forex rate
+            await indexForexRateRequest(channel);
 
             // aggregated quote
-            await Program.aggregatedQuoteRequest(channel);
+            await aggregatedQuoteRequest(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -248,9 +257,9 @@ namespace TestSdk
             }
         }
 
-        private static async Task indicesRequest(GrpcChannel channel)
+        private static async Task indexRatesRequest(GrpcChannel channel)
         {
-            var clientindex = new StreamIndexServiceV1.StreamIndexServiceV1Client(channel);
+            var client = new StreamIndexServiceV1.StreamIndexServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
             var sourceindex = new CancellationTokenSource();
@@ -261,9 +270,91 @@ namespace TestSdk
             {
                 var req = new StreamIndexServiceRequestV1
                 {
-                    IndexCode = "indexCode", // fill it with actual value
+                    IndexCode = "KK_PR_BTCUSD",
                 };
-                var reply = clientindex.Subscribe(req, null, null, sourceindex.Token);
+                var reply = client.Subscribe(req, null, null, sourceindex.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 3)
+                    {
+                        sourceindex.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indexMultiAssetRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexMultiAssetsServiceV1.StreamIndexMultiAssetsServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourceindex = new CancellationTokenSource();
+            sourceindex.CancelAfter(TimeSpan.FromSeconds(5));
+
+            // Create a streaming index request with SDK
+            try
+            {
+                var req = new StreamIndexMultiAssetsServiceRequestV1
+                {
+                    IndexCode = "KT15",
+                };
+                var reply = client.Subscribe(req, null, null, sourceindex.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 3)
+                    {
+                        sourceindex.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indexForexRateRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexForexRateServiceV1.StreamIndexForexRateServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourceindex = new CancellationTokenSource();
+            sourceindex.CancelAfter(TimeSpan.FromSeconds(5));
+
+            // Create a streaming index request with SDK
+            try
+            {
+                var req = new StreamIndexForexRateServiceRequestV1
+                {
+                    IndexCode = "KK_PR_BTCUSD_EUR",
+                };
+                var reply = client.Subscribe(req, null, null, sourceindex.Token);
                 var stream = reply.ResponseStream;
 
                 var i = 0;

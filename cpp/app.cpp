@@ -264,7 +264,7 @@ public:
     // Data we are sending to the server.
     StreamIndexServiceRequestV1 request;
 
-    request.set_index_code("index_code"); // fill it with actual value
+    request.set_index_code("KK_PR_BTCUSD");
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
