@@ -15,6 +15,8 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_quote_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/index_forex_rate_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/index_multi_assets_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
@@ -71,6 +73,22 @@ func main() {
 	go func() {
 		// Create a streaming index request with SDK
 		err := indexRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get index: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming multi_asset index request with SDK
+		err := indexMultiAssetRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get index: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming forex rate index request with SDK
+		err := indexForexRateRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get index: %v", err)
 		}
@@ -237,7 +255,7 @@ func indexRequest(
 ) error {
 	cli := pb.NewStreamIndexServiceV1Client(conn)
 	request := index_v1.StreamIndexServiceRequestV1{
-		IndexCode: "indexCode", // fill it with actual value
+		IndexCode: "KK_PR_BTCUSD",
 	}
 
 	sub, err := cli.Subscribe(ctx, &request)
@@ -256,6 +274,62 @@ func indexRequest(
 		}
 
 		fmt.Printf("[INDEX] %+v\n", elt)
+	}
+}
+
+func indexMultiAssetRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexMultiAssetsServiceV1Client(conn)
+	request := index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1{
+		IndexCode: "KT15",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX_MULTI_ASSET] %+v\n", elt)
+	}
+}
+
+func indexForexRateRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexForexRateServiceV1Client(conn)
+	request := index_forex_rate_v1.StreamIndexForexRateServiceRequestV1{
+		IndexCode: "KK_PR_BTCUSD_EUR",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX_FOREX_RATE] %+v\n", elt)
 	}
 }
 

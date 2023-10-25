@@ -9,7 +9,9 @@ import {
     StreamMarketUpdateServiceV1Client,
     StreamTradesServiceV1Client,
     StreamIndexServiceV1Client,
-    StreamAggregatedQuoteServiceV2Client,
+    StreamIndexMultiAssetsServiceV1Client,
+    StreamIndexForexRateServiceV1Client,
+    StreamAggregatedQuoteServiceV2Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -20,6 +22,10 @@ import { StreamTradesRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1
 import { StreamTradesResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/trades_v1/response_pb';
 import { StreamIndexServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_v1/request_pb';
 import { StreamIndexServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_v1/response_pb';
+import { StreamIndexMultiAssetsServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_multi_assets_v1/request_pb';
+import { StreamIndexMultiAssetsServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_multi_assets_v1/response_pb';
+import { StreamIndexForexRateServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_forex_rate_v1/request_pb';
+import { StreamIndexForexRateServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_forex_rate_v1/response_pb';
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
 
@@ -49,8 +55,14 @@ const main = () => {
     // Create a request for streaming trades with SDK
     tradeRequest(creds);
 
-    // Create a request for streaming index with SDK
-    indexRequest(creds);
+    // Create a request for streaming index rates with SDK
+    indexRateRequest(creds);
+
+    // Create a request for streaming index forex rates with SDK
+    indexForexRateRequest(creds);
+
+    // Create a request for streaming index multi assets with SDK
+    indexMultiAssetRequest(creds);
 
     // Create a request for stream aggregated quote with SDK
     aggregatedQuoteRequest(creds);
@@ -197,18 +209,18 @@ const tradeRequest = (creds: grpc.CallCredentials): void => {
     })
 }
 
-const indexRequest = (creds: grpc.CallCredentials): void => {
+const indexRateRequest = (creds: grpc.CallCredentials): void => {
     const client = new StreamIndexServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
     const request = new StreamIndexServiceRequestV1();
 
-    request.setIndexCode("index_code"); // fill it with actual value
+    request.setIndexCode("KK_PR_BTCUSD");
 
     // Run the request and get results
     const call = client.subscribe(request);
 
     let count = 0;
     call.on('data', (response: StreamIndexServiceResponseV1) => {
-        console.log(`[INDEX] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, percentage: ${response.getPercentagesList()}`);
+        console.log(`[INDEX_RATE] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPercentagesList()?.map((e) => e.getPrice())}`);
         // console.log(response);
         count++;
         if (count >= 5) {
@@ -217,7 +229,7 @@ const indexRequest = (creds: grpc.CallCredentials): void => {
     });
 
     call.on('end', () => {
-        console.log('[INDEX] Stream ended')
+        console.log('[INDEX_RATE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
@@ -226,6 +238,63 @@ const indexRequest = (creds: grpc.CallCredentials): void => {
     })
 }
 
+const indexMultiAssetRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexMultiAssetsServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexMultiAssetsServiceRequestV1();
+
+    request.setIndexCode("KT15");
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexMultiAssetsServiceResponseV1) => {
+        console.log(`[MULTI_INDEX] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[MULTI_INDEX] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const indexForexRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexForexRateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexForexRateServiceRequestV1();
+
+    request.setIndexCode("KK_PR_BTCUSD_EUR");
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexForexRateServiceResponseV1) => {
+        console.log(`[INDEX_FOREX_RATE] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPrice()}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX_FOREX_RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
 
 const aggregatedQuoteRequest = (creds: grpc.CallCredentials): void => {
     const client = new StreamAggregatedQuoteServiceV2Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);

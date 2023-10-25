@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Polly;
 
 
-// Run with dotnet run -p:StartupObject=TestSdk.Resubscribe
+// Run with `dotnet run -p:StartupObject=TestSdk.Resubscribe`
 namespace TestSdk
 {
     class Resubscribe

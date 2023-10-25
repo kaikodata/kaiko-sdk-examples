@@ -14,6 +14,10 @@ import io.grpc.{CallCredentials, Channel, ManagedChannelBuilder, Metadata, Statu
 import java.util.concurrent.Executor
 import scala.concurrent.ExecutionContext
 import scala.util.Try
+import com.kaiko.sdk.StreamIndexMultiAssetsServiceV1Grpc
+import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1
+import com.kaiko.sdk.StreamIndexForexRateServiceV1Grpc
+import com.kaiko.sdk.stream.index_forex_rate_v1.StreamIndexForexRateServiceRequestV1
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -54,8 +58,14 @@ object Main {
     // Create a streaming market update request with SDK
     market_update_request(channel, callCredentials)
 
-    // Create a streaming index request with SDK
-    index_request(channel, callCredentials)
+    // Create a streaming index rate request with SDK
+    index_rate_request(channel, callCredentials)
+
+    // Create a streaming index multi asset request with SDK
+    index_multi_asset_request(channel, callCredentials)
+
+    // Create a streaming index forex rate request with SDK
+    index_forex_rate_request(channel, callCredentials)
 
     // Create a streaming aggregated quote request with SDK
     aggregated_quote_request(channel, callCredentials)
@@ -146,13 +156,49 @@ object Main {
     println(results)
   }
 
-  def index_request(channel: Channel, callCredentials: CallCredentials) = {
+  def index_rate_request(channel: Channel, callCredentials: CallCredentials) = {
     val stub = StreamIndexServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
 
     Try {
       // Create a request with SDK
       val request = StreamIndexServiceRequestV1(
-        indexCode = "indexCode" // fill it with actual value
+        indexCode = "KK_PR_BTCUSD"
+      )
+
+      // Run the request and get results
+      val results = stub.subscribe(request)
+        .take(10)
+        .toSeq
+
+      println(results)
+    }.recover(println(_))
+  }
+
+  def index_multi_asset_request(channel: Channel, callCredentials: CallCredentials) = {
+    val stub = StreamIndexMultiAssetsServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+
+    Try {
+      // Create a request with SDK
+      val request = StreamIndexMultiAssetsServiceRequestV1(
+        indexCode = "KT15"
+      )
+
+      // Run the request and get results
+      val results = stub.subscribe(request)
+        .take(10)
+        .toSeq
+
+      println(results)
+    }.recover(println(_))
+  }
+
+  def index_forex_rate_request(channel: Channel, callCredentials: CallCredentials) = {
+    val stub = StreamIndexForexRateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+
+    Try {
+      // Create a request with SDK
+      val request = StreamIndexForexRateServiceRequestV1(
+        indexCode = "KK_PR_BTCUSD_EUR"
       )
 
       // Run the request and get results
