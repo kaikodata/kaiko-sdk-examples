@@ -1,4 +1,4 @@
-FROM ubuntu:focal-20230308
+FROM ubuntu:jammy-20231004
 
 RUN apt update && \
     apt-get upgrade --yes && \
