@@ -8,8 +8,6 @@ from google.protobuf.json_format import MessageToJson
 from kaikosdk import sdk_pb2_grpc
 from kaikosdk.core import instrument_criteria_pb2
 from kaikosdk.stream.aggregates_ohlcv_v1 import request_pb2 as pb_ohlcv
-from kaikosdk.stream.aggregates_direct_exchange_rate_v1 import request_pb2 as pb_direct_exchange_rate
-from kaikosdk.stream.aggregates_spot_exchange_rate_v1 import request_pb2 as pb_spot_exchange_rate
 from kaikosdk.stream.aggregates_vwap_v1 import request_pb2 as pb_vwap
 from kaikosdk.stream.market_update_v1 import request_pb2 as pb_market_update
 from kaikosdk.stream.market_update_v1 import commodity_pb2 as pb_commodity
@@ -46,36 +44,6 @@ def vwap_request(channel: grpc.Channel):
                     instrument_class = "spot",
                     code = "eth-usdt"
                 )
-            ))
-            for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
-    except grpc.RpcError as e:
-        print(e.details(), e.code())
-
-def direct_exchange_rate_request(channel: grpc.Channel):
-    try:
-        with channel:
-            stub = sdk_pb2_grpc.StreamAggregatesDirectExchangeRateServiceV1Stub(channel)
-            responses = stub.Subscribe(pb_direct_exchange_rate.StreamAggregatesDirectExchangeRateRequestV1(
-                aggregate='1s',
-                code='btc-usd',
-                sources=False,
-            ))
-            for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
-    except grpc.RpcError as e:
-        print(e.details(), e.code())
-
-def spot_exchange_rate_request(channel: grpc.Channel):
-    try:
-        with channel:
-            stub = sdk_pb2_grpc.StreamAggregatesSpotExchangeRateServiceV1Stub(channel)
-            responses = stub.Subscribe(pb_spot_exchange_rate.StreamAggregatesSpotExchangeRateRequestV1(
-                aggregate='1s',
-                code='btc-usd',
-                sources=False,
             ))
             for response in responses:
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))

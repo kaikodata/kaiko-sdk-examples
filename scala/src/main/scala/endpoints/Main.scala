@@ -1,11 +1,9 @@
 package endpoints
 
-import com.kaiko.sdk.{StreamAggregatedQuoteServiceV2Grpc, StreamAggregatesDirectExchangeRateServiceV1Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesSpotExchangeRateServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
+import com.kaiko.sdk.{StreamAggregatedQuoteServiceV2Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
 import com.kaiko.sdk.core.InstrumentCriteria
 import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
-import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1
-import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1
@@ -52,12 +50,6 @@ object Main {
 
     // Create a streaming vwap request with SDK
     vwap_request(channel, callCredentials)
-
-    // Create a streaming direct exchange rate request with SDK
-    direct_exchange_rate_request(channel, callCredentials)
-
-    // Create a streaming spot exchange rate request with SDK
-    spot_exchange_rate_request(channel, callCredentials)
 
     // Create a streaming market update request with SDK
     market_update_request(channel, callCredentials)
@@ -123,40 +115,6 @@ object Main {
         code = "btc-usd"
       )),
       aggregate = "1s",
-    )
-
-    // Run the request and get results
-    val results = stub.subscribe(request)
-      .take(10)
-      .toSeq
-
-    println(results)
-  }
-
-  def direct_exchange_rate_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatesDirectExchangeRateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
-
-    // Create a request with SDK
-    val request = StreamAggregatesDirectExchangeRateRequestV1(
-      aggregate = "1s",
-      code = "btc-usd"
-    )
-
-    // Run the request and get results
-    val results = stub.subscribe(request)
-      .take(10)
-      .toSeq
-
-    println(results)
-  }
-
-  def spot_exchange_rate_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatesSpotExchangeRateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
-
-    // Create a request with SDK
-    val request = StreamAggregatesSpotExchangeRateRequestV1(
-      aggregate = "1s",
-      code = "btc-usd"
     )
 
     // Run the request and get results
