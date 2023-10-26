@@ -13,9 +13,7 @@ import (
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_quote_v2"
-	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
-	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
@@ -47,14 +45,6 @@ func main() {
 	defer cancel()
 
 	go func() {
-		// Create a streaming spot exchange rate request with SDK
-		err = spotExchangeRateRequest(ctx, conn)
-		if err != nil {
-			log.Fatalf("could not get spot exchange rates: %v", err)
-		}
-	}()
-
-	go func() {
 		// Create a streaming market update request with SDK
 		err := marketUpdateRequest(ctx, conn)
 		if err != nil {
@@ -75,14 +65,6 @@ func main() {
 		err := vwapRequest(ctx, conn)
 		if err != nil {
 			log.Fatalf("could not get vwaps: %v", err)
-		}
-	}()
-
-	go func() {
-		// Create a streaming direct exchange rate request with SDK
-		err := directExchangeRateRequest(ctx, conn)
-		if err != nil {
-			log.Fatalf("could not get direct exchange rates: %v", err)
 		}
 	}()
 
@@ -179,64 +161,6 @@ func vwapRequest(
 		}
 
 		fmt.Printf("[VWAP] %+v\n", elt)
-	}
-}
-
-func directExchangeRateRequest(
-	ctx context.Context,
-	conn *grpc.ClientConn,
-) error {
-	cli := pb.NewStreamAggregatesDirectExchangeRateServiceV1Client(conn)
-	request := aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1{
-		Code:      "btc-usd",
-		Aggregate: "1s",
-	}
-
-	sub, err := cli.Subscribe(ctx, &request)
-	if err != nil {
-		log.Fatalf("could not subscribe: %v", err)
-	}
-
-	for {
-		elt, err := sub.Recv()
-		if err == io.EOF {
-			return nil
-		}
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("[DIRECT EXCHANGE RATE] %+v\n", elt)
-	}
-}
-
-func spotExchangeRateRequest(
-	ctx context.Context,
-	conn *grpc.ClientConn,
-) error {
-	cli := pb.NewStreamAggregatesSpotExchangeRateServiceV1Client(conn)
-	request := aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1{
-		Code:      "btc-usd",
-		Aggregate: "1s",
-	}
-
-	sub, err := cli.Subscribe(ctx, &request)
-	if err != nil {
-		log.Fatalf("could not subscribe: %v", err)
-	}
-
-	for {
-		elt, err := sub.Recv()
-		if err == io.EOF {
-			return nil
-		}
-
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("[SPOT EXCHANGE RATE] %+v\n", elt)
 	}
 }
 

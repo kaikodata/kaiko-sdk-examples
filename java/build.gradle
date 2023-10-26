@@ -5,8 +5,8 @@ plugins {
 }
 
 ext.versions = [
-        grpc: '1.54.0',
-        sdk : '1.13.0'
+        grpc: '1.59.0',
+        sdk : '1.14.0'
 ]
 
 repositories {
@@ -18,7 +18,7 @@ dependencies {
     implementation "com.kaiko:java-sdk:${versions.sdk}"
     implementation "io.grpc:grpc-netty:${versions.grpc}"
     implementation "io.grpc:grpc-stub:${versions.grpc}"
-    implementation 'com.google.protobuf:protobuf-java:3.22.2'
+    implementation 'com.google.protobuf:protobuf-java:3.21.12'
     implementation 'com.evanlennick:retry4j:0.15.0' // optional dependency only to demonstrate resubscribe
 
     testImplementation "io.grpc:grpc-testing:${versions.grpc}"

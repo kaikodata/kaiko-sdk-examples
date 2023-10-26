@@ -7,10 +7,6 @@ import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2;
 import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteResponseV2;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
-import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateRequestV1;
-import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v1.StreamAggregatesDirectExchangeRateResponseV1;
-import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateRequestV1;
-import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v1.StreamAggregatesSpotExchangeRateResponseV1;
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1;
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPResponseV1;
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity;
@@ -72,12 +68,6 @@ public class Main {
         // Create a streaming vwap request with SDK
         vwap_request(channel, callCredentials);
 
-        // Create a streaming direct exchange rate request with SDK
-        direct_exchange_rate_request(channel, callCredentials);
-
-        // Create a streaming spot exchange rate request with SDK
-        spot_exchange_rate_request(channel, callCredentials);
-
         // Create a streaming market update request with SDK
         market_update_request(channel, callCredentials);
 
@@ -130,46 +120,6 @@ public class Main {
 
         // Run the request and get results
         List<StreamAggregatesVWAPResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void direct_exchange_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesDirectExchangeRateRequestV1 request = StreamAggregatesDirectExchangeRateRequestV1.newBuilder()
-                .setCode("btc-usd")
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesDirectExchangeRateServiceV1Grpc.StreamAggregatesDirectExchangeRateServiceV1BlockingStub stub = StreamAggregatesDirectExchangeRateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesDirectExchangeRateResponseV1> elts = StreamSupport.stream(
-                        Spliterators.spliteratorUnknownSize(
-                                stub.subscribe(request),
-                                Spliterator.ORDERED)
-                        , false)
-                .limit(10)
-                .collect(Collectors.toList());
-
-        System.out.println(elts);
-    }
-
-    public static void spot_exchange_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
-        StreamAggregatesSpotExchangeRateRequestV1 request = StreamAggregatesSpotExchangeRateRequestV1.newBuilder()
-                .setCode("btc-usd")
-                .setAggregate("1s")
-                .build();
-
-        StreamAggregatesSpotExchangeRateServiceV1Grpc.StreamAggregatesSpotExchangeRateServiceV1BlockingStub stub = StreamAggregatesSpotExchangeRateServiceV1Grpc.newBlockingStub(channel).withCallCredentials(callCredentials);
-
-        // Run the request and get results
-        List<StreamAggregatesSpotExchangeRateResponseV1> elts = StreamSupport.stream(
                         Spliterators.spliteratorUnknownSize(
                                 stub.subscribe(request),
                                 Spliterator.ORDERED)
