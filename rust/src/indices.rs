@@ -97,9 +97,9 @@ async fn digital_assets_rates(
     Ok(())
 }
 
-/// Run an example of digital assets rates
+/// Run an example of digital forex assets rates
 /// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
-///     This example requires that the Kaiko API Key has the proper permissions set with the KK_PR_BTCUSD index code configured
+///     This example requires that the Kaiko API Key has the proper permissions set with the KK_PR_BTCUSD_EUR index code configured
 ///
 /// # Arguments
 ///

@@ -22,6 +22,12 @@ using kaikosdk::StreamAggregatesVWAPServiceV1;
 using kaikosdk::StreamIndexServiceRequestV1;
 using kaikosdk::StreamIndexServiceResponseV1;
 using kaikosdk::StreamIndexServiceV1;
+using kaikosdk::StreamIndexMultiAssetsServiceRequestV1;
+using kaikosdk::StreamIndexMultiAssetsServiceResponseV1;
+using kaikosdk::StreamIndexMultiAssetsServiceV1;
+using kaikosdk::StreamIndexForexRateServiceRequestV1;
+using kaikosdk::StreamIndexForexRateServiceResponseV1;
+using kaikosdk::StreamIndexForexRateServiceV1;
 using kaikosdk::StreamMarketUpdateRequestV1;
 using kaikosdk::StreamMarketUpdateResponseV1;
 using kaikosdk::StreamMarketUpdateServiceV1;
@@ -251,10 +257,10 @@ private:
   std::unique_ptr<StreamAggregatesVWAPServiceV1::Stub> stub_;
 };
 
-class IndexClient
+class IndexRateClient
 {
 public:
-  IndexClient(std::shared_ptr<Channel> channel)
+  IndexRateClient(std::shared_ptr<Channel> channel)
       : stub_(StreamIndexServiceV1::NewStub(channel)) {}
 
   // Assembles the client's payload, sends it and presents the response back
@@ -297,6 +303,102 @@ public:
 
 private:
   std::unique_ptr<StreamIndexServiceV1::Stub> stub_;
+};
+
+class IndexMultiAssetClient
+{
+public:
+  IndexMultiAssetClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexMultiAssetsServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamIndexMultiAssetsServiceRequestV1 request;
+
+    request.set_index_code("KT15");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexMultiAssetsServiceResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexMultiAssetsServiceResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexMultiAssetsServiceV1::Stub> stub_;
+};
+
+class IndexForexRateClient
+{
+public:
+  IndexForexRateClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexForexRateServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamIndexForexRateServiceRequestV1 request;
+
+    request.set_index_code("KK_PR_BTCUSD_EUR");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexForexRateServiceResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexForexRateServiceResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexForexRateServiceV1::Stub> stub_;
 };
 
 class AggregatedQuoteClient
@@ -360,9 +462,9 @@ int main(int argc, char **argv)
   // MarketUpdateClient client = MarketUpdateClient(channel);
   // OHLCVClient client = OHLCVClient(channel);
   // VWAPClient client = VWAPClient(channel);
-  // SpotExchangeRateClient client = SpotExchangeRateClient(channel);
-  // DirectExchangeRateClient client = DirectExchangeRateClient(channel);
-  // IndexClient client = IndexClient(channel);
+  // IndexRateClient client = IndexRateClient(channel);
+  // IndexMultiAssetClient client = IndexMultiAssetClient(channel);
+  // IndexForexRateClient client = IndexForexRateClient(channel);
   // AggregatedQuoteClient client = AggregatedQuoteClient(channel);
   
   std::string reply = client.Subscribe();
