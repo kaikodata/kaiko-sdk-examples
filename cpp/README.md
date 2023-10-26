@@ -61,7 +61,7 @@ Until this functionality is added in a future version of gRPC, you can add a sni
 Once you have run the `build_cmake.sh` script once, you can do fast rebuild through `make`:
 
 ```bash
-(cd build && make all)
+(cd build_cmake && make all)
 ```
 
 ## Build the example with conan (pre built binaries)

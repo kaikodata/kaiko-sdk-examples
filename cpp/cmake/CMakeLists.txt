@@ -20,7 +20,7 @@ include(FetchContent)
 FetchContent_Declare(
         grpc
         GIT_REPOSITORY "https://github.com/grpc/grpc"
-        GIT_TAG "90ccf24d22b6fc909a1021ebd89fd8c838467d26" # 1.50.1 updated to protoc 3.21.4
+        GIT_TAG "868412b573a0663c8db41558498caf44098f4390" # 1.54.3 updated to protoc 3.21.12
 )
 
 FetchContent_MakeAvailable(grpc)
