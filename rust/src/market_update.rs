@@ -12,7 +12,7 @@ use tonic::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let channel = new_channel().await?;
+    let channel = example::new_channel().await?;
     let api_key =
         std::env::var("KAIKO_API_KEY").map_err(|_| "KAIKO_API_KEY environment variable not set")?;
 
@@ -53,18 +53,4 @@ async fn market_update_trades(
     }
 
     Ok(())
-}
-
-async fn new_channel() -> Result<Channel, Box<dyn std::error::Error>> {
-    let connector = hyper_rustls::HttpsConnectorBuilder::new()
-        .with_native_roots()
-        .https_only()
-        .enable_http2()
-        .build();
-
-    let channel = Channel::from_static("https://gateway-v0-grpc.kaiko.ovh:443")
-        .connect_with_connector(connector)
-        .await?;
-
-    Ok(channel)
 }
