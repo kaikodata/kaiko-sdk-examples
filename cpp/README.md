@@ -93,7 +93,7 @@ You will only need `docker` and `docker-compose` installed on your machine.
 - Build and run :
 
 ```bash
-./build_docker.sh
+CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_docker.sh
 ```
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.

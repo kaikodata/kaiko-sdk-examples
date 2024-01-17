@@ -2,8 +2,9 @@ version: "3"
 
 services:
   appbuild:
-    # see https://github.com/conan-io/conan-docker-tools
-    image: conanio/gcc9
+    build:
+      context: .
+      dockerfile: Dockerfile.conan
     network_mode: host
     environment:
     - CMAKE_BUILD_PARALLEL_LEVEL=8

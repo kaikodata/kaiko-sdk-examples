@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) # change binary dir to "bin"
 
 add_executable(app ../app.cpp)
+
+find_package(gRPC REQUIRED)
 
 # Include kaikosdk library
 # TODO: publish it as a prebuilt package on conan-center to cut compilation times
@@ -23,8 +23,7 @@ if(NOT kaikosdk_POPULATED)
   include_directories(${kaikosdk_SOURCE_DIR}/src)
   add_subdirectory(${kaikosdk_SOURCE_DIR}/src)
 
-  target_link_libraries(kaikosdk CONAN_PKG::protobuf CONAN_PKG::grpc) # this is needed while it's not published as a proper conan lib, otherwise conan can't resolve inner dependencies
+  target_link_libraries(kaikosdk protobuf::protobuf grpc::grpc) # this is needed while it's not published as a proper conan lib, otherwise conan can't resolve inner dependencies
 endif()
 
-conan_basic_setup(TARGETS)
-target_link_libraries(app kaikosdk CONAN_PKG::grpc)
+target_link_libraries(app kaikosdk grpc::grpc)

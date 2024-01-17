@@ -9,13 +9,14 @@ INCLUDE_DIR="conan"
 rm -rf $BUILD_TEST_PATH
 mkdir -p $BUILD_TEST_PATH
 
+conan install . --build=missing --output=build_conan
+
 pushd $BUILD_TEST_PATH
 
 # install app with default compiler to work with libstdc++11 (protobuf requirement), otherwise linking fails.
-conan install .. --build=missing -s compiler.libcxx=libstdc++11
 
-CMAKE="$(conan info cmake/3.27.7@ --package-filter cmake* --path --only package_folder | grep package_folder | cut -d ":" -f2)/bin/cmake"
-$CMAKE .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_BINARY_DIR=$BUILD_TEST_PATH -DINCLUDE_DIR=$INCLUDE_DIR
+CMAKE=$(find $(conan cache path $(conan list cmake/3.28.1:* --cache --format=compact | grep -E "cmake/[0-9.]+#[0-9a-z]+:[0-9a-z]+")) -type f -executable -name cmake)
+$CMAKE .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=conan_toolchain.cmake -DCMAKE_BINARY_DIR=$BUILD_TEST_PATH -DINCLUDE_DIR=$INCLUDE_DIR
 $CMAKE --build .
 
 popd
