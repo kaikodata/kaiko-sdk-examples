@@ -12,7 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "@grpc/grpc-js": "^1.8.14",
-    "@kaiko-data/sdk-node": "^1.17.0",
+    "@kaiko-data/sdk-node": "^1.17.1",
     "exponential-backoff": "^3.1.0",
     "google-protobuf": "^3.21.2",
     "rxjs": "^7.5.5"

@@ -32,7 +32,7 @@ set(_GRPC_GRPCPP grpc++)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.17.0"
+        GIT_TAG "v1.17.1"
 )
 
 FetchContent_GetProperties(kaikosdk)
@@ -41,7 +41,7 @@ if(NOT kaikosdk_POPULATED)
 
   # Bring the populated content into the build
   include_directories(${kaikosdk_SOURCE_DIR}/src)
-  add_subdirectory(${kaikosdk_SOURCE_DIR}/src)
+  add_subdirectory(${kaikosdk_SOURCE_DIR})
 endif()
 
 target_link_libraries(kaikosdk PRIVATE ${_PROTOBUF_LIBPROTOBUF} ${_GRPC_GRPCPP})

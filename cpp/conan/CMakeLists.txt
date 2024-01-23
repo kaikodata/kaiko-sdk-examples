@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.17.0"
+        GIT_TAG "v1.17.1"
 )
 
 FetchContent_GetProperties(kaikosdk)
@@ -21,9 +21,7 @@ if(NOT kaikosdk_POPULATED)
 
   # Bring the populated content into the build
   include_directories(${kaikosdk_SOURCE_DIR}/src)
-  add_subdirectory(${kaikosdk_SOURCE_DIR}/src)
-
-  target_link_libraries(kaikosdk protobuf::protobuf grpc::grpc) # this is needed while it's not published as a proper conan lib, otherwise conan can't resolve inner dependencies
+  add_subdirectory(${kaikosdk_SOURCE_DIR})
 endif()
 
 target_link_libraries(app kaikosdk grpc::grpc)
