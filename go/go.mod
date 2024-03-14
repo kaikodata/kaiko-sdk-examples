@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/cenkalti/backoff/v4 v4.2.1
 	github.com/kaikodata/kaiko-go-sdk v1.19.0
-	google.golang.org/grpc v1.61.0
+	google.golang.org/grpc v1.62.1
 )
 
 require (
