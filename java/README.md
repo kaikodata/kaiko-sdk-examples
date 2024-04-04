@@ -43,3 +43,9 @@ Note that for this particular step, you will need to setup an environment variab
 Closing a subscription is done through a `CancellableContext` and `context.cancel(...)`, which should be used accordingly with your `executor`.
 
 Example can be found at <https://github.com/grpc/grpc-java/blob/master/examples/src/main/java/io/grpc/examples/cancellation/CancellationClient.java#L66>.
+
+## Proxy support
+
+Proxy is supported through standard Java properties.
+
+See <https://docs.oracle.com/javase/8/docs/technotes/guides/net/proxies.html> and <https://github.com/grpc/grpc-java/issues/9057> for more information.
