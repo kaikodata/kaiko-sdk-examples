@@ -108,7 +108,7 @@ const vwapRequest = (creds: grpc.CallCredentials): void => {
     const request = new StreamAggregatesVWAPRequestV1();
 
     const criteria = new InstrumentCriteria();
-    criteria.setExchange('bnce');
+    criteria.setExchange('binc');
     criteria.setInstrumentClass('spot');
     criteria.setCode('*');
 

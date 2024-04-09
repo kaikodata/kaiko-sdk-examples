@@ -226,7 +226,7 @@ namespace TestSdk
                     InstrumentCriteria = new InstrumentCriteria
                     {
                         Code = "*",
-                        Exchange = "bnce",
+                        Exchange = "binc",
                         InstrumentClass = "spot"
                     },
                     Aggregate = "1s"

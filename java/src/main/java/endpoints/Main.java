@@ -118,7 +118,7 @@ public class Main {
         StreamAggregatesVWAPRequestV1 request = StreamAggregatesVWAPRequestV1.newBuilder()
                 .setInstrumentCriteria(
                         InstrumentCriteria.newBuilder()
-                                .setExchange("bnce")
+                                .setExchange("binc")
                                 .setInstrumentClass("spot")
                                 .setCode("btc-usdt")
                                 .build()

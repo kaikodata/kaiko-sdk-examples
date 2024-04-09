@@ -42,7 +42,7 @@ def vwap_request(channel: grpc.Channel):
             responses = stub.Subscribe(pb_vwap.StreamAggregatesVWAPRequestV1(
                 aggregate='1s',
                 instrument_criteria = instrument_criteria_pb2.InstrumentCriteria(
-                    exchange = "bnce",
+                    exchange = "binc",
                     instrument_class = "spot",
                     code = "eth-usdt"
                 )
