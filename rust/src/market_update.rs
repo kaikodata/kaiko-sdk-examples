@@ -36,11 +36,11 @@ async fn market_update_trades(
     #[allow(deprecated)]
     let payload = StreamMarketUpdateRequestV1 {
         instrument_criteria: Some(kaikosdk::InstrumentCriteria {
-            exchange: "cbse".into(),
+            exchange: "binc".into(),
             instrument_class: "spot".into(),
-            code: "btc-usd".into(),
+            code: "*".into(),
         }),
-        commodities: vec![StreamMarketUpdateCommodity::SmucTrade.into()],
+        commodities: vec![StreamMarketUpdateCommodity::SmucFullOrderBook.into()],
         interval: None,
         snapshot_type: 0,
     };
@@ -48,8 +48,8 @@ async fn market_update_trades(
     let request = Request::new(payload);
     let mut stream = client.subscribe(request).await?.into_inner();
 
-    while let Some(item) = stream.next().await {
-        println!("{:?}", item?);
+    while let Some(_) = stream.next().await {
+        // println!("{:?}", item?);
     }
 
     Ok(())
