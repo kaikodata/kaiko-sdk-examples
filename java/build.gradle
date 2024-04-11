@@ -24,6 +24,10 @@ dependencies {
     testImplementation "io.grpc:grpc-testing:${versions.grpc}"
     testImplementation 'org.mockito:mockito-core:3.7.7'
     testImplementation 'junit:junit:4.13'
+
+    // for basic logging
+    implementation 'org.slf4j:slf4j-api:1.7.32'
+    implementation 'ch.qos.logback:logback-classic:1.2.6'
 }
 
 repositories {
@@ -32,7 +36,20 @@ repositories {
     }
 }
 
+// ./gradlew run
 application {
     // Define the main class for the application.
     mainClass = 'endpoints.Main'
+}
+
+// ./gradlew runIterator
+task(runIterator, dependsOn: 'classes', type: JavaExec) {
+   main = 'iterator.Main'
+   classpath = sourceSets.main.runtimeClasspath
+}
+
+// ./gradlew runResubscribe
+task(runResubscribe, dependsOn: 'classes', type: JavaExec) {
+   main = 'resubscribe.Main'
+   classpath = sourceSets.main.runtimeClasspath
 }
