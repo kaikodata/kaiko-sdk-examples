@@ -7,6 +7,6 @@ object Dependencies {
 
   lazy val grpcio = "com.google.protobuf" % "protobuf-java" % "3.21.12"
   lazy val netty = "io.grpc" % "grpc-netty" % "1.59.0"
-  lazy val sdk = "com.kaiko" %% "scala-sdk" % "1.19.1"
+  lazy val sdk = "com.kaiko" %% "scala-sdk" % "1.20.0"
   lazy val retry = "com.evanlennick" % "retry4j" % "0.15.0" // optional dependency only to demonstrate resubscribe
 }
