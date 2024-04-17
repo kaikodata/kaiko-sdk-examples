@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-grpcio = "==1.59.0"
-grpcio-tools = "==1.59.0"
+grpcio = "==1.62.1"
+grpcio-tools = "==1.62.1"
 kaikosdk = "==1.21.0"
 protobuf = "==4.21.12"
 retrying = "===1.3.3" # optional dependency for demonstrating resubscribe

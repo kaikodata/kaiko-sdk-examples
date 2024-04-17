@@ -5,7 +5,7 @@ plugins {
 }
 
 ext.versions = [
-        grpc: '1.59.0',
+        grpc: '1.63.0',
         sdk : '1.21.0'
 ]
 
@@ -21,6 +21,7 @@ dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.21.12'
     implementation 'com.evanlennick:retry4j:0.15.0' // optional dependency only to demonstrate resubscribe
 
+    testImplementation "io.grpc:grpc-inprocess:${versions.grpc}"
     testImplementation "io.grpc:grpc-testing:${versions.grpc}"
     testImplementation 'org.mockito:mockito-core:3.7.7'
     testImplementation 'junit:junit:4.13'
