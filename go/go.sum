@@ -6,8 +6,8 @@ github.com/golang/protobuf v1.5.3/go.mod h1:XVQd3VNwM+JqD3oG2Ue2ip4fOMUkwXdXDdiu
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-github.com/kaikodata/kaiko-go-sdk v1.20.0 h1:8FJ9ubPWT59v8htx7WGIcfpC0VHfMRExaAXZ2ggtBKE=
-github.com/kaikodata/kaiko-go-sdk v1.20.0/go.mod h1:AdfI+0ac70U7rw78tJ+Ds3vTWwtdApRgWE0mt4Jz3gY=
+github.com/kaikodata/kaiko-go-sdk v1.21.0 h1:3NebgCAPtOb6gfLbryWLlppaF2iXxpRuKX4WDT9OC1A=
+github.com/kaikodata/kaiko-go-sdk v1.21.0/go.mod h1:Pdy5na9l6dVrXQ83Rp0V0wSbhmwHdqLZHhW6rAX57n0=
 golang.org/x/net v0.23.0 h1:7EYJ93RZ9vYSZAIb2x3lnuvqO5zneoD6IvWjuhfxjTs=
 golang.org/x/net v0.23.0/go.mod h1:JKghWKKOSdJwpW2GEx0Ja7fmaKnMsbu+MWVZTokSYmg=
 golang.org/x/sys v0.18.0 h1:DBdB3niSjOA/O0blCZBqDefyWNYveAYMNF1Wum0DYQ4=
