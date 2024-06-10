@@ -6,6 +6,7 @@
 #include <grpcpp/grpcpp.h>
 #include <sdk/sdk.grpc.pb.h>
 
+using google::protobuf::Duration;
 using grpc::Channel;
 using grpc::ChannelArguments;
 using grpc::ClientContext;
@@ -13,6 +14,7 @@ using grpc::ClientReader;
 using grpc::SecureChannelCredentials;
 using grpc::Status;
 using kaikosdk::InstrumentCriteria;
+using kaikosdk::Assets;
 using kaikosdk::StreamAggregatesOHLCVRequestV1;
 using kaikosdk::StreamAggregatesOHLCVResponseV1;
 using kaikosdk::StreamAggregatesOHLCVServiceV1;
@@ -37,6 +39,12 @@ using kaikosdk::StreamTradesServiceV1;
 using kaikosdk::StreamAggregatedQuoteRequestV2;
 using kaikosdk::StreamAggregatedQuoteResponseV2;
 using kaikosdk::StreamAggregatedQuoteServiceV2;
+using kaikosdk::StreamAggregatesSpotExchangeRateV2RequestV1;
+using kaikosdk::StreamAggregatesSpotExchangeRateV2ResponseV1;
+using kaikosdk::StreamAggregatesSpotExchangeRateV2ServiceV1;
+using kaikosdk::StreamAggregatesDirectExchangeRateV2RequestV1;
+using kaikosdk::StreamAggregatesDirectExchangeRateV2ResponseV1;
+using kaikosdk::StreamAggregatesSpotDirectExchangeRateV2ServiceV1;
 
 void setupContext(ClientContext *context)
 {
@@ -451,6 +459,118 @@ private:
   std::unique_ptr<StreamAggregatedQuoteServiceV2::Stub> stub_;
 };
 
+class AggregatesSpotExchangeRateClient
+{
+public:
+  AggregatesSpotExchangeRateClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamAggregatesSpotExchangeRateV2ServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamAggregatesSpotExchangeRateV2RequestV1 request;
+
+    Assets *assets = request.mutable_assets();
+    assets->set_base("btc");
+    assets->set_quote("usd");
+
+    Duration *window = request.mutable_window();
+    window->set_seconds(10);
+
+    Duration *update_frequency = request.mutable_update_frequency();
+    update_frequency->set_seconds(2);
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamAggregatesSpotExchangeRateV2ResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamAggregatesSpotExchangeRateV2ResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamAggregatesSpotExchangeRateV2ServiceV1::Stub> stub_;
+};
+
+class AggregatesDirectExchangeRateClient
+{
+public:
+  AggregatesDirectExchangeRateClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamAggregatesSpotDirectExchangeRateV2ServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamAggregatesDirectExchangeRateV2RequestV1 request;
+
+    Assets *assets = request.mutable_assets();
+    assets->set_base("btc");
+    assets->set_quote("usd");
+
+    Duration *window = request.mutable_window();
+    window->set_seconds(10);
+
+    Duration *update_frequency = request.mutable_update_frequency();
+    update_frequency->set_seconds(2);
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamAggregatesDirectExchangeRateV2ResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamAggregatesDirectExchangeRateV2ResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamAggregatesSpotDirectExchangeRateV2ServiceV1::Stub> stub_;
+};
+
 int main(int argc, char **argv)
 {
   ChannelArguments args;
@@ -466,6 +586,8 @@ int main(int argc, char **argv)
   // IndexMultiAssetClient client = IndexMultiAssetClient(channel);
   // IndexForexRateClient client = IndexForexRateClient(channel);
   // AggregatedQuoteClient client = AggregatedQuoteClient(channel);
+  // AggregatesSpotExchangeRateClient client = AggregatesSpotExchangeRateClient(channel);
+  // AggregatesDirectExchangeRateClient client = AggregatesDirectExchangeRateClient(channel);
   
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;

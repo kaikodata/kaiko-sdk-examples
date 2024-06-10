@@ -1,15 +1,30 @@
 package endpoints
 
-import com.kaiko.sdk.{StreamAggregatedQuoteServiceV2Grpc, StreamAggregatesOHLCVServiceV1Grpc, StreamAggregatesVWAPServiceV1Grpc, StreamIndexServiceV1Grpc, StreamMarketUpdateServiceV1Grpc, StreamTradesServiceV1Grpc}
-import com.kaiko.sdk.core.InstrumentCriteria
+import com.kaiko.sdk.{
+  StreamAggregatedQuoteServiceV2Grpc,
+  StreamAggregatesOHLCVServiceV1Grpc,
+  StreamAggregatesVWAPServiceV1Grpc,
+  StreamIndexServiceV1Grpc,
+  StreamMarketUpdateServiceV1Grpc,
+  StreamTradesServiceV1Grpc
+}
+import com.kaiko.sdk.core.{Assets, InstrumentCriteria}
 import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2
+import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v2.StreamAggregatesSpotExchangeRateV2RequestV1;
+import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v2.StreamAggregatesDirectExchangeRateV2RequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1
-import io.grpc.{CallCredentials, Channel, ManagedChannelBuilder, Metadata, Status}
+import io.grpc.{
+  CallCredentials,
+  Channel,
+  ManagedChannelBuilder,
+  Metadata,
+  Status
+}
 
 import java.util.concurrent.Executor
 import scala.concurrent.ExecutionContext
@@ -18,28 +33,39 @@ import com.kaiko.sdk.StreamIndexMultiAssetsServiceV1Grpc
 import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1
 import com.kaiko.sdk.StreamIndexForexRateServiceV1Grpc
 import com.kaiko.sdk.stream.index_forex_rate_v1.StreamIndexForexRateServiceRequestV1
+import com.kaiko.sdk.StreamAggregatesSpotExchangeRateV2ServiceV1Grpc.StreamAggregatesSpotExchangeRateV2ServiceV1
+import com.kaiko.sdk.StreamAggregatesSpotExchangeRateV2ServiceV1Grpc
+import com.kaiko.sdk.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Grpc
+import com.google.protobuf.duration.Duration
 
 object Main {
   def main(args: Array[String]): Unit = {
     implicit val ec = ExecutionContext.global
 
     // Setup runtime
-    val builder = ManagedChannelBuilder.forAddress("gateway-v0-grpc.kaiko.ovh", 443)
+    val builder =
+      ManagedChannelBuilder.forAddress("gateway-v0-grpc.kaiko.ovh", 443)
     builder.executor(ec)
 
     // Setup authentication
-    val AUTHORIZATION_METADATA_KEY = Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
-    val apiKey = sys.env.getOrElse("KAIKO_API_KEY", "1234") // Put your api key here
+    val AUTHORIZATION_METADATA_KEY =
+      Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
+    val apiKey =
+      sys.env.getOrElse("KAIKO_API_KEY", "1234") // Put your api key here
     val headers = new Metadata()
     headers.put(AUTHORIZATION_METADATA_KEY, s"Bearer $apiKey")
 
     val channel = builder.build()
     val callCredentials = new CallCredentials {
-      override def applyRequestMetadata(requestInfo: CallCredentials.RequestInfo, executor: Executor, applier: CallCredentials.MetadataApplier): Unit = {
+      override def applyRequestMetadata(
+          requestInfo: CallCredentials.RequestInfo,
+          executor: Executor,
+          applier: CallCredentials.MetadataApplier
+      ): Unit = {
         Try {
           applier.apply(headers)
-        }.recover {
-          case e: Throwable => applier.fail(Status.UNAUTHENTICATED.withCause(e))
+        }.recover { case e: Throwable =>
+          applier.fail(Status.UNAUTHENTICATED.withCause(e))
         }
       }
 
@@ -69,24 +95,38 @@ object Main {
 
     // Create a streaming aggregated quote request with SDK
     aggregated_quote_request(channel, callCredentials)
+
+    // Create a streaming spot exchange rate request with SDK
+    aggregates_spot_exchange_rate(channel, callCredentials)
+
+    // Create a streaming direct exchange rate request with SDK
+    aggregates_spot_direct_exchange_rate(channel, callCredentials)
   }
 
-  def market_update_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamMarketUpdateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+  def market_update_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamMarketUpdateServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamMarketUpdateRequestV1(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "krkn",
-        instrumentClass = "spot",
-        code = "*"
-      )),
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "krkn",
+          instrumentClass = "spot",
+          code = "*"
+        )
+      ),
       commodities = List(StreamMarketUpdateCommodity.SMUC_TRADE)
     )
 
     // Run the request and get results
-    val results = stub.subscribe(request)
+    val results = stub
+      .subscribe(request)
       .take(10)
       .toSeq
 
@@ -94,20 +134,25 @@ object Main {
   }
 
   def ohlcv_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatesOHLCVServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamAggregatesOHLCVServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     val request = StreamAggregatesOHLCVRequestV1(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "cbse",
-        instrumentClass = "spot",
-        code = "btc-usd"
-      )),
-      aggregate = "1s",
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "cbse",
+          instrumentClass = "spot",
+          code = "btc-usd"
+        )
+      ),
+      aggregate = "1s"
     )
 
     // Run the request and get results
-    val results = stub.subscribe(request)
+    val results = stub
+      .subscribe(request)
       .take(10)
       .toSeq
 
@@ -115,20 +160,25 @@ object Main {
   }
 
   def vwap_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatesVWAPServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamAggregatesVWAPServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     val request = StreamAggregatesVWAPRequestV1(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "cbse",
-        instrumentClass = "spot",
-        code = "btc-usd"
-      )),
-      aggregate = "1s",
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "cbse",
+          instrumentClass = "spot",
+          code = "btc-usd"
+        )
+      ),
+      aggregate = "1s"
     )
 
     // Run the request and get results
-    val results = stub.subscribe(request)
+    val results = stub
+      .subscribe(request)
       .take(10)
       .toSeq
 
@@ -136,20 +186,25 @@ object Main {
   }
 
   def trades_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamTradesServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamTradesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamTradesRequestV1(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "cbse",
-        instrumentClass = "spot",
-        code = "btc-usd"
-      ))
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "cbse",
+          instrumentClass = "spot",
+          code = "btc-usd"
+        )
+      )
     )
 
     // Run the request and get results
-    val results = stub.subscribe(request)
+    val results = stub
+      .subscribe(request)
       .take(10)
       .toSeq
 
@@ -157,7 +212,9 @@ object Main {
   }
 
   def index_rate_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamIndexServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamIndexServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     Try {
       // Create a request with SDK
@@ -166,7 +223,8 @@ object Main {
       )
 
       // Run the request and get results
-      val results = stub.subscribe(request)
+      val results = stub
+        .subscribe(request)
         .take(10)
         .toSeq
 
@@ -174,8 +232,13 @@ object Main {
     }.recover(println(_))
   }
 
-  def index_multi_asset_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamIndexMultiAssetsServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+  def index_multi_asset_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexMultiAssetsServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     Try {
       // Create a request with SDK
@@ -184,7 +247,8 @@ object Main {
       )
 
       // Run the request and get results
-      val results = stub.subscribe(request)
+      val results = stub
+        .subscribe(request)
         .take(10)
         .toSeq
 
@@ -192,8 +256,13 @@ object Main {
     }.recover(println(_))
   }
 
-  def index_forex_rate_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamIndexForexRateServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+  def index_forex_rate_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexForexRateServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     Try {
       // Create a request with SDK
@@ -202,7 +271,8 @@ object Main {
       )
 
       // Run the request and get results
-      val results = stub.subscribe(request)
+      val results = stub
+        .subscribe(request)
         .take(10)
         .toSeq
 
@@ -210,8 +280,13 @@ object Main {
     }.recover(println(_))
   }
 
-  def aggregated_quote_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamAggregatedQuoteServiceV2Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+  def aggregated_quote_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamAggregatedQuoteServiceV2Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
@@ -221,7 +296,56 @@ object Main {
     )
 
     // Run the request and get results
-    val results = stub.subscribe(request)
+    val results = stub
+      .subscribe(request)
+      .take(4)
+      .toSeq
+
+    println(results)
+  }
+
+  def aggregates_spot_exchange_rate(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamAggregatesSpotExchangeRateV2ServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamAggregatesSpotExchangeRateV2RequestV1(
+      assets = Some(Assets(base = "btc", quote = "usd")),
+      window = Some(Duration(seconds = 10)),
+      updateFrequency = Some(Duration(seconds = 2))
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(4)
+      .toSeq
+
+    println(results)
+  }
+
+  def aggregates_spot_direct_exchange_rate(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamAggregatesSpotDirectExchangeRateV2ServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamAggregatesDirectExchangeRateV2RequestV1(
+      assets = Some(Assets(base = "btc", quote = "usd")),
+      window = Some(Duration(seconds = 10)),
+      updateFrequency = Some(Duration(seconds = 2))
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
       .take(4)
       .toSeq
 
