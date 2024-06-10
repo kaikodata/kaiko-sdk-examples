@@ -17,22 +17,29 @@ object Main {
     implicit val ec = ExecutionContext.global
 
     // Setup runtime
-    val builder = ManagedChannelBuilder.forAddress("gateway-v0-grpc.kaiko.ovh", 443)
+    val builder =
+      ManagedChannelBuilder.forAddress("gateway-v0-grpc.kaiko.ovh", 443)
     builder.executor(ec)
 
     // Setup authentication
-    val AUTHORIZATION_METADATA_KEY = Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
-    val apiKey = sys.env.getOrElse("KAIKO_API_KEY", "1234") // Put your api key here
+    val AUTHORIZATION_METADATA_KEY =
+      Metadata.Key.of("Authorization", Metadata.ASCII_STRING_MARSHALLER)
+    val apiKey =
+      sys.env.getOrElse("KAIKO_API_KEY", "1234") // Put your api key here
     val headers = new Metadata()
     headers.put(AUTHORIZATION_METADATA_KEY, s"Bearer $apiKey")
 
     val channel = builder.build()
     val callCredentials = new CallCredentials {
-      override def applyRequestMetadata(requestInfo: CallCredentials.RequestInfo, executor: Executor, applier: CallCredentials.MetadataApplier): Unit = {
+      override def applyRequestMetadata(
+          requestInfo: CallCredentials.RequestInfo,
+          executor: Executor,
+          applier: CallCredentials.MetadataApplier
+      ): Unit = {
         Try {
           applier.apply(headers)
-        }.recover {
-          case e: Throwable => applier.fail(Status.UNAUTHENTICATED.withCause(e))
+        }.recover { case e: Throwable =>
+          applier.fail(Status.UNAUTHENTICATED.withCause(e))
         }
       }
 
@@ -44,28 +51,36 @@ object Main {
   }
 
   def trades_request(channel: Channel, callCredentials: CallCredentials) = {
-    val stub = StreamTradesServiceV1Grpc.blockingStub(channel).withCallCredentials(callCredentials)
+    val stub = StreamTradesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
 
     // Create a request with SDK
     // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
     val request = StreamTradesRequestV1(
-      instrumentCriteria = Some(InstrumentCriteria(
-        exchange = "cbse",
-        instrumentClass = "spot",
-        code = "btc-usd"
-      ))
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "cbse",
+          instrumentClass = "spot",
+          code = "btc-usd"
+        )
+      )
     )
 
     // Run the request and get results
     subscribe(stub, request)
   }
 
-  def subscribe(stub: StreamTradesServiceV1Grpc.StreamTradesServiceV1BlockingStub, request: StreamTradesRequestV1) = {
+  def subscribe(
+      stub: StreamTradesServiceV1Grpc.StreamTradesServiceV1BlockingStub,
+      request: StreamTradesRequestV1
+  ) = {
     val config = new RetryConfigBuilder()
       .retryOnSpecificExceptions(classOf[InterruptedException])
       .withMaxNumberOfTries(10)
       .withDelayBetweenTries(2, ChronoUnit.SECONDS)
-      .withFixedBackoff.build
+      .withFixedBackoff
+      .build
 
     Try {
       new CallExecutorBuilder()

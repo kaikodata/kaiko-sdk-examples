@@ -4,9 +4,10 @@ import os
 
 import grpc
 from google.protobuf.json_format import MessageToJson
+from google.protobuf import duration_pb2
 
 from kaikosdk import sdk_pb2_grpc
-from kaikosdk.core import instrument_criteria_pb2
+from kaikosdk.core import instrument_criteria_pb2, assets_pb2
 from kaikosdk.stream.aggregates_ohlcv_v1 import request_pb2 as pb_ohlcv
 from kaikosdk.stream.aggregates_vwap_v1 import request_pb2 as pb_vwap
 from kaikosdk.stream.market_update_v1 import request_pb2 as pb_market_update
@@ -16,6 +17,8 @@ from kaikosdk.stream.index_v1 import request_pb2 as pb_index
 from kaikosdk.stream.index_multi_assets_v1 import request_pb2 as pb_index_multi_assets
 from kaikosdk.stream.index_forex_rate_v1 import request_pb2 as pb_index_forex_rate
 from kaikosdk.stream.aggregated_quote_v2 import request_pb2 as pb_aggregated_quote
+from kaikosdk.stream.aggregates_spot_exchange_rate_v2 import request_pb2 as pb_spot_exchange_rate
+from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb_direct_exchange_rate
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -144,6 +147,54 @@ def aggregated_quote_request(channel: grpc.Channel):
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
+def aggregates_spot_exchange_rate_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamAggregatesSpotExchangeRateV2ServiceV1Stub(channel)
+
+            window = duration_pb2.Duration()
+            window.FromSeconds(10)
+
+            update_frequency = duration_pb2.Duration()
+            update_frequency.FromSeconds(2)
+
+            responses = stub.Subscribe(pb_spot_exchange_rate.StreamAggregatesSpotExchangeRateV2RequestV1(
+                assets = assets_pb2.Assets(
+                    base = "btc",
+                    quote = "usd"
+                ),
+                window = window,
+                update_frequency = update_frequency
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+def aggregates_direct_exchange_rate_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Stub(channel)
+
+            window = duration_pb2.Duration()
+            window.FromSeconds(10)
+
+            update_frequency = duration_pb2.Duration()
+            update_frequency.FromSeconds(2)
+
+            responses = stub.Subscribe(pb_direct_exchange_rate.StreamAggregatesDirectExchangeRateV2RequestV1(
+                assets = assets_pb2.Assets(
+                    base = "btc",
+                    quote = "usd"
+                ),
+                window = window,
+                update_frequency = update_frequency
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
 
 def run():
     credentials = grpc.ssl_channel_credentials(root_certificates=None)
@@ -158,8 +209,9 @@ def run():
     # index_multi_asset(channel)
     # index_forex_rate(channel)
     # aggregated_quote_request(channel)
-
     # market_update_request(channel)
+    # aggregates_spot_exchange_rate_request(channel)
+    # aggregates_direct_exchange_rate_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()

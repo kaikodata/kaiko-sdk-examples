@@ -1,3 +1,4 @@
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client;
 using Grpc.Core;
 using KaikoSdk;
@@ -5,6 +6,8 @@ using KaikoSdk.Stream.MarketUpdateV1;
 using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatedQuoteV2;
+using KaikoSdk.Stream.AggregatesSpotExchangeRateV2;
+using KaikoSdk.Stream.AggregatesDirectExchangeRateV2;
 using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.IndexMultiAssetsV1;
 using KaikoSdk.Stream.IndexForexRateV1;
@@ -50,6 +53,12 @@ namespace TestSdk
 
             // aggregated quote
             await aggregatedQuoteRequest(channel);
+
+            // spot exchange rate
+            await aggregatesSpotExchangeRateRequest(channel);
+
+            // spot direct exchange rate
+            await aggregatesSpotDirectExchangeRateRequest(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -396,6 +405,92 @@ namespace TestSdk
                 {
                     InstrumentClass = "spot",
                     Code = "btc-usd"
+                };
+                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task aggregatesSpotExchangeRateRequest(GrpcChannel channel)
+        {
+            var clientaq = new StreamAggregatesSpotExchangeRateV2ServiceV1.StreamAggregatesSpotExchangeRateV2ServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot exchange rate request with SDK
+            try
+            {
+                var req = new StreamAggregatesSpotExchangeRateV2RequestV1
+                {
+                    Assets = new Assets { Base = "btc", Quote = "usd" },
+                    Window = Duration.FromTimeSpan(TimeSpan.FromSeconds(10)),
+                    UpdateFrequency = Duration.FromTimeSpan(TimeSpan.FromSeconds(2))
+                };
+                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task aggregatesSpotDirectExchangeRateRequest(GrpcChannel channel)
+        {
+            var clientaq = new StreamAggregatesSpotDirectExchangeRateV2ServiceV1.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot direct exchange rate request with SDK
+            try
+            {
+                var req = new StreamAggregatesDirectExchangeRateV2RequestV1
+                {
+                    Assets = new Assets { Base = "btc", Quote = "usd" },
+                    Window = Duration.FromTimeSpan(TimeSpan.FromSeconds(10)),
+                    UpdateFrequency = Duration.FromTimeSpan(TimeSpan.FromSeconds(2))
                 };
                 var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;

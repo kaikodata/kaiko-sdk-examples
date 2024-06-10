@@ -11,7 +11,9 @@ import {
     StreamIndexServiceV1Client,
     StreamIndexMultiAssetsServiceV1Client,
     StreamIndexForexRateServiceV1Client,
-    StreamAggregatedQuoteServiceV2Client
+    StreamAggregatedQuoteServiceV2Client,
+    StreamAggregatesSpotExchangeRateV2ServiceV1Client,
+    StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -28,6 +30,12 @@ import { StreamIndexForexRateServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/s
 import { StreamIndexForexRateServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_forex_rate_v1/response_pb';
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
+import { StreamAggregatesSpotExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/request_pb';
+import { StreamAggregatesDirectExchangeRateV2RequestV1  } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v2/request_pb';
+import { Assets } from '@kaiko-data/sdk-node/sdk/core/assets_pb';
+import { Duration } from 'google-protobuf/google/protobuf/duration_pb';
+import { StreamAggregatesDirectExchangeRateV2ResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v2/response_pb';
+import { StreamAggregatesSpotExchangeRateV2ResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/response_pb';
 
 const main = () => {
 
@@ -66,6 +74,12 @@ const main = () => {
 
     // Create a request for stream aggregated quote with SDK
     aggregatedQuoteRequest(creds);
+
+    // Create a request for stream spot exchange rate with SDK
+    aggregatesSpotExchangeRateRequest(creds);
+
+    // Create a request for stream spot direct exchange rate with SDK
+    aggregatesSpotDirectExchangeRateRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -321,6 +335,80 @@ const aggregatedQuoteRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[AGGREGATED QUOTE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const aggregatesSpotExchangeRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatesSpotExchangeRateV2ServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatesSpotExchangeRateV2RequestV1();
+
+    const assets = new Assets();
+    assets.setBase("btc");
+    assets.setQuote("usd");
+
+    request.setAssets(assets);
+    request.setWindow(new Duration().setSeconds(10));
+    request.setUpdateFrequency(new Duration().setSeconds(2));
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatesSpotExchangeRateV2ResponseV1) => {
+        const value = response.getPrice();
+        if (value) {
+            console.log(`[SPOT EXCHANGE RATE] code: ${response.getAssets()}, price: ${JSON.stringify(value)}}`);
+        }
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[SPOT EXCHANGE RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const aggregatesSpotDirectExchangeRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatesDirectExchangeRateV2RequestV1();
+
+    const assets = new Assets();
+    assets.setBase("btc");
+    assets.setQuote("usd");
+
+    request.setAssets(assets);
+    request.setWindow(new Duration().setSeconds(10));
+    request.setUpdateFrequency(new Duration().setSeconds(2));
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatesDirectExchangeRateV2ResponseV1) => {
+        const value = response.getPrice();
+        if (value) {
+            console.log(`[SPOT DIRECT EXCHANGE RATE] code: ${response.getAssets()}, price: ${JSON.stringify(value)}}`);
+        }
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[SPOT DIRECT EXCHANGE RATE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
