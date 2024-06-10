@@ -13,7 +13,9 @@ import (
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_quote_v2"
+	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_forex_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_multi_assets_v1"
@@ -23,6 +25,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
+	"google.golang.org/protobuf/types/known/durationpb"
 )
 
 func main() {
@@ -99,6 +102,22 @@ func main() {
 		err := aggregatedQuoteRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get aggregated quote: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming aggregated spot exchange rate request with SDK
+		err := aggregatesSpotExchangeRateV2Request(ctx, conn)
+		if err != nil {
+			log.Printf("could not get spot exchange rate: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming aggregated spot direct exchange rate request with SDK
+		err := aggregatesSpotDirectExchangeRateV2Request(ctx, conn)
+		if err != nil {
+			log.Printf("could not get spot direct exchange rate: %v", err)
 		}
 	}()
 
@@ -360,5 +379,71 @@ func aggregatedQuoteRequest(
 		}
 
 		fmt.Printf("[AGGREGATED QUOTE] %+v\n", elt)
+	}
+}
+
+func aggregatesSpotExchangeRateV2Request(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesSpotExchangeRateV2ServiceV1Client(conn)
+	request := aggregates_spot_exchange_rate_v2.StreamAggregatesSpotExchangeRateV2RequestV1{
+		Assets: &core.Assets{
+			Base:  "btc",
+			Quote: "usd",
+		},
+		Window:          durationpb.New(10 * time.Second),
+		UpdateFrequency: durationpb.New(2 * time.Second),
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[SPOT EXCHANGE RATE] %+v\n", elt)
+	}
+}
+
+func aggregatesSpotDirectExchangeRateV2Request(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatesSpotDirectExchangeRateV2ServiceV1Client(conn)
+	request := aggregates_direct_exchange_rate_v2.StreamAggregatesDirectExchangeRateV2RequestV1{
+		Assets: &core.Assets{
+			Base:  "btc",
+			Quote: "usd",
+		},
+		Window:          durationpb.New(10 * time.Second),
+		UpdateFrequency: durationpb.New(2 * time.Second),
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[SPOT DIRECT EXCHANGE RATE] %+v\n", elt)
 	}
 }

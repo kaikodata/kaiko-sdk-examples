@@ -25,6 +25,10 @@ path = "src/resubscribe.rs"
 name = "vwap"
 path = "src/vwap.rs"
 
+[[bin]]
+name = "exchange_rate"
+path = "src/exchange_rate.rs"
+
 [dependencies]
 kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.21.0" }
 tonic = { version = "0.11", default-features = false, features = [
@@ -36,3 +40,4 @@ tokio = { version = "1.0", default-features = false, features = [
     "rt-multi-thread",
 ] }
 tokio-stream = { version = "0.1.15", default-features = false }
+pbjson-types = { version = "0.6.0", default-features = false }
