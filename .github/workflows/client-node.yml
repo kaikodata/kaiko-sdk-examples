@@ -1,0 +1,16 @@
+name: client-node
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/iron # node20
+      - run: >
+          cd node &&
+          npm install &&
+          npm run tsc

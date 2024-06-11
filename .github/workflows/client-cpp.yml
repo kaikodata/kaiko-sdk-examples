@@ -1,0 +1,20 @@
+name: client-cpp
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      CC:   gcc-11
+      CXX:  g++-11
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - run: >
+        mkdir -p ~/.conan2/profiles &&
+        cat cpp/conan_profile.conf > ~/.conan2/profiles/default &&
+        pip install "conan>=2.0.0" && 
+        cd cpp &&
+        CMAKE_BUILD_PARALLEL_LEVEL=8 ./build_conan.sh
