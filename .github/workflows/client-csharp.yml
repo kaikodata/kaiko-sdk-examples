@@ -1,0 +1,14 @@
+name: client-csharp
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '6.0.x'
+    - run: >
+        cd csharp &&
+        dotnet build

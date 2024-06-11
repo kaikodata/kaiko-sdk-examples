@@ -1,0 +1,16 @@
+name: client-rust
+on: [push]
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        toolchain: stable
+    - run: >
+        cd rust &&
+        cargo check

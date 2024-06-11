@@ -1,0 +1,15 @@
+name: client-python
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11' # python version is linked to prebuilt binaries here : https://pypi.org/project/grpcio/#files
+    - run: >
+        pip install --user pipenv &&
+        cd python &&
+        pipenv install
