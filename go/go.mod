@@ -1,18 +1,19 @@
 module example.com/m
 
-go 1.21
+go 1.22
 
 require (
-	github.com/cenkalti/backoff/v4 v4.2.1
+	github.com/bobg/go-generics/v3 v3.5.0
+	github.com/cenkalti/backoff/v4 v4.3.0
 	github.com/kaikodata/kaiko-go-sdk v1.21.0
-	google.golang.org/grpc v1.62.1
-	google.golang.org/protobuf v1.33.0
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.34.2
 )
 
 require (
-	github.com/golang/protobuf v1.5.3 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240205150955-31a09d347014 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 )
