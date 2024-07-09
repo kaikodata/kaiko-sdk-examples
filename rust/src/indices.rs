@@ -1,9 +1,6 @@
-use kaikosdk::stream_index_forex_rate_service_v1_client::StreamIndexForexRateServiceV1Client;
-use kaikosdk::stream_index_multi_assets_service_v1_client::StreamIndexMultiAssetsServiceV1Client;
 use kaikosdk::stream_index_service_v1_client::StreamIndexServiceV1Client;
 use kaikosdk::{
-    StreamIndexCommodity, StreamIndexForexRateServiceRequestV1,
-    StreamIndexMultiAssetsServiceRequestV1, StreamIndexServiceRequestV1,
+    StreamIndexCommodity, StreamIndexServiceRequestV1,
 };
 use tokio_stream::StreamExt;
 use tonic::metadata::{Ascii, MetadataValue};
@@ -19,46 +16,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
 
     tokio::try_join!(
-        blue_chip_indices(channel.clone(), &token),
         digital_assets_rates(channel.clone(), &token),
-        index_forex_rate(channel.clone(), &token)
     )?;
-
-    Ok(())
-}
-
-/// Run an example of blue chip indices
-/// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
-///     This example requires that the Kaiko API Key has the proper permissions set with the KT10 index code configured
-///
-/// # Aguments
-///
-/// - `channel` - The channel to use to connect to the Kaiko Gateway
-/// - `token` - The token to use to authenticate to the Kaiko Gateway
-async fn blue_chip_indices(
-    channel: Channel,
-    token: &MetadataValue<Ascii>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = StreamIndexMultiAssetsServiceV1Client::with_interceptor(
-        channel,
-        move |mut req: Request<()>| {
-            req.metadata_mut().insert("authorization", token.clone());
-            Ok(req)
-        },
-    );
-
-    let request = Request::new(StreamIndexMultiAssetsServiceRequestV1 {
-        commodities: vec![StreamIndexCommodity::SicRealTime.into()],
-        index_code: "KT10".to_string(),
-        interval: None,
-    });
-
-    let stream = client.subscribe(request).await?.into_inner();
-
-    process_stream_channel(stream, |item| {
-        println!("{:?}", item);
-    })
-    .await?;
 
     Ok(())
 }
@@ -83,42 +42,7 @@ async fn digital_assets_rates(
 
     let request = Request::new(StreamIndexServiceRequestV1 {
         commodities: vec![StreamIndexCommodity::SicRealTime.into()],
-        index_code: "KK_PR_BTCUSD".to_string(),
-        interval: None,
-    });
-
-    let stream = client.subscribe(request).await?.into_inner();
-
-    process_stream_channel(stream, |item| {
-        println!("{:?}", item);
-    })
-    .await?;
-
-    Ok(())
-}
-
-/// Run an example of digital forex assets rates
-/// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
-///     This example requires that the Kaiko API Key has the proper permissions set with the KK_PR_BTCUSD_EUR index code configured
-///
-/// # Arguments
-///
-/// - `channel` - The channel to use to connect to the Kaiko Gateway
-/// - `token` - The token to use to authenticate to the Kaiko Gateway
-async fn index_forex_rate(
-    channel: Channel,
-    token: &MetadataValue<Ascii>,
-) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = StreamIndexForexRateServiceV1Client::with_interceptor(
-        channel,
-        move |mut req: Request<()>| {
-            req.metadata_mut().insert("authorization", token.clone());
-            Ok(req)
-        },
-    );
-
-    let request = Request::new(StreamIndexForexRateServiceRequestV1 {
-        index_code: "KK_PR_BTCUSD_EUR".to_string(),
+        index_code: "D2X-KAIKO_BTCEUR,D2X-KAIKO_ETHEUR".to_string(),
         interval: None,
     });
 
