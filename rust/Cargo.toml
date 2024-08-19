@@ -30,12 +30,12 @@ name = "exchange_rate"
 path = "src/exchange_rate.rs"
 
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.21.0" }
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.22.0" }
 tonic = { version = "0.11", default-features = false, features = [
     "tls-roots",
     "tls",
 ] }
-tokio = { version = "1.0", default-features = false, features = [
+tokio = { version = "1.39.3", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
