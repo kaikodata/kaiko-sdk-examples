@@ -11,15 +11,15 @@
   "author": "Kaiko",
   "license": "MIT",
   "dependencies": {
-    "@grpc/grpc-js": "^1.10.9",
-    "@kaiko-data/sdk-node": "^1.21.0",
+    "@grpc/grpc-js": "^1.11.1",
+    "@kaiko-data/sdk-node": "^1.22.0",
     "exponential-backoff": "^3.1.0",
-    "google-protobuf": "^3.21.2",
+    "google-protobuf": "^3.21.4",
     "rxjs": "^7.5.5"
   },
   "devDependencies": {
     "@types/google-protobuf": "^3.15.9",
     "ts-node": "^10.9.1",
-    "typescript": "^5.2.2"
+    "typescript": "^5.5.4"
   }
 }
