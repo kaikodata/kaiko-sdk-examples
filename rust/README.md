@@ -21,36 +21,14 @@ Note that for the steps below, you will need to setup an environment variable `K
 cargo run --bin=endpoints
 ```
 
-### Indices
+### Other examples
 
 - Run :
 
 ```bash
-cargo run --bin=indices
+cargo run --bin
 ```
 
-### Market Update
-
-- Run :
-
-```bash
-cargo run --bin=market_update
-```
-
-### Vwap
-
-- Run :
-
-```bash
-cargo run --bin=vwap
-```
-
-## Build the example (resubscribe)
-
-- Run :
-
-```bash
-cargo run --bin=resubscribe
-```
+to get the list of other example binaries available.
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.

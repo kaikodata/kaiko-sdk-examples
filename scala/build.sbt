@@ -1,11 +1,13 @@
 import Dependencies._
 
-ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / scalaVersion := "2.13.14"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.kaiko"
 ThisBuild / organizationName := "Kaiko"
 
 mainClass in (Compile, run) := Some("endpoints.Main")
+
+scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 
 val testDependencies = Seq(
   scalaTest,
@@ -14,6 +16,7 @@ val testDependencies = Seq(
 )
 
 val libDependencies = Seq(
+  scalapbjson4s,
   netty,
   grpcio,
   sdk,

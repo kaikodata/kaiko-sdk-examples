@@ -13,6 +13,7 @@ import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 object Main {
+
   def main(args: Array[String]): Unit = {
     implicit val ec = ExecutionContext.global
 
@@ -85,19 +86,20 @@ object Main {
     Try {
       new CallExecutorBuilder()
         .config(config)
-        .beforeNextTryListener((_: com.evanlennick.retry4j.Status[_]) => {
+        .beforeNextTryListener { (_: com.evanlennick.retry4j.Status[_]) =>
           println("[TRADES] Stream ended")
           println("[TRADES] Resubscribing")
-        })
+        }
         .build()
-        .execute(() => {
+        .execute { () =>
           val it = stub.subscribe(request)
           println("[TRADES] Stream started")
 
           it.foreach(System.out.println)
 
           throw new InterruptedException
-        })
+        }
     }.recover(println(_))
   }
+
 }

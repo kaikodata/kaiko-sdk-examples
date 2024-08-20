@@ -65,7 +65,7 @@ async fn blue_chip_indices(
 
 /// Run an example of digital assets rates
 /// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
-///     This example requires that the Kaiko API Key has the proper permissions set with the KK_PR_BTCUSD index code configured
+///     This example requires that the Kaiko API Key has the proper permissions set with the KK_BRR_BTCUSD index code configured
 ///
 /// # Arguments
 ///
@@ -83,7 +83,7 @@ async fn digital_assets_rates(
 
     let request = Request::new(StreamIndexServiceRequestV1 {
         commodities: vec![StreamIndexCommodity::SicRealTime.into()],
-        index_code: "KK_PR_BTCUSD".to_string(),
+        index_code: "KK_BRR_BTCUSD".to_string(),
         interval: None,
     });
 
@@ -99,7 +99,7 @@ async fn digital_assets_rates(
 
 /// Run an example of digital forex assets rates
 /// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
-///     This example requires that the Kaiko API Key has the proper permissions set with the KK_PR_BTCUSD_EUR index code configured
+///     This example requires that the Kaiko API Key has the proper permissions set with the KK_BRR_BTCUSD_EUR index code configured
 ///
 /// # Arguments
 ///
@@ -118,7 +118,7 @@ async fn index_forex_rate(
     );
 
     let request = Request::new(StreamIndexForexRateServiceRequestV1 {
-        index_code: "KK_PR_BTCUSD_EUR".to_string(),
+        index_code: "KK_BRR_BTCUSD_EUR".to_string(),
         interval: None,
     });
 

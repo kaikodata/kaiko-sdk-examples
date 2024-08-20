@@ -19,6 +19,8 @@ from kaikosdk.stream.index_forex_rate_v1 import request_pb2 as pb_index_forex_ra
 from kaikosdk.stream.aggregated_quote_v2 import request_pb2 as pb_aggregated_quote
 from kaikosdk.stream.aggregates_spot_exchange_rate_v2 import request_pb2 as pb_spot_exchange_rate
 from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb_direct_exchange_rate
+from kaikosdk.stream.derivatives_instrument_metrics_v1 import request_pb2 as pb_derivatives_instrument_metrics
+from kaikosdk.stream.iv_svi_parameters_v1 import request_pb2 as pb_iv_svi_parameters
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -33,6 +35,7 @@ def ohlcv_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
@@ -51,8 +54,8 @@ def vwap_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -70,8 +73,8 @@ def market_update_request(channel: grpc.Channel):
                 commodities=[pb_commodity.SMUC_TRADE]
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -88,8 +91,8 @@ def trades_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -98,11 +101,11 @@ def index_rate_request(channel: grpc.Channel):
         with channel:
             stub = sdk_pb2_grpc.StreamIndexServiceV1Stub(channel)
             responses = stub.Subscribe(pb_index.StreamIndexServiceRequestV1(
-                index_code = "KK_PR_BTCUSD" 
+                index_code = "KK_BRR_BTCUSD" 
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -114,8 +117,8 @@ def index_multi_asset(channel: grpc.Channel):
                 index_code = "KT15"
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -124,11 +127,11 @@ def index_forex_rate(channel: grpc.Channel):
         with channel:
             stub = sdk_pb2_grpc.StreamIndexForexRateServiceV1Stub(channel)
             responses = stub.Subscribe(pb_index_forex_rate.StreamIndexForexRateServiceRequestV1(
-                index_code = "KK_PR_BTCUSD_EUR"
+                index_code = "KK_BRR_BTCUSD_EUR"
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -142,8 +145,8 @@ def aggregated_quote_request(channel: grpc.Channel):
                 code = "btc-usd"
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
-                # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -167,6 +170,7 @@ def aggregates_spot_exchange_rate_request(channel: grpc.Channel):
                 update_frequency = update_frequency
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -191,6 +195,41 @@ def aggregates_direct_exchange_rate_request(channel: grpc.Channel):
                 update_frequency = update_frequency
             ))
             for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True))) 
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+def derivatives_instrument_metrics_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamDerivativesInstrumentMetricsServiceV1Stub(channel)
+
+            responses = stub.Subscribe(pb_derivatives_instrument_metrics.StreamDerivativesInstrumentMetricsRequestV1(
+                instrument_criteria = instrument_criteria_pb2.InstrumentCriteria(
+                    exchange = "*",
+                    instrument_class = "perpetual-future",
+                    code = "btc-usd"
+                )
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+def iv_svi_parameters_v1_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamIvSviParametersServiceV1Stub(channel)
+
+            responses = stub.Subscribe(pb_iv_svi_parameters.StreamIvSviParametersRequestV1(
+                assets = assets_pb2.Assets(
+                    base = "btc",
+                    quote = "usd"
+                ),
+                exchanges = "drbt"
+            ))
+            for response in responses:
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -202,6 +241,8 @@ def run():
     composite_credentials = grpc.composite_channel_credentials(credentials, call_credentials)
     channel = grpc.secure_channel('gateway-v0-grpc.kaiko.ovh', composite_credentials)
 
+    # WARN: don't use `MessageToJson` in a tight read loop with endpoints like market update, it's eating CPU and can't keep up with the stream
+
     trades_request(channel)
     # ohlcv_request(channel)
     # vwap_request(channel)
@@ -212,6 +253,8 @@ def run():
     # market_update_request(channel)
     # aggregates_spot_exchange_rate_request(channel)
     # aggregates_direct_exchange_rate_request(channel)
+    # derivatives_instrument_metrics_request(channel)
+    # iv_svi_parameters_v1_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()
