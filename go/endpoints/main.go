@@ -17,9 +17,11 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/derivatives_instrument_metrics_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_forex_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_multi_assets_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/iv_svi_parameters_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
 	"google.golang.org/grpc"
@@ -45,7 +47,7 @@ func main() {
 	apiKey := getEnv("KAIKO_API_KEY", "1234") // Put your api key here
 	ctx = metadata.AppendToOutgoingContext(ctx, "authorization", "Bearer "+apiKey)
 
-	timeout := 15 * time.Second // demo timeout
+	timeout := 30 * time.Second // demo timeout
 	ctx, cancel = context.WithTimeout(ctx, timeout)
 	defer cancel()
 
@@ -118,6 +120,22 @@ func main() {
 		err := aggregatesSpotDirectExchangeRateV2Request(ctx, conn)
 		if err != nil {
 			log.Printf("could not get spot direct exchange rate: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming derivatives instrument metrics request with SDK
+		err := derivativesInstrumentMetricsRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get derivatives instrument metrics: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming iv svi parameters request with SDK
+		err := ivSviParametersRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get iv svi parameters: %v", err)
 		}
 	}()
 
@@ -274,7 +292,7 @@ func indexRequest(
 ) error {
 	cli := pb.NewStreamIndexServiceV1Client(conn)
 	request := index_v1.StreamIndexServiceRequestV1{
-		IndexCode: "KK_PR_BTCUSD",
+		IndexCode: "KK_BRR_BTCUSD",
 	}
 
 	sub, err := cli.Subscribe(ctx, &request)
@@ -330,7 +348,7 @@ func indexForexRateRequest(
 ) error {
 	cli := pb.NewStreamIndexForexRateServiceV1Client(conn)
 	request := index_forex_rate_v1.StreamIndexForexRateServiceRequestV1{
-		IndexCode: "KK_PR_BTCUSD_EUR",
+		IndexCode: "KK_BRR_BTCUSD_EUR",
 	}
 
 	sub, err := cli.Subscribe(ctx, &request)
@@ -445,5 +463,69 @@ func aggregatesSpotDirectExchangeRateV2Request(
 		}
 
 		fmt.Printf("[SPOT DIRECT EXCHANGE RATE] %+v\n", elt)
+	}
+}
+
+func derivativesInstrumentMetricsRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamDerivativesInstrumentMetricsServiceV1Client(conn)
+	request := derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1{
+		InstrumentCriteria: &core.InstrumentCriteria{
+			Exchange:        "*",
+			InstrumentClass: "perpetual-future",
+			Code:            "btc-usd",
+		},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[DERIVATIVES INSTRUMENT METRICS] %+v\n", elt)
+	}
+}
+
+func ivSviParametersRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIvSviParametersServiceV1Client(conn)
+	request := iv_svi_parameters_v1.StreamIvSviParametersRequestV1{
+		Assets: &core.Assets{
+			Base:  "btc",
+			Quote: "usd",
+		},
+		Exchanges: "drbt",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[IV SVI PARAMETERS] %+v\n", elt)
 	}
 }

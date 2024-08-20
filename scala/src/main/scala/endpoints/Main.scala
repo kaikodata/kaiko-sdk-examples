@@ -1,14 +1,16 @@
 package endpoints
 
-import com.kaiko.sdk.{
-  StreamAggregatedQuoteServiceV2Grpc,
-  StreamAggregatesOHLCVServiceV1Grpc,
-  StreamAggregatesVWAPServiceV1Grpc,
-  StreamIndexServiceV1Grpc,
-  StreamMarketUpdateServiceV1Grpc,
-  StreamTradesServiceV1Grpc
-}
-import com.kaiko.sdk.core.{Assets, InstrumentCriteria}
+import scala.language.existentials
+import com.kaiko.sdk.StreamAggregatedQuoteServiceV2Grpc
+import com.kaiko.sdk.StreamAggregatesOHLCVServiceV1Grpc
+import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc
+import com.kaiko.sdk.StreamDerivativesInstrumentMetricsServiceV1Grpc
+import com.kaiko.sdk.StreamIndexServiceV1Grpc
+import com.kaiko.sdk.StreamIvSviParametersServiceV1Grpc
+import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
+import com.kaiko.sdk.StreamTradesServiceV1Grpc
+import com.kaiko.sdk.core.Assets
+import com.kaiko.sdk.core.InstrumentCriteria
 import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2
 import com.kaiko.sdk.stream.aggregates_spot_exchange_rate_v2.StreamAggregatesSpotExchangeRateV2RequestV1;
 import com.kaiko.sdk.stream.aggregates_direct_exchange_rate_v2.StreamAggregatesDirectExchangeRateV2RequestV1;
@@ -18,17 +20,15 @@ import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1
-import io.grpc.{
-  CallCredentials,
-  Channel,
-  ManagedChannelBuilder,
-  Metadata,
-  Status
-}
-
+import io.grpc.CallCredentials
+import io.grpc.Channel
+import io.grpc.ManagedChannelBuilder
+import io.grpc.Metadata
+import io.grpc.Status
 import java.util.concurrent.Executor
 import scala.concurrent.ExecutionContext
 import scala.util.Try
+import scalapb.json4s.JsonFormat
 import com.kaiko.sdk.StreamIndexMultiAssetsServiceV1Grpc
 import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1
 import com.kaiko.sdk.StreamIndexForexRateServiceV1Grpc
@@ -37,8 +37,11 @@ import com.kaiko.sdk.StreamAggregatesSpotExchangeRateV2ServiceV1Grpc.StreamAggre
 import com.kaiko.sdk.StreamAggregatesSpotExchangeRateV2ServiceV1Grpc
 import com.kaiko.sdk.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Grpc
 import com.google.protobuf.duration.Duration
+import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1
+import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1
 
 object Main {
+
   def main(args: Array[String]): Unit = {
     implicit val ec = ExecutionContext.global
 
@@ -101,6 +104,12 @@ object Main {
 
     // Create a streaming direct exchange rate request with SDK
     aggregates_spot_direct_exchange_rate(channel, callCredentials)
+
+    // Create a streaming derivatives instrument metrics request with SDK
+    derivatives_instrument_metrics(channel, callCredentials)
+
+    // Create a streaming iv svi parameters request with SDK
+    iv_svi_parameters(channel, callCredentials)
   }
 
   def market_update_request(
@@ -129,6 +138,7 @@ object Main {
       .subscribe(request)
       .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -155,6 +165,7 @@ object Main {
       .subscribe(request)
       .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -181,6 +192,7 @@ object Main {
       .subscribe(request)
       .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -207,6 +219,7 @@ object Main {
       .subscribe(request)
       .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -219,7 +232,7 @@ object Main {
     Try {
       // Create a request with SDK
       val request = StreamIndexServiceRequestV1(
-        indexCode = "KK_PR_BTCUSD"
+        indexCode = "KK_BRR_BTCUSD"
       )
 
       // Run the request and get results
@@ -227,6 +240,7 @@ object Main {
         .subscribe(request)
         .take(10)
         .toSeq
+        .map(JsonFormat.toJsonString)
 
       println(results)
     }.recover(println(_))
@@ -251,6 +265,7 @@ object Main {
         .subscribe(request)
         .take(10)
         .toSeq
+        .map(JsonFormat.toJsonString)
 
       println(results)
     }.recover(println(_))
@@ -267,7 +282,7 @@ object Main {
     Try {
       // Create a request with SDK
       val request = StreamIndexForexRateServiceRequestV1(
-        indexCode = "KK_PR_BTCUSD_EUR"
+        indexCode = "KK_BRR_BTCUSD_EUR"
       )
 
       // Run the request and get results
@@ -275,6 +290,7 @@ object Main {
         .subscribe(request)
         .take(10)
         .toSeq
+        .map(JsonFormat.toJsonString)
 
       println(results)
     }.recover(println(_))
@@ -298,8 +314,9 @@ object Main {
     // Run the request and get results
     val results = stub
       .subscribe(request)
-      .take(4)
+      .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -322,8 +339,9 @@ object Main {
     // Run the request and get results
     val results = stub
       .subscribe(request)
-      .take(4)
+      .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
@@ -346,9 +364,64 @@ object Main {
     // Run the request and get results
     val results = stub
       .subscribe(request)
-      .take(4)
+      .take(10)
       .toSeq
+      .map(JsonFormat.toJsonString)
 
     println(results)
   }
+
+  def derivatives_instrument_metrics(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamDerivativesInstrumentMetricsServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamDerivativesInstrumentMetricsRequestV1(
+      instrumentCriteria = Some(
+        InstrumentCriteria(
+          exchange = "*",
+          instrumentClass = "perpetual-future",
+          code = "btc-usd"
+        )
+      )
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def iv_svi_parameters(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIvSviParametersServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamIvSviParametersRequestV1(
+      assets = Some(Assets(base = "btc", quote = "usd")),
+      exchanges = "drbt"
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
 }

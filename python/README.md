@@ -49,6 +49,12 @@ python endpoints.py
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
+## Default JSON serialization warning
+
+These examples contain usage of `MessageToJson` method to serialize data to JSON for debug purpose.
+
+Please note however that this method is known to not perform well under heavy load / traffic and **should never be used in the reading loop in production**. It will be very CPU intensive and most likely make your code not keep up with the traffic of endpoints such as `market_update_v1`.
+
 ## Fix potential SSL issues
 
 If you're having gRPC errors such as `GPRC ERROR 14 - Unavailable` or `OPENSSL_internal:CERTIFICATE_VERIFY_FAILED`, check your machine certificates, and particulary that you have Let's Encrypt root certificate (ISRG Root X1).

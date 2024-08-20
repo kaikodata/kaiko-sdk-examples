@@ -45,6 +45,12 @@ using kaikosdk::StreamAggregatesSpotExchangeRateV2ServiceV1;
 using kaikosdk::StreamAggregatesDirectExchangeRateV2RequestV1;
 using kaikosdk::StreamAggregatesDirectExchangeRateV2ResponseV1;
 using kaikosdk::StreamAggregatesSpotDirectExchangeRateV2ServiceV1;
+using kaikosdk::StreamIvSviParametersRequestV1;
+using kaikosdk::StreamIvSviParametersResponseV1;
+using kaikosdk::StreamIvSviParametersServiceV1;
+using kaikosdk::StreamDerivativesInstrumentMetricsRequestV1;
+using kaikosdk::StreamDerivativesInstrumentMetricsResponseV1;
+using kaikosdk::StreamDerivativesInstrumentMetricsServiceV1;
 
 void setupContext(ClientContext *context)
 {
@@ -278,7 +284,7 @@ public:
     // Data we are sending to the server.
     StreamIndexServiceRequestV1 request;
 
-    request.set_index_code("KK_PR_BTCUSD");
+    request.set_index_code("KK_BRR_BTCUSD");
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
@@ -374,7 +380,7 @@ public:
     // Data we are sending to the server.
     StreamIndexForexRateServiceRequestV1 request;
 
-    request.set_index_code("KK_PR_BTCUSD_EUR");
+    request.set_index_code("KK_BRR_BTCUSD_EUR");
 
     // Context for the client. It could be used to convey extra information to
     // the server and/or tweak certain RPC behaviors.
@@ -571,6 +577,112 @@ private:
   std::unique_ptr<StreamAggregatesSpotDirectExchangeRateV2ServiceV1::Stub> stub_;
 };
 
+class DerivativesInstrumentMetricsClient
+{
+public:
+  DerivativesInstrumentMetricsClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamDerivativesInstrumentMetricsServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamDerivativesInstrumentMetricsRequestV1 request;
+
+    // Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
+    InstrumentCriteria *instrument_criteria = request.mutable_instrument_criteria();
+    instrument_criteria->set_exchange("*");
+    instrument_criteria->set_instrument_class("perpetual-future");
+    instrument_criteria->set_code("btc-usd");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamDerivativesInstrumentMetricsResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamDerivativesInstrumentMetricsResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamDerivativesInstrumentMetricsServiceV1::Stub> stub_;
+};
+
+class IvSviParametersClient
+{
+public:
+  IvSviParametersClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIvSviParametersServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamIvSviParametersRequestV1 request;
+
+    // Wildcard "*" is also supported, refer to documentation for the available list.
+    Assets *assets = request.mutable_assets();
+    assets->set_base("btc");
+    assets->set_quote("usd");
+
+    // Wildcard "*" is also supported, refer to documentation for the available list.
+    request.set_exchanges("drbt");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIvSviParametersResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIvSviParametersResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIvSviParametersServiceV1::Stub> stub_;
+};
+
 int main(int argc, char **argv)
 {
   ChannelArguments args;
@@ -588,6 +700,8 @@ int main(int argc, char **argv)
   // AggregatedQuoteClient client = AggregatedQuoteClient(channel);
   // AggregatesSpotExchangeRateClient client = AggregatesSpotExchangeRateClient(channel);
   // AggregatesDirectExchangeRateClient client = AggregatesDirectExchangeRateClient(channel);
+  // IvSviParametersClient client = IvSviParametersClient(channel);
+  // DerivativesInstrumentMetricsClient client = DerivativesInstrumentMetricsClient(channel);
   
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;

@@ -2,7 +2,6 @@ package endpoints;
 
 import com.google.protobuf.Duration;
 import com.kaiko.sdk.*;
-
 import com.kaiko.sdk.core.InstrumentCriteria;
 import com.kaiko.sdk.core.Assets;
 import com.kaiko.sdk.stream.aggregated_quote_v2.StreamAggregatedQuoteRequestV2;
@@ -15,6 +14,14 @@ import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVRequestV1;
 import com.kaiko.sdk.stream.aggregates_ohlcv_v1.StreamAggregatesOHLCVResponseV1;
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1;
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPResponseV1;
+import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1;
+import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsResponseV1;
+import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
+import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
+import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1;
+import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersResponseV1;
+import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1;
+import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceResponseV1;
 import com.kaiko.sdk.stream.index_forex_rate_v1.StreamIndexForexRateServiceRequestV1;
 import com.kaiko.sdk.stream.index_forex_rate_v1.StreamIndexForexRateServiceResponseV1;
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateCommodity;
@@ -22,13 +29,9 @@ import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1;
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateResponseV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
-import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
-import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
-import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceRequestV1;
-import com.kaiko.sdk.stream.index_multi_assets_v1.StreamIndexMultiAssetsServiceResponseV1;
+
 import io.grpc.*;
 
-// import java.time.Duration;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -101,6 +104,12 @@ public class Main {
 
                 // Create a streaming direct exchange rate request with SDK
                 aggregates_spot_direct_exchange_rate(channel, callCredentials);
+
+                // Create a streaming iv svi parameters request with SDK
+                iv_svi_parameters(channel, callCredentials);
+
+                // Create a streaming derivatives instrument metrics request with SDK
+                derivatives_instrument_metrics(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -212,7 +221,7 @@ public class Main {
 
         public static void index_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
                 StreamIndexServiceRequestV1 request = StreamIndexServiceRequestV1.newBuilder()
-                                .setIndexCode("KK_PR_BTCUSD")
+                                .setIndexCode("KK_BRR_BTCUSD")
                                 .build();
 
                 StreamIndexServiceV1Grpc.StreamIndexServiceV1BlockingStub stub = StreamIndexServiceV1Grpc
@@ -236,7 +245,7 @@ public class Main {
 
         public static void index_forex_rate_request(ManagedChannel channel, CallCredentials callCredentials) {
                 StreamIndexForexRateServiceRequestV1 request = StreamIndexForexRateServiceRequestV1.newBuilder()
-                                .setIndexCode("KK_PR_BTCUSD_EUR")
+                                .setIndexCode("KK_BRR_BTCUSD_EUR")
                                 .build();
 
                 StreamIndexForexRateServiceV1Grpc.StreamIndexForexRateServiceV1BlockingStub stub = StreamIndexForexRateServiceV1Grpc
@@ -342,6 +351,56 @@ public class Main {
 
                 // Run the request and get results
                 List<StreamAggregatesDirectExchangeRateV2ResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                                stub.subscribe(request),
+                                                Spliterator.ORDERED),
+                                false)
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void iv_svi_parameters(ManagedChannel channel,
+                        CallCredentials callCredentials) {
+                StreamIvSviParametersRequestV1 request = StreamIvSviParametersRequestV1
+                                .newBuilder()
+                                .setAssets(Assets.newBuilder().setBase("btc").setQuote("usd").build())
+                                .setExchanges("drbt")
+                                .build();
+
+                StreamIvSviParametersServiceV1Grpc.StreamIvSviParametersServiceV1BlockingStub stub = StreamIvSviParametersServiceV1Grpc
+                                .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamIvSviParametersResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                                stub.subscribe(request),
+                                                Spliterator.ORDERED),
+                                false)
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void derivatives_instrument_metrics(ManagedChannel channel,
+                        CallCredentials callCredentials) {
+                StreamDerivativesInstrumentMetricsRequestV1 request = StreamDerivativesInstrumentMetricsRequestV1
+                                .newBuilder()
+                                .setInstrumentCriteria(
+                                                InstrumentCriteria.newBuilder()
+                                                                .setExchange("*")
+                                                                .setInstrumentClass("perpetual-future")
+                                                                .setCode("btc-usd")
+                                                                .build())
+                                .build();
+
+                StreamDerivativesInstrumentMetricsServiceV1Grpc.StreamDerivativesInstrumentMetricsServiceV1BlockingStub stub = StreamDerivativesInstrumentMetricsServiceV1Grpc
+                                .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamDerivativesInstrumentMetricsResponseV1> elts = StreamSupport.stream(
                                 Spliterators.spliteratorUnknownSize(
                                                 stub.subscribe(request),
                                                 Spliterator.ORDERED),

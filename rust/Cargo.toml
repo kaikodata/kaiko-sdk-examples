@@ -29,9 +29,17 @@ path = "src/vwap.rs"
 name = "exchange_rate"
 path = "src/exchange_rate.rs"
 
+[[bin]]
+name = "derivatives_instrument_metrics"
+path = "src/derivatives_instrument_metrics.rs"
+
+[[bin]]
+name = "iv_svi_parameters"
+path = "src/iv_svi_parameters.rs"
+
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.22.0" }
-tonic = { version = "0.11", default-features = false, features = [
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.22.2" }
+tonic = { version = "0.12.1", default-features = false, features = [
     "tls-roots",
     "tls",
 ] }
@@ -40,4 +48,4 @@ tokio = { version = "1.39.3", default-features = false, features = [
     "rt-multi-thread",
 ] }
 tokio-stream = { version = "0.1.15", default-features = false }
-pbjson-types = { version = "0.6.0", default-features = false }
+pbjson-types = { version = "0.7.0", default-features = false }

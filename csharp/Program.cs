@@ -2,15 +2,17 @@ using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client;
 using Grpc.Core;
 using KaikoSdk;
-using KaikoSdk.Stream.MarketUpdateV1;
 using KaikoSdk.Stream.AggregatesOHLCVV1;
 using KaikoSdk.Stream.AggregatesVWAPV1;
 using KaikoSdk.Stream.AggregatedQuoteV2;
 using KaikoSdk.Stream.AggregatesSpotExchangeRateV2;
 using KaikoSdk.Stream.AggregatesDirectExchangeRateV2;
+using KaikoSdk.Stream.DerivativesInstrumentMetricsV1;
+using KaikoSdk.Stream.MarketUpdateV1;
 using KaikoSdk.Stream.IndexV1;
 using KaikoSdk.Stream.IndexMultiAssetsV1;
 using KaikoSdk.Stream.IndexForexRateV1;
+using KaikoSdk.Stream.IvSviParameterV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Core;
 using System;
@@ -59,6 +61,12 @@ namespace TestSdk
 
             // spot direct exchange rate
             await aggregatesSpotDirectExchangeRateRequest(channel);
+
+            // iv svi parameters
+            await ivSviParametersRequest(channel);
+
+            // derivatives instrument metrics
+            await derivativesInstrumentMetrics(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -279,7 +287,7 @@ namespace TestSdk
             {
                 var req = new StreamIndexServiceRequestV1
                 {
-                    IndexCode = "KK_PR_BTCUSD",
+                    IndexCode = "KK_BRR_BTCUSD",
                 };
                 var reply = client.Subscribe(req, null, null, sourceindex.Token);
                 var stream = reply.ResponseStream;
@@ -361,7 +369,7 @@ namespace TestSdk
             {
                 var req = new StreamIndexForexRateServiceRequestV1
                 {
-                    IndexCode = "KK_PR_BTCUSD_EUR",
+                    IndexCode = "KK_BRR_BTCUSD_EUR",
                 };
                 var reply = client.Subscribe(req, null, null, sourceindex.Token);
                 var stream = reply.ResponseStream;
@@ -391,7 +399,7 @@ namespace TestSdk
 
         private static async Task aggregatedQuoteRequest(GrpcChannel channel)
         {
-            var clientaq = new StreamAggregatedQuoteServiceV2.StreamAggregatedQuoteServiceV2Client(channel);
+            var client = new StreamAggregatedQuoteServiceV2.StreamAggregatedQuoteServiceV2Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
             var sourcet = new CancellationTokenSource();
@@ -406,7 +414,7 @@ namespace TestSdk
                     InstrumentClass = "spot",
                     Code = "btc-usd"
                 };
-                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;
 
                 var i = 0;
@@ -434,7 +442,7 @@ namespace TestSdk
 
         private static async Task aggregatesSpotExchangeRateRequest(GrpcChannel channel)
         {
-            var clientaq = new StreamAggregatesSpotExchangeRateV2ServiceV1.StreamAggregatesSpotExchangeRateV2ServiceV1Client(channel);
+            var client = new StreamAggregatesSpotExchangeRateV2ServiceV1.StreamAggregatesSpotExchangeRateV2ServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
             var sourcet = new CancellationTokenSource();
@@ -449,7 +457,7 @@ namespace TestSdk
                     Window = Duration.FromTimeSpan(TimeSpan.FromSeconds(10)),
                     UpdateFrequency = Duration.FromTimeSpan(TimeSpan.FromSeconds(2))
                 };
-                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;
 
                 var i = 0;
@@ -477,7 +485,7 @@ namespace TestSdk
 
         private static async Task aggregatesSpotDirectExchangeRateRequest(GrpcChannel channel)
         {
-            var clientaq = new StreamAggregatesSpotDirectExchangeRateV2ServiceV1.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client(channel);
+            var client = new StreamAggregatesSpotDirectExchangeRateV2ServiceV1.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client(channel);
 
             // Setup runtime (run for few seconds or stop after receiving some results)
             var sourcet = new CancellationTokenSource();
@@ -492,7 +500,95 @@ namespace TestSdk
                     Window = Duration.FromTimeSpan(TimeSpan.FromSeconds(10)),
                     UpdateFrequency = Duration.FromTimeSpan(TimeSpan.FromSeconds(2))
                 };
-                var reply = clientaq.Subscribe(req, null, null, sourcet.Token);
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task ivSviParametersRequest(GrpcChannel channel)
+        {
+            var client = new StreamIvSviParametersServiceV1.StreamIvSviParametersServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot direct exchange rate request with SDK
+            try
+            {
+                var req = new StreamIvSviParametersRequestV1
+                {
+                    Assets = new Assets { Base = "btc", Quote = "usd" },
+                    Exchanges = "drbt",
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task derivativesInstrumentMetrics(GrpcChannel channel)
+        {
+            var client = new StreamDerivativesInstrumentMetricsServiceV1.StreamDerivativesInstrumentMetricsServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot direct exchange rate request with SDK
+            try
+            {
+                var req = new StreamDerivativesInstrumentMetricsRequestV1
+                {
+                    InstrumentCriteria = new InstrumentCriteria
+                    {
+                        Exchange = "*",
+                        InstrumentClass = "perpetual-future",
+                        Code = "btc-usd"
+                    },
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;
 
                 var i = 0;

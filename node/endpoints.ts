@@ -13,7 +13,9 @@ import {
     StreamIndexForexRateServiceV1Client,
     StreamAggregatedQuoteServiceV2Client,
     StreamAggregatesSpotExchangeRateV2ServiceV1Client,
-    StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client
+    StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client,
+    StreamDerivativesInstrumentMetricsServiceV1Client,
+    StreamIvSviParametersServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -31,11 +33,15 @@ import { StreamIndexForexRateServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
 import { StreamAggregatesSpotExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/request_pb';
-import { StreamAggregatesDirectExchangeRateV2RequestV1  } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v2/request_pb';
-import { Assets } from '@kaiko-data/sdk-node/sdk/core/assets_pb';
-import { Duration } from 'google-protobuf/google/protobuf/duration_pb';
+import { StreamAggregatesDirectExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v2/request_pb';
 import { StreamAggregatesDirectExchangeRateV2ResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_direct_exchange_rate_v2/response_pb';
 import { StreamAggregatesSpotExchangeRateV2ResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/response_pb';
+import { Assets } from '@kaiko-data/sdk-node/sdk/core/assets_pb';
+import { Duration } from 'google-protobuf/google/protobuf/duration_pb';
+import { StreamDerivativesInstrumentMetricsRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/derivatives_instrument_metrics_v1/request_pb';
+import { StreamDerivativesInstrumentMetricsResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/derivatives_instrument_metrics_v1/response_pb';
+import { StreamIvSviParametersRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/iv_svi_parameters_v1/request_pb';
+import { StreamIvSviParametersResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/iv_svi_parameters_v1/response_pb';
 
 const main = () => {
 
@@ -80,6 +86,12 @@ const main = () => {
 
     // Create a request for stream spot direct exchange rate with SDK
     aggregatesSpotDirectExchangeRateRequest(creds);
+
+    // Create a request for stream derivatives instrument metrics with SDK
+    derivativesInstrumentMetricsRequest(creds);
+
+    // Create a request for stream iv svi parameters with SDK
+    ivSviParametersRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -227,7 +239,7 @@ const indexRateRequest = (creds: grpc.CallCredentials): void => {
     const client = new StreamIndexServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
     const request = new StreamIndexServiceRequestV1();
 
-    request.setIndexCode("KK_PR_BTCUSD");
+    request.setIndexCode("KK_BRR_BTCUSD");
 
     // Run the request and get results
     const call = client.subscribe(request);
@@ -285,7 +297,7 @@ const indexForexRateRequest = (creds: grpc.CallCredentials): void => {
     const client = new StreamIndexForexRateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
     const request = new StreamIndexForexRateServiceRequestV1();
 
-    request.setIndexCode("KK_PR_BTCUSD_EUR");
+    request.setIndexCode("KK_BRR_BTCUSD_EUR");
 
     // Run the request and get results
     const call = client.subscribe(request);
@@ -409,6 +421,76 @@ const aggregatesSpotDirectExchangeRateRequest = (creds: grpc.CallCredentials): v
 
     call.on('end', () => {
         console.log('[SPOT DIRECT EXCHANGE RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const derivativesInstrumentMetricsRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamDerivativesInstrumentMetricsServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamDerivativesInstrumentMetricsRequestV1();
+
+    const criteria = new InstrumentCriteria();
+    criteria.setExchange('*');
+    criteria.setInstrumentClass('perpetual-future');
+    criteria.setCode('btc-usd');
+
+    request.setInstrumentCriteria(criteria);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamDerivativesInstrumentMetricsResponseV1) => {
+        const value = response.getValue();
+        if (value) {
+            console.log(`[DERIVATIVES INSTRUMENT METRICS] commodity: ${response.getCommodity()}, value: ${JSON.stringify(value)}}`);
+        }
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[DERIVATIVES INSTRUMENT METRICS] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const ivSviParametersRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIvSviParametersServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIvSviParametersRequestV1();
+
+    const assets = new Assets();
+    assets.setBase('btc');
+    assets.setQuote('usd');
+
+    request.setAssets(assets);
+    request.setExchanges("drbt");
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIvSviParametersResponseV1) => {
+        console.log(`[IV SVI PARAMETERS] value: ${JSON.stringify(response.toObject())}}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[IV SVI PARAMETERS] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
