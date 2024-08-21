@@ -13,12 +13,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
 
-    derivatives_instrument_metrics(channel, &token).await?;
+    iv_svi_parameters(channel, &token).await?;
 
     Ok(())
 }
 
-async fn derivatives_instrument_metrics(
+async fn iv_svi_parameters(
     channel: Channel,
     token: &MetadataValue<Ascii>,
 ) -> Result<(), Box<dyn std::error::Error>> {
