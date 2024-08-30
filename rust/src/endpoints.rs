@@ -8,10 +8,7 @@ use tonic::{metadata::Ascii, metadata::MetadataValue, transport::Channel, Reques
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let channel = example::new_channel().await?;
-    let api_key = std::env::var("KAIKO_API_KEY").unwrap_or("1234".into());
-    let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
-
+    let (channel, token) = example::new_channel().await?;
     client_trades(channel.clone(), token.clone()).await?;
     client_ohlcv(channel.clone(), token.clone()).await?;
 

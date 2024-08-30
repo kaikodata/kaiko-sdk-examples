@@ -12,11 +12,7 @@ use tonic::{
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let channel = example::new_channel().await?;
-    let api_key =
-        std::env::var("KAIKO_API_KEY").map_err(|_| "KAIKO_API_KEY environment variable not set")?;
-
-    let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
+    let (channel, token) = example::new_channel().await?;
 
     market_update_trades(channel, &token).await?;
 

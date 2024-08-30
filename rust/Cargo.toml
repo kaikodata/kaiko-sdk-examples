@@ -37,13 +37,17 @@ path = "src/derivatives_instrument_metrics.rs"
 name = "iv_svi_parameters"
 path = "src/iv_svi_parameters.rs"
 
+[[bin]]
+name = "exotic_indices"
+path = "src/exotic_indices.rs"
+
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.22.2" }
-tonic = { version = "0.12.1", default-features = false, features = [
+kaikosdk = { path = "/home/marc/workspace/kaiko-sdk/clients/rust/package" }
+tonic = { version = "0.12.2", default-features = false, features = [
     "tls-roots",
     "tls",
 ] }
-tokio = { version = "1.39.3", default-features = false, features = [
+tokio = { version = "1.40.0", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
