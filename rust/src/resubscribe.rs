@@ -9,10 +9,8 @@ use tonic::{metadata::MetadataValue, transport::Channel, Request, Response, Stat
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let channel = example::new_channel().await?;
-    let api_key = std::env::var("KAIKO_API_KEY").unwrap_or("1234".into());
-    let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
-
+    let (channel, token) = example::new_channel().await?;
+    
     let mut stream = new_sub(channel.clone(), token.clone())
         .await?
         .into_inner()

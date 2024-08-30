@@ -1,5 +1,5 @@
-use kaikosdk::stream_iv_svi_parameters_service_v1_client::StreamIvSviParametersServiceV1Client;
-use kaikosdk::{Assets, StreamIvSviParametersRequestV1};
+use kaikosdk::stream_exotic_indices_service_v1_client::StreamExoticIndicesServiceV1Client;
+use kaikosdk::{StreamExoticIndicesServiceRequestV1, StreamIndexCommodity};
 use tokio_stream::StreamExt;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
@@ -9,16 +9,17 @@ use tonic::Request;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (channel, token) = example::new_channel().await?;
     
-    iv_svi_parameters(channel, &token).await?;
+    // If you wish to query multiple request. You can use tokio::join! macro by cloning the channel and token.
+    exotic_indices(channel, &token).await?;
 
     Ok(())
 }
 
-async fn iv_svi_parameters(
+async fn exotic_indices(
     channel: Channel,
-    token: &MetadataValue<Ascii>,
+    token: &MetadataValue<Ascii>
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = StreamIvSviParametersServiceV1Client::with_interceptor(
+    let mut client = StreamExoticIndicesServiceV1Client::with_interceptor(
         channel,
         move |mut req: Request<()>| {
             req.metadata_mut().insert("authorization", token.clone());
@@ -26,17 +27,14 @@ async fn iv_svi_parameters(
         },
     );
 
-    let request = Request::new(StreamIvSviParametersRequestV1 {
-        assets: Some(Assets {
-            base: "btc".into(),
-            quote: "usd".into(),
-        }),
-        exchanges: "drbt".into(),
-        ..Default::default()
+    let request = Request::new(StreamExoticIndicesServiceRequestV1 {
+        index_code: "KT10TCUSD".into(),
+        commodities: vec![StreamIndexCommodity::SicRealTime.into()],
+        interval: None,
     });
 
     let mut stream = client.subscribe(request).await?.into_inner();
-
+    
     while let Some(item) = stream.next().await {
         println!("{:?}", item?);
     }

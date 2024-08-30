@@ -12,12 +12,8 @@ use tonic::{Request, Streaming};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let channel = example::new_channel().await?;
-    let api_key =
-        std::env::var("KAIKO_API_KEY").map_err(|_| "KAIKO_API_KEY environment variable not set")?;
-
-    let token: MetadataValue<_> = format!("Bearer {}", api_key).parse()?;
-
+    let (channel, token) = example::new_channel().await?;
+    
     tokio::try_join!(
         blue_chip_indices(channel.clone(), &token),
         digital_assets_rates(channel.clone(), &token),
