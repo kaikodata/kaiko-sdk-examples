@@ -42,7 +42,7 @@ name = "exotic_indices"
 path = "src/exotic_indices.rs"
 
 [dependencies]
-kaikosdk = { path = "/home/marc/workspace/kaiko-sdk/clients/rust/package" }
+kaikosdk = { path = "/home/remi/workspace/kaiko-sdk/clients/rust/package" }
 tonic = { version = "0.12.2", default-features = false, features = [
     "tls-roots",
     "tls",

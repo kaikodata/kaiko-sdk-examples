@@ -10,7 +10,7 @@ use tonic::{metadata::MetadataValue, transport::Channel, Request, Response, Stat
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (channel, token) = example::new_channel().await?;
-    
+
     let mut stream = new_sub(channel.clone(), token.clone())
         .await?
         .into_inner()

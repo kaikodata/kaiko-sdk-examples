@@ -13,7 +13,7 @@ use tonic::{Request, Streaming};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (channel, token) = example::new_channel().await?;
-    
+
     tokio::try_join!(
         blue_chip_indices(channel.clone(), &token),
         digital_assets_rates(channel.clone(), &token),
