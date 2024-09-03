@@ -13,7 +13,7 @@ use tonic::Request;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (channel, token) = example::new_channel().await?;
-    
+
     tokio::try_join!(
         aggregates_spot_exchange_rate(channel.clone(), &token),
         aggregates_spot_direct_exchange_rate(channel.clone(), &token),

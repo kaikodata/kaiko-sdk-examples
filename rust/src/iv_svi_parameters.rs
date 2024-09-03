@@ -8,7 +8,7 @@ use tonic::Request;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (channel, token) = example::new_channel().await?;
-    
+
     iv_svi_parameters(channel, &token).await?;
 
     Ok(())
