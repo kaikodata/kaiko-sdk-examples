@@ -7,6 +7,7 @@ import com.kaiko.sdk.StreamAggregatesVWAPServiceV1Grpc
 import com.kaiko.sdk.StreamDerivativesInstrumentMetricsServiceV1Grpc
 import com.kaiko.sdk.StreamIndexServiceV1Grpc
 import com.kaiko.sdk.StreamIvSviParametersServiceV1Grpc
+import com.kaiko.sdk.StreamExoticIndicesServiceV1Grpc
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
 import com.kaiko.sdk.StreamTradesServiceV1Grpc
 import com.kaiko.sdk.core.Assets
@@ -39,6 +40,8 @@ import com.kaiko.sdk.StreamAggregatesSpotDirectExchangeRateV2ServiceV1Grpc
 import com.google.protobuf.duration.Duration
 import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1
 import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1
+import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1
+import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceResponseV1
 
 object Main {
 
@@ -110,6 +113,9 @@ object Main {
 
     // Create a streaming iv svi parameters request with SDK
     iv_svi_parameters(channel, callCredentials)
+
+    // Create a streaming exotic indices request with SDK
+    exotic_indices_v1(channel, callCredentials)
   }
 
   def market_update_request(
@@ -424,4 +430,26 @@ object Main {
     println(results)
   }
 
+  def exotic_indices_v1(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamExoticIndicesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamExoticIndicesServiceRequestV1(
+      indexCode = "KT10TCUSD",
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
 }

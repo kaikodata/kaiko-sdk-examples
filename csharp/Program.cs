@@ -14,6 +14,7 @@ using KaikoSdk.Stream.IndexMultiAssetsV1;
 using KaikoSdk.Stream.IndexForexRateV1;
 using KaikoSdk.Stream.IvSviParameterV1;
 using KaikoSdk.Stream.TradesV1;
+using KaikoSdk.Stream.ExoticIndicesV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
@@ -67,6 +68,9 @@ namespace TestSdk
 
             // derivatives instrument metrics
             await derivativesInstrumentMetrics(channel);
+
+            // exotic indices
+            await exoticIndicesV1(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -587,6 +591,47 @@ namespace TestSdk
                         InstrumentClass = "perpetual-future",
                         Code = "btc-usd"
                     },
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task exoticIndicesV1(GrpcChannel channel)
+        {
+            var client = new StreamExoticIndicesServiceV1.StreamExoticIndicesServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot direct exchange rate request with SDK
+            try
+            {
+                var req = new StreamExoticIndicesServiceRequestV1
+                {
+                    IndexCode = "KT10TCUSD"
                 };
                 var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;
