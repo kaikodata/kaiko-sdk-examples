@@ -51,6 +51,9 @@ using kaikosdk::StreamIvSviParametersServiceV1;
 using kaikosdk::StreamDerivativesInstrumentMetricsRequestV1;
 using kaikosdk::StreamDerivativesInstrumentMetricsResponseV1;
 using kaikosdk::StreamDerivativesInstrumentMetricsServiceV1;
+using kaikosdk::StreamExoticIndicesServiceRequestV1;
+using kaikosdk::StreamExoticIndicesServiceResponseV1;
+using kaikosdk::StreamExoticIndicesServiceV1;
 
 void setupContext(ClientContext *context)
 {
@@ -683,6 +686,56 @@ private:
   std::unique_ptr<StreamIvSviParametersServiceV1::Stub> stub_;
 };
 
+class ExoticIndicesClient
+{
+public:
+  ExoticIndicesClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamExoticIndicesServiceV1::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  std::string Subscribe()
+  {
+    // Data we are sending to the server.
+    StreamExoticIndicesServiceRequestV1 request;
+
+    // Wildcard "*" is also supported, refer to documentation for the available list.
+    request.set_index_code("KT10TCUSD");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamExoticIndicesServiceResponseV1>> reader(stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamExoticIndicesServiceResponseV1 response;
+
+    while (reader->Read(&response))
+    {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok())
+    {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message() << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamExoticIndicesServiceV1::Stub> stub_;
+};
+
+
 int main(int argc, char **argv)
 {
   ChannelArguments args;
@@ -702,7 +755,8 @@ int main(int argc, char **argv)
   // AggregatesDirectExchangeRateClient client = AggregatesDirectExchangeRateClient(channel);
   // IvSviParametersClient client = IvSviParametersClient(channel);
   // DerivativesInstrumentMetricsClient client = DerivativesInstrumentMetricsClient(channel);
-  
+  // ExoticIndicesClient client = ExoticIndicesClient(channel);
+
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;
 

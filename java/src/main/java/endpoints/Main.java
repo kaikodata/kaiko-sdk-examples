@@ -16,6 +16,7 @@ import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPRequestV1;
 import com.kaiko.sdk.stream.aggregates_vwap_v1.StreamAggregatesVWAPResponseV1;
 import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1;
 import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsResponseV1;
+import com.kaiko.sdk.stream.index_v1.StreamIndexCommodity;
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceRequestV1;
 import com.kaiko.sdk.stream.index_v1.StreamIndexServiceResponseV1;
 import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1;
@@ -29,6 +30,8 @@ import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateRequestV1;
 import com.kaiko.sdk.stream.market_update_v1.StreamMarketUpdateResponseV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
+import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1;
+import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceResponseV1;
 
 import io.grpc.*;
 
@@ -110,6 +113,9 @@ public class Main {
 
                 // Create a streaming derivatives instrument metrics request with SDK
                 derivatives_instrument_metrics(channel, callCredentials);
+
+                // Create a streaming exotic indices request with SDK
+                exotic_indices_v1(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -405,6 +411,30 @@ public class Main {
                                                 stub.subscribe(request),
                                                 Spliterator.ORDERED),
                                 false)
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void exotic_indices_v1(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                StreamExoticIndicesServiceRequestV1 request = StreamExoticIndicesServiceRequestV1
+                        .newBuilder()
+                        .setIndexCode("KT10TCUSD")
+                        .setCommodities(0, StreamIndexCommodity.SIC_REAL_TIME)
+                        .build();
+
+                StreamExoticIndicesServiceV1Grpc.StreamExoticIndicesServiceV1BlockingStub stub = StreamExoticIndicesServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamExoticIndicesServiceResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
                                 .limit(10)
                                 .collect(Collectors.toList());
 

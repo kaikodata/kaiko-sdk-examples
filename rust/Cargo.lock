@@ -497,6 +497,7 @@ checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 [[package]]
 name = "kaikosdk"
 version = "0.1.0"
+source = "git+https://github.com/kaikodata/kaiko-rust-sdk.git?tag=1.23.3#2108d984613bcd11c2e9a6ee9c209c40bdf9e44c"
 dependencies = [
  "pbjson",
  "pbjson-types",

@@ -21,6 +21,7 @@ from kaikosdk.stream.aggregates_spot_exchange_rate_v2 import request_pb2 as pb_s
 from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb_direct_exchange_rate
 from kaikosdk.stream.derivatives_instrument_metrics_v1 import request_pb2 as pb_derivatives_instrument_metrics
 from kaikosdk.stream.iv_svi_parameters_v1 import request_pb2 as pb_iv_svi_parameters
+from kaikosdk.stream.exotic_indices_v1 import request_pb2 as pb_exotic_indices
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -235,6 +236,20 @@ def iv_svi_parameters_v1_request(channel: grpc.Channel):
         print(e.details(), e.code())
 
 
+def exotic_indices_v1_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamExoticIndicesServiceV1Stub(channel)
+
+            responses = stub.Subscribe(pb_exotic_indices.StreamExoticIndicesServiceRequestV1(
+                index_code = "KT10TCUSD",
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+
 def run():
     credentials = grpc.ssl_channel_credentials(root_certificates=None)
     call_credentials = grpc.access_token_call_credentials(os.environ['KAIKO_API_KEY'])
@@ -255,6 +270,7 @@ def run():
     # aggregates_direct_exchange_rate_request(channel)
     # derivatives_instrument_metrics_request(channel)
     # iv_svi_parameters_v1_request(channel)
+    # exotic_indices_v1_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()
