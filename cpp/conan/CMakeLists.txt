@@ -12,7 +12,7 @@ include(FetchContent)
 FetchContent_Declare(
         kaikosdk
         GIT_REPOSITORY "https://github.com/kaikodata/kaiko-cpp-sdk"
-        GIT_TAG "v1.23.3"
+        GIT_TAG "v1.23.6"
 )
 
 FetchContent_GetProperties(kaikosdk)

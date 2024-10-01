@@ -42,8 +42,8 @@ name = "exotic_indices"
 path = "src/exotic_indices.rs"
 
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.23.3" }
-tonic = { version = "0.12.2", default-features = false, features = [
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.23.6" }
+tonic = { version = "0.12.3", default-features = false, features = [
     "tls-roots",
     "tls",
 ] }
@@ -51,5 +51,5 @@ tokio = { version = "1.40.0", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
-tokio-stream = { version = "0.1.15", default-features = false }
+tokio-stream = { version = "0.1.16", default-features = false }
 pbjson-types = { version = "0.7.0", default-features = false }
