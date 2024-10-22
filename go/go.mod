@@ -6,7 +6,7 @@ toolchain go1.23.0
 
 require (
 	github.com/cenkalti/backoff/v4 v4.3.0
-	github.com/kaikodata/kaiko-go-sdk v1.23.6
+	github.com/kaikodata/kaiko-go-sdk v1.24.0
 	google.golang.org/grpc v1.67.1
 	google.golang.org/protobuf v1.34.2
 )
