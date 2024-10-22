@@ -111,6 +111,18 @@ This library will allow you to use a wrapper of C++ gRPC using Boost Asio and C+
 
 An example usage is provided here : <https://github.com/Tradias/asio-grpc/blob/v1.3.1/example/streaming-client.cpp#L62>.
 
+## Debugging connection gRPC / HTTP2 connection
+
+If you have trouble connecting using C++ SDK, you can troubleshoot the issue using <https://github.com/grpc/grpc/blob/master/TROUBLESHOOTING.md>.
+
+This typically involves setting env variables with `GRPC_TRACE=all GRPC_VERBOSITY=DEBUG` (warning: it's very verbose!).
+
+For example with the demo application use :
+
+```bash
+GRPC_TRACE=all GRPC_VERBOSITY=DEBUG ./build_conan/bin/app
+```
+
 ## Check for more recent versions
 
 ```bash
