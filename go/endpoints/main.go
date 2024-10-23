@@ -13,6 +13,7 @@ import (
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_quote_v2"
+	"github.com/kaikodata/kaiko-go-sdk/stream/aggregated_state_price_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_direct_exchange_rate_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v2"
@@ -136,6 +137,14 @@ func main() {
 		err := ivSviParametersRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get iv svi parameters: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming aggregated state price request with SDK
+		err := aggregatedStatePriceRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get aggregated state price: %v", err)
 		}
 	}()
 
@@ -527,5 +536,34 @@ func ivSviParametersRequest(
 		}
 
 		fmt.Printf("[IV SVI PARAMETERS] %+v\n", elt)
+	}
+}
+
+func aggregatedStatePriceRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamAggregatedStatePriceServiceV1Client(conn)
+	// Globbing patterns are also supported: []string{"*"} will subscribe to all assets
+	request := aggregated_state_price_v1.StreamAggregatedStatePriceRequestV1{
+		Assets: []string{"wsteth", "ageur"},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[AGGREGATED STATE PRICE] %+v\n", elt)
 	}
 }
