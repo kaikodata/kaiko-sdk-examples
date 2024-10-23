@@ -22,6 +22,7 @@ from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb
 from kaikosdk.stream.derivatives_instrument_metrics_v1 import request_pb2 as pb_derivatives_instrument_metrics
 from kaikosdk.stream.iv_svi_parameters_v1 import request_pb2 as pb_iv_svi_parameters
 from kaikosdk.stream.exotic_indices_v1 import request_pb2 as pb_exotic_indices
+from kaikosdk.stream.aggregated_state_price_v1 import request_pb2 as pb_aggregated_state_price
 
 def ohlcv_request(channel: grpc.Channel):
     try:
@@ -102,7 +103,7 @@ def index_rate_request(channel: grpc.Channel):
         with channel:
             stub = sdk_pb2_grpc.StreamIndexServiceV1Stub(channel)
             responses = stub.Subscribe(pb_index.StreamIndexServiceRequestV1(
-                index_code = "KK_BRR_BTCUSD" 
+                index_code = "KK_BRR_BTCUSD"
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
@@ -197,7 +198,7 @@ def aggregates_direct_exchange_rate_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True))) 
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -250,6 +251,21 @@ def exotic_indices_v1_request(channel: grpc.Channel):
         print(e.details(), e.code())
 
 
+def aggregated_state_price_v1_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamAggregatedStatePriceServiceV1Stub(channel)
+
+            responses = stub.Subscribe(pb_aggregated_state_price.StreamAggregatedStatePriceRequestV1(
+            	# Globbing patterns are also supported: ["*"] will subscribe to all assets
+                assets = ["ageur", "wsteth"],
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+
 def run():
     credentials = grpc.ssl_channel_credentials(root_certificates=None)
     call_credentials = grpc.access_token_call_credentials(os.environ['KAIKO_API_KEY'])
@@ -271,6 +287,7 @@ def run():
     # derivatives_instrument_metrics_request(channel)
     # iv_svi_parameters_v1_request(channel)
     # exotic_indices_v1_request(channel)
+    # aggregated_state_price_v1_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()

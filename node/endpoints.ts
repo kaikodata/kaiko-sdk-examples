@@ -16,7 +16,8 @@ import {
     StreamAggregatesSpotDirectExchangeRateV2ServiceV1Client,
     StreamDerivativesInstrumentMetricsServiceV1Client,
     StreamIvSviParametersServiceV1Client,
-    StreamExoticIndicesServiceV1Client
+    StreamExoticIndicesServiceV1Client,
+    StreamAggregatedStatePriceServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -45,6 +46,8 @@ import { StreamIvSviParametersRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/
 import { StreamIvSviParametersResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/iv_svi_parameters_v1/response_pb';
 import { StreamExoticIndicesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/exotic_indices_v1/request_pb';
 import { StreamExoticIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/exotic_indices_v1/response_pb';
+import { StreamAggregatedStatePriceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_state_price_v1/request_pb';
+import { StreamAggregatedStatePriceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_state_price_v1/response_pb';
 import { StreamIndexCommodity } from '@kaiko-data/sdk-node/sdk/stream/index_v1/commodity_pb';
 
 const main = () => {
@@ -99,6 +102,9 @@ const main = () => {
 
     // Create an exotic indices request with SDK
     exoticIndicesRequest(creds);
+
+    // Create an aggregated state price request with SDK
+    aggregatedStatePriceRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -512,7 +518,7 @@ const exoticIndicesRequest = (creds: grpc.CallCredentials): void => {
 
     request.setIndexCode("KT10TCUSD")
     request.setCommoditiesList([StreamIndexCommodity.SIC_REAL_TIME])
-    
+
     // Run the request and get results
     const call = client.subscribe(request);
 
@@ -536,5 +542,33 @@ const exoticIndicesRequest = (creds: grpc.CallCredentials): void => {
     })
 }
 
+const aggregatedStatePriceRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamAggregatedStatePriceServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamAggregatedStatePriceRequestV1();
+
+    request.setAssetsList(["ageur", "oeth"]) // Globbing patterns are also supported: ["*"] will subscribe to all assets
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamAggregatedStatePriceResponseV1) => {
+        console.log(`[AGGREGATED STATE PRICE] value: ${JSON.stringify(response.toObject())}}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[AGGREGATED STATE PRICE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
 
 main();
