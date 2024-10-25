@@ -71,11 +71,6 @@ public class Main {
                                         }
                                 });
                         }
-
-                        @Override
-                        public void thisUsesUnstableApi() {
-
-                        }
                 };
 
                 // Create a streaming trades request with SDK

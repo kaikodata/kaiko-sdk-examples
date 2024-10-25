@@ -32,6 +32,12 @@ Installation can be done through third-party tools like SDKMAN (<https://sdkman.
 
 Note that for this particular step, you will need to setup an environment variable `KAIKO_API_KEY` with a valid Kaiko API key, otherwise you will get an error such as `PERMISSION_DENIED: not authorized`.
 
+## Examples
+
+- Run the example showcasing resubscribe: `./gradlew run runResubscribe`
+- Run the example showcasing iterator API: `./gradlew run runIterator`
+- Run the example showcasing observer API: `./gradlew run runObserver`
+
 ## Check for more recent versions
 
 ```bash
