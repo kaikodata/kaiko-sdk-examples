@@ -40,11 +40,6 @@ public class Main {
                                         }
                                 });
                         }
-
-                        @Override
-                        public void thisUsesUnstableApi() {
-
-                        }
                 };
 
                 // Create a streaming market update request with SDK

@@ -53,3 +53,9 @@ task(runResubscribe, dependsOn: 'classes', type: JavaExec) {
    main = 'resubscribe.Main'
    classpath = sourceSets.main.runtimeClasspath
 }
+
+// ./gradlew runObserver
+task (runObserver, dependsOn: 'classes', type: JavaExec) {
+    main = 'observer.Main'
+    classpath = sourceSets.main.runtimeClasspath
+}
