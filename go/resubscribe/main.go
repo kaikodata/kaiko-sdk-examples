@@ -26,7 +26,7 @@ func main() {
 	// Set up a connection to the server.
 	// WARNING: reconnection is automatically handled by client, you should never have
 	// 2 connections at the same time otherwise you're likely to leak connections.
-	conn, err := grpc.Dial("gateway-v0-grpc.kaiko.ovh:443", grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	conn, err := grpc.NewClient("gateway-v0-grpc.kaiko.ovh:443", grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
