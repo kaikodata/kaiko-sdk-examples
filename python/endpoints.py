@@ -243,7 +243,7 @@ def exotic_indices_v1_request(channel: grpc.Channel):
             stub = sdk_pb2_grpc.StreamExoticIndicesServiceV1Stub(channel)
 
             responses = stub.Subscribe(pb_exotic_indices.StreamExoticIndicesServiceRequestV1(
-                index_code = "KT10TCUSD",
+                index_code = "KT10TCUSD"
             ))
             for response in responses:
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
@@ -258,7 +258,7 @@ def aggregated_state_price_v1_request(channel: grpc.Channel):
 
             responses = stub.Subscribe(pb_aggregated_state_price.StreamAggregatedStatePriceRequestV1(
             	# Globbing patterns are also supported: ["*"] will subscribe to all assets
-                assets = ["ageur", "wsteth"],
+                assets = ["ageur", "wsteth"]
             ))
             for response in responses:
                 print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
