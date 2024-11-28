@@ -1,4 +1,5 @@
 import subprocess
+import os
 
 function_names = [
     "trades_request",
@@ -44,4 +45,7 @@ def generate_code():
             exit(1)
 
 if __name__ == "__main__":
+    output_dir = "../code-example"
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
     generate_code()
