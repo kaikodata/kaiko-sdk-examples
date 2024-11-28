@@ -73,3 +73,10 @@ gRPC_DEFAULT_SSL_ROOTS_FILE_PATH=/etc/ssl/certs/ca-certificates.crt pipenv run p
 ```bash
 pipenv update --outdated
 ```
+
+## Update documentation on docs.kaiko.com
+
+```bash
+cd code-example-generator-script
+python3 generate_examples.py
+```
