@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from utils import get_relevant_code
+from utils import export_code_examples, get_relevant_code
 
 if __name__ == "__main__":
     file_path = "../endpoints.py"
@@ -8,5 +8,4 @@ if __name__ == "__main__":
     output_path = f"../code-example/{function_name}_replay.py"
 
     extracted_code = get_relevant_code(file_path, function_name, modify_function=True)
-    Path(output_path).write_text(extracted_code)
-    print(f"Extracted code saved to {output_path}")
+    export_code_examples(function_name, output_path, extracted_code)

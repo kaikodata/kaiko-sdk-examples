@@ -33,12 +33,12 @@ replay_script_path = "./python_replay_generator.py"
 def generate_code():
     for function_name in function_names:
         try:
+            print(f"Generating code for {function_name} using script.py")
             subprocess.run(["python", script_path, function_name], check=True)
-            print(f"Generated code for {function_name} using script.py")
 
             if function_name not in only_script_functions:
+                print(f"Generating replay code for {function_name} using replay-script.py")
                 subprocess.run(["python", replay_script_path, function_name], check=True)
-                print(f"Generated replay code for {function_name} using replay-script.py")
 
         except subprocess.CalledProcessError as e:
             print(f"Error generating code for {function_name}: {e}")

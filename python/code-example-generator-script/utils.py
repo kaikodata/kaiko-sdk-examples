@@ -1,5 +1,7 @@
 import ast
 from pathlib import Path
+from kaikosdk.stream.market_update_v1 import commodity_pb2 # This is used by descriptor_pool
+from google.protobuf.descriptor_pool import Default
 
 
 def get_relevant_code(file_path, function_name, modify_function=False):
@@ -143,3 +145,21 @@ def extract_main_block(tree):
         if isinstance(node, ast.If) and getattr(node.test.left, "id", "") == "__name__":
             return ast.unparse(node)
     return ""
+
+
+def export_code_examples(function_name, output_path, extracted_code):
+    """
+    Export the extracted code to a file.
+    """
+    if function_name == "market_update_request":
+        descriptor_pool = Default()
+        
+        enum_type = descriptor_pool.FindEnumTypeByName("kaikosdk.StreamMarketUpdateCommodity")
+        commodity_names = [enum_value.name for enum_value in enum_type.values]
+        
+        for name in commodity_names:
+            Path(output_path[:-3] + '_' + name[5:].lower() + '.py').write_text(extracted_code.replace("SMUC_TRADE", f"{name}"))
+            print(f"Extracted code saved to {output_path[:-3] + '_' + name.lower() + '.py'}")
+    else:
+        Path(output_path).write_text(extracted_code)
+        print(f"Extracted code saved to {output_path}")
