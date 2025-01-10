@@ -24,6 +24,7 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/iv_svi_parameters_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/orderbookl2_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -145,6 +146,14 @@ func main() {
 		err := aggregatedStatePriceRequest(ctx, conn)
 		if err != nil {
 			log.Printf("could not get aggregated state price: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming orderbook l2 request with SDK
+		err := orderbookl2Request(ctx, conn)
+		if err != nil {
+			log.Printf("could not get orderbook l2: %v", err)
 		}
 	}()
 
@@ -565,5 +574,38 @@ func aggregatedStatePriceRequest(
 		}
 
 		fmt.Printf("[AGGREGATED STATE PRICE] %+v\n", elt)
+	}
+}
+
+func orderbookl2Request(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamOrderbookL2ServiceV1Client(conn)
+	// Globbing patterns are also supported on all fields. See http://sdk.kaiko.com/#instrument-selection for all supported patterns
+	request := orderbookl2_v1.StreamOrderBookL2RequestV1{
+		InstrumentCriteria: &core.InstrumentCriteria{
+			Exchange:        "cbse",
+			InstrumentClass: "spot",
+			Code:            "btc-usd",
+		},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[ORDERBOOK L2] %+v\n", elt)
 	}
 }
