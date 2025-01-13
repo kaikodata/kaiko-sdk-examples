@@ -25,10 +25,12 @@ only_script_functions = {
     "aggregates_direct_exchange_rate_request",
     "index_forex_rate",
     "iv_svi_parameters_v1_request",
+    "orderbookl2_v1_request",
 }
 
 script_path = "./python_generator.py"
 replay_script_path = "./python_replay_generator.py"
+
 
 def generate_code():
     for function_name in function_names:
@@ -37,12 +39,17 @@ def generate_code():
             subprocess.run(["python", script_path, function_name], check=True)
 
             if function_name not in only_script_functions:
-                print(f"Generating replay code for {function_name} using replay-script.py")
-                subprocess.run(["python", replay_script_path, function_name], check=True)
+                print(
+                    f"Generating replay code for {function_name} using replay-script.py"
+                )
+                subprocess.run(
+                    ["python", replay_script_path, function_name], check=True
+                )
 
         except subprocess.CalledProcessError as e:
             print(f"Error generating code for {function_name}: {e}")
             exit(1)
+
 
 if __name__ == "__main__":
     output_dir = "../code-example"
