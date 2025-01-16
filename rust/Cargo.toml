@@ -41,8 +41,16 @@ path = "src/iv_svi_parameters.rs"
 name = "exotic_indices"
 path = "src/exotic_indices.rs"
 
+[[bin]]
+name = "orderbookl2"
+path = "src/orderbookl2.rs"
+
+[[bin]]
+name = "orderbookl2_replay"
+path = "src/orderbookl2_replay.rs"
+
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.24.0" }
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.25.0" }
 tonic = { version = "0.12.3", default-features = false, features = [
     "tls-roots",
     "tls",
