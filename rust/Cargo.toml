@@ -55,7 +55,7 @@ tonic = { version = "0.12.3", default-features = false, features = [
     "tls-roots",
     "tls",
 ] }
-tokio = { version = "1.40.0", default-features = false, features = [
+tokio = { version = "1.43.1", default-features = false, features = [
     "macros",
     "rt-multi-thread",
 ] }
