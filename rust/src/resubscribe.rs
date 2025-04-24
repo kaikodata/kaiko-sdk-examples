@@ -1,11 +1,11 @@
 use kaikosdk::{
-    stream_trades_service_v1_client::StreamTradesServiceV1Client, StreamTradesRequestV1,
-    StreamTradesResponseV1,
+    StreamTradesRequestV1, StreamTradesResponseV1,
+    stream_trades_service_v1_client::StreamTradesServiceV1Client,
 };
-use tokio::time::{sleep, Duration};
+use tokio::time::{Duration, sleep};
 use tokio_stream::StreamExt;
 use tonic::metadata::Ascii;
-use tonic::{metadata::MetadataValue, transport::Channel, Request, Response, Status, Streaming};
+use tonic::{Request, Response, Status, Streaming, metadata::MetadataValue, transport::Channel};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

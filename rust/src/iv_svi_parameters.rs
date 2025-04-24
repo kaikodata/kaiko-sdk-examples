@@ -1,9 +1,9 @@
 use kaikosdk::stream_iv_svi_parameters_service_v1_client::StreamIvSviParametersServiceV1Client;
 use kaikosdk::{Assets, StreamIvSviParametersRequestV1};
 use tokio_stream::StreamExt;
+use tonic::Request;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
-use tonic::Request;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

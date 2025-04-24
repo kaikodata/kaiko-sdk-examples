@@ -1,6 +1,6 @@
 use kaikosdk::{
-    stream_orderbook_l2_service_v1_client::StreamOrderbookL2ServiceV1Client,
     StreamOrderBookL2RequestV1,
+    stream_orderbook_l2_service_v1_client::StreamOrderbookL2ServiceV1Client,
 };
 use tokio_stream::StreamExt;
 use tonic::Request;

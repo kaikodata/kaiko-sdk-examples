@@ -6,9 +6,9 @@ use kaikosdk::{
 };
 use pbjson_types::Duration;
 use tokio_stream::StreamExt;
+use tonic::Request;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
-use tonic::Request;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

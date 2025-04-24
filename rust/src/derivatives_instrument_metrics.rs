@@ -1,9 +1,9 @@
-use kaikosdk::stream_derivatives_instrument_metrics_service_v1_client::StreamDerivativesInstrumentMetricsServiceV1Client;
 use kaikosdk::StreamDerivativesInstrumentMetricsRequestV1;
+use kaikosdk::stream_derivatives_instrument_metrics_service_v1_client::StreamDerivativesInstrumentMetricsServiceV1Client;
 use tokio_stream::StreamExt;
+use tonic::Request;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
-use tonic::Request;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

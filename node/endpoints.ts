@@ -17,7 +17,8 @@ import {
     StreamDerivativesInstrumentMetricsServiceV1Client,
     StreamIvSviParametersServiceV1Client,
     StreamExoticIndicesServiceV1Client,
-    StreamAggregatedStatePriceServiceV1Client
+    StreamAggregatedStatePriceServiceV1Client,
+    StreamConstantDurationIndicesServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -32,6 +33,8 @@ import { StreamIndexMultiAssetsServiceRequestV1 } from '@kaiko-data/sdk-node/sdk
 import { StreamIndexMultiAssetsServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_multi_assets_v1/response_pb';
 import { StreamIndexForexRateServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_forex_rate_v1/request_pb';
 import { StreamIndexForexRateServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_forex_rate_v1/response_pb';
+import { StreamConstantDurationIndicesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/constant_duration_indices_v1/request_pb';
+import { StreamConstantDurationIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/constant_duration_indices_v1/response_pb';
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
 import { StreamAggregatesSpotExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/request_pb';
@@ -105,6 +108,9 @@ const main = () => {
 
     // Create an aggregated state price request with SDK
     aggregatedStatePriceRequest(creds);
+
+    // Create a constant duration indices request with SDK
+    constantDurationIndicesRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -534,6 +540,35 @@ const exoticIndicesRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[EXOTIC INDICE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const constantDurationIndicesRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamConstantDurationIndicesServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamConstantDurationIndicesServiceRequestV1();
+
+    request.setIndexCode("<YOUR_INDEX_CODE>")
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamConstantDurationIndicesServiceResponseV1) => {
+        console.log(`[CONSTANT DURATION INDICE] value: ${JSON.stringify(response.toObject())}}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[CONSTANT DURATION INDICE] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {

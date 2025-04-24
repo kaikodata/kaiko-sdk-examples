@@ -1,7 +1,7 @@
 use kaikosdk::StreamMarketUpdateCommodity;
 use kaikosdk::{
-    stream_market_update_service_v1_client::StreamMarketUpdateServiceV1Client,
     StreamMarketUpdateRequestV1,
+    stream_market_update_service_v1_client::StreamMarketUpdateServiceV1Client,
 };
 use tokio_stream::StreamExt;
 use tonic::Request;
