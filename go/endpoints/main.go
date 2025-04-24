@@ -18,7 +18,9 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_ohlcv_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_spot_exchange_rate_v2"
 	"github.com/kaikodata/kaiko-go-sdk/stream/aggregates_vwap_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/constant_duration_indices_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/derivatives_instrument_metrics_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/exotic_indices_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_forex_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_multi_assets_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
@@ -154,6 +156,22 @@ func main() {
 		err := orderbookl2Request(ctx, conn)
 		if err != nil {
 			log.Printf("could not get orderbook l2: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming exotic indices request with SDK
+		err := indexExoticIndices(ctx, conn)
+		if err != nil {
+			log.Printf("could not get exotic indices: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming constant duration indices request with SDK
+		err := indexConstantDurationIndices(ctx, conn)
+		if err != nil {
+			log.Printf("could not get constant duration indices: %v", err)
 		}
 	}()
 
@@ -385,6 +403,62 @@ func indexForexRateRequest(
 		}
 
 		fmt.Printf("[INDEX_FOREX_RATE] %+v\n", elt)
+	}
+}
+
+func indexExoticIndices(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamExoticIndicesServiceV1Client(conn)
+	request := exotic_indices_v1.StreamExoticIndicesServiceRequestV1{
+		IndexCode: "KT10TCUSD",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("INDEX_EXOTIC] %+v\n", elt)
+	}
+}
+
+func indexConstantDurationIndices(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamConstantDurationIndicesServiceV1Client(conn)
+	request := constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1{
+		IndexCode: "<YOUR_INDEX_CODE>",
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("INDEX_CONSTANT_DURATION] %+v\n", elt)
 	}
 }
 

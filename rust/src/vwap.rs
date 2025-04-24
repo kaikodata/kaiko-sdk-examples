@@ -1,9 +1,9 @@
-use kaikosdk::stream_aggregates_vwap_service_v1_client::StreamAggregatesVwapServiceV1Client;
 use kaikosdk::StreamAggregatesVwapRequestV1;
+use kaikosdk::stream_aggregates_vwap_service_v1_client::StreamAggregatesVwapServiceV1Client;
 use tokio_stream::StreamExt;
+use tonic::Request;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
-use tonic::Request;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

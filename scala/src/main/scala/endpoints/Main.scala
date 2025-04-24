@@ -8,6 +8,7 @@ import com.kaiko.sdk.StreamDerivativesInstrumentMetricsServiceV1Grpc
 import com.kaiko.sdk.StreamIndexServiceV1Grpc
 import com.kaiko.sdk.StreamIvSviParametersServiceV1Grpc
 import com.kaiko.sdk.StreamExoticIndicesServiceV1Grpc
+import com.kaiko.sdk.StreamConstantDurationIndicesServiceV1Grpc
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
 import com.kaiko.sdk.StreamTradesServiceV1Grpc
 import com.kaiko.sdk.core.Assets
@@ -41,7 +42,7 @@ import com.google.protobuf.duration.Duration
 import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesInstrumentMetricsRequestV1
 import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1
-import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceResponseV1
+import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1
 
 object Main {
 
@@ -441,6 +442,29 @@ object Main {
     // Create a request with SDK
     val request = StreamExoticIndicesServiceRequestV1(
       indexCode = "KT10TCUSD",
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def constant_duration_indices_v1(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamConstantDurationIndicesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamConstantDurationIndicesServiceRequestV1(
+      indexCode = "<YOUR_INDEX_CODE>",
     )
 
     // Run the request and get results

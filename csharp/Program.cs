@@ -15,6 +15,7 @@ using KaikoSdk.Stream.IndexForexRateV1;
 using KaikoSdk.Stream.IvSviParameterV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Stream.ExoticIndicesV1;
+using KaikoSdk.Stream.ConstantDurationIndicesV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
@@ -71,6 +72,9 @@ namespace TestSdk
 
             // exotic indices
             await exoticIndicesV1(channel);
+
+            // constant duration indices
+            await constantDurationIndicesV1(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -632,6 +636,47 @@ namespace TestSdk
                 var req = new StreamExoticIndicesServiceRequestV1
                 {
                     IndexCode = "KT10TCUSD"
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task constantDurationIndicesV1(GrpcChannel channel)
+        {
+            var client = new StreamConstantDurationIndicesServiceV1.StreamConstantDurationIndicesServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming spot direct exchange rate request with SDK
+            try
+            {
+                var req = new StreamConstantDurationIndicesServiceRequestV1
+                {
+                    IndexCode = "<YOUR_INDEX_CODE>"
                 };
                 var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;

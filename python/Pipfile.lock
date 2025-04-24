@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "068cc273aefeb11cf958828224f0d94db2ce8e8c073f036471c3a31a6ee6e4b4"
+            "sha256": "cba1b4277bd78c6c14b2fd75bfc3ba6c10ec1ca5dda9710ec10f1a63d40f4edb"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -140,10 +140,11 @@
         },
         "kaikosdk": {
             "hashes": [
-                "sha256:952e5f2d1f533896d7ab3151632bcf7e4d3fb8cdfb571d14987a65b0aab444dc"
+                "sha256:608584d3425b8b2e94268bb70f0caef44f8a4577939fc742f1486558a659b69f",
+                "sha256:a6cddd4579a0d9d40cb3ddc40f1072a2a226901adea891b2c8aaf055f6000c6d"
             ],
             "index": "pypi",
-            "version": "==1.25.0"
+            "version": "==1.27.0"
         },
         "protobuf": {
             "hashes": [
@@ -175,19 +176,19 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:753bb6ebf1f465a1912e19ed1d41f403a79173a9acf66a42e7e6aec45c3c16ec",
-                "sha256:a7fcb66f68b4d9e8e66b42f9876150a3371558f98fa32222ffaa5bced76406f8"
+                "sha256:128ce7b8f33c3079fd1b067ecbb4051a66e8526e7b65f6cec075dfc650ddfa88",
+                "sha256:e147c0549f27767ba362f9da434eab9c5dc0045d5304feb602a0af001089fc51"
             ],
-            "markers": "python_version >= '3.8'",
-            "version": "==75.2.0"
+            "markers": "python_version >= '3.9'",
+            "version": "==79.0.1"
         },
         "six": {
             "hashes": [
-                "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
-                "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
+                "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274",
+                "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
-            "version": "==1.16.0"
+            "version": "==1.17.0"
         }
     },
     "develop": {}

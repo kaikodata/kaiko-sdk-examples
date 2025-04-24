@@ -1,10 +1,10 @@
 use kaikosdk::{
+    StreamAggregatesOhlcvRequestV1, StreamTradesRequestV1,
     stream_aggregates_ohlcv_service_v1_client::StreamAggregatesOhlcvServiceV1Client,
-    stream_trades_service_v1_client::StreamTradesServiceV1Client, StreamAggregatesOhlcvRequestV1,
-    StreamTradesRequestV1,
+    stream_trades_service_v1_client::StreamTradesServiceV1Client,
 };
 use tokio_stream::StreamExt;
-use tonic::{metadata::Ascii, metadata::MetadataValue, transport::Channel, Request};
+use tonic::{Request, metadata::Ascii, metadata::MetadataValue, transport::Channel};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -1,6 +1,6 @@
 use kaikosdk::{
-    stream_orderbook_l2_replay_service_v1_client::StreamOrderbookL2ReplayServiceV1Client,
     DataInterval, StreamOrderBookL2ReplayRequestV1,
+    stream_orderbook_l2_replay_service_v1_client::StreamOrderbookL2ReplayServiceV1Client,
 };
 use pbjson_types::Timestamp;
 use std::time::SystemTime;

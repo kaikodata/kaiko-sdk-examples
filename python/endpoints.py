@@ -22,6 +22,7 @@ from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb
 from kaikosdk.stream.derivatives_instrument_metrics_v1 import request_pb2 as pb_derivatives_instrument_metrics
 from kaikosdk.stream.iv_svi_parameters_v1 import request_pb2 as pb_iv_svi_parameters
 from kaikosdk.stream.exotic_indices_v1 import request_pb2 as pb_exotic_indices
+from kaikosdk.stream.constant_duration_indices_v1 import request_pb2 as pb_constant_duration_indices
 from kaikosdk.stream.aggregated_state_price_v1 import request_pb2 as pb_aggregated_state_price
 
 def ohlcv_request(channel: grpc.Channel):
@@ -250,6 +251,19 @@ def exotic_indices_v1_request(channel: grpc.Channel):
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
+def constant_duration_indices_v1_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamConstantDurationIndicesServiceV1Stub(channel)
+
+            responses = stub.Subscribe(pb_constant_duration_indices.StreamConstantDurationIndicesServiceRequestV1(
+                index_code = "<YOUR_INDEX_CODE>"
+            ))
+            for response in responses:
+                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
 
 def aggregated_state_price_v1_request(channel: grpc.Channel):
     try:
@@ -288,6 +302,7 @@ def run():
     # iv_svi_parameters_v1_request(channel)
     # exotic_indices_v1_request(channel)
     # aggregated_state_price_v1_request(channel)
+    # constant_duration_indices_v1_request(channel)
 
 if __name__ == '__main__':
     logging.basicConfig()

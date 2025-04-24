@@ -32,6 +32,8 @@ import com.kaiko.sdk.stream.trades_v1.StreamTradesRequestV1;
 import com.kaiko.sdk.stream.trades_v1.StreamTradesResponseV1;
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1;
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceResponseV1;
+import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1;
+import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceResponseV1;
 
 import io.grpc.*;
 
@@ -111,6 +113,9 @@ public class Main {
 
                 // Create a streaming exotic indices request with SDK
                 exotic_indices_v1(channel, callCredentials);
+
+                // Create a streaming constant duration indices request with SDK
+                custom_duration_indices_v1(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -417,7 +422,7 @@ public class Main {
                 StreamExoticIndicesServiceRequestV1 request = StreamExoticIndicesServiceRequestV1
                         .newBuilder()
                         .setIndexCode("KT10TCUSD")
-                        .setCommodities(0, StreamIndexCommodity.SIC_REAL_TIME)
+                        .addCommodities(StreamIndexCommodity.SIC_REAL_TIME)
                         .build();
 
                 StreamExoticIndicesServiceV1Grpc.StreamExoticIndicesServiceV1BlockingStub stub = StreamExoticIndicesServiceV1Grpc
@@ -425,6 +430,29 @@ public class Main {
 
                 // Run the request and get results
                 List<StreamExoticIndicesServiceResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void custom_duration_indices_v1(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                StreamConstantDurationIndicesServiceRequestV1 request = StreamConstantDurationIndicesServiceRequestV1
+                        .newBuilder()
+                        .setIndexCode("<YOUR_INDEX_CODE>")
+                        .build();
+
+                StreamConstantDurationIndicesServiceV1Grpc.StreamConstantDurationIndicesServiceV1BlockingStub stub = StreamConstantDurationIndicesServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamConstantDurationIndicesServiceResponseV1> elts = StreamSupport.stream(
                                 Spliterators.spliteratorUnknownSize(
                                         stub.subscribe(request),
                                         Spliterator.ORDERED),

@@ -16,6 +16,7 @@ function_names = [
     "iv_svi_parameters_v1_request",
     "exotic_indices_v1_request",
     "aggregated_state_price_v1_request",
+    "constant_duration_indices_v1_request"
 ]
 
 only_script_functions = {
