@@ -1,4 +1,5 @@
 # This is a code example. Configure your parameters below #
+# Last update - 2025-06-26 #
 
 from __future__ import print_function
 from datetime import datetime, timedelta
