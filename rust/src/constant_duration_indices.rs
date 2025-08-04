@@ -1,7 +1,7 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use kaikosdk::stream_constant_duration_indices_service_v1_client::StreamConstantDurationIndicesServiceV1Client;
-use kaikosdk::{DataInterval, StreamConstantDurationIndicesServiceRequestV1, StreamIndexCommodity};
+use kaikosdk::{DataInterval, StreamConstantDurationIndicesServiceRequestV1};
 use pbjson_types::Timestamp;
 use tokio_stream::StreamExt;
 use tonic::Request;

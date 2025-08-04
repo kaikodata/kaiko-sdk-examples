@@ -54,7 +54,7 @@ name = "orderbookl2_replay"
 path = "src/orderbookl2_replay.rs"
 
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.27.0" }
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.29.0" }
 tonic = { version = "0.12.3", default-features = false, features = [
     "tls-native-roots",
 ] }
