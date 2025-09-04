@@ -6,7 +6,7 @@ jobs:
     steps:
     - name: Check out code
       uses: actions/checkout@v5
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       with:
         python-version: '3.11' # python version is linked to prebuilt binaries here : https://pypi.org/project/grpcio/#files
     - run: >
