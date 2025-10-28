@@ -39,6 +39,9 @@ using kaikosdk::StreamExoticIndicesServiceV1;
 using kaikosdk::StreamConstantDurationIndicesServiceRequestV1;
 using kaikosdk::StreamConstantDurationIndicesServiceResponseV1;
 using kaikosdk::StreamConstantDurationIndicesServiceV1;
+using kaikosdk::StreamCompositeIndicesServiceRequestV1;
+using kaikosdk::StreamCompositeIndicesServiceResponseV1;
+using kaikosdk::StreamCompositeIndicesServiceV1;
 using kaikosdk::StreamIndexForexRateServiceRequestV1;
 using kaikosdk::StreamIndexForexRateServiceResponseV1;
 using kaikosdk::StreamIndexForexRateServiceV1;
@@ -733,48 +736,96 @@ class ConstantDurationIndicesClient {
   public:
     ConstantDurationIndicesClient(std::shared_ptr<Channel> channel)
         : stub_(StreamConstantDurationIndicesServiceV1::NewStub(channel)) {}
-  
+
     // Assembles the client's payload, sends it and presents the response back
     // from the server.
     std::string Subscribe() {
       // Data we are sending to the server.
       StreamConstantDurationIndicesServiceRequestV1 request;
-  
+
       // Wildcard "*" is also supported, refer to documentation for the available
       // list.
       request.set_index_code("<YOUR_INDEX_CODE>");
-  
+
       // Context for the client. It could be used to convey extra information to
       // the server and/or tweak certain RPC behaviors.
       ClientContext context;
       setupContext(&context);
-  
+
       std::unique_ptr<ClientReader<StreamConstantDurationIndicesServiceResponseV1>> reader(
           stub_->Subscribe(&context, request));
-  
+
       // Container for the data we expect from the server.
       StreamConstantDurationIndicesServiceResponseV1 response;
-  
+
       while (reader->Read(&response)) {
         std::cout << response.DebugString() << std::endl;
       }
-  
+
       // Act upon its status.
       Status status = reader->Finish();
-  
+
       if (!status.ok()) {
         std::stringstream ss;
         ss << "RPC error " << status.error_code() << ":" << status.error_message()
            << std::endl;
-  
+
         return ss.str();
       }
-  
+
       return "";
     }
-  
+
   private:
     std::unique_ptr<StreamConstantDurationIndicesServiceV1::Stub> stub_;
+  };
+
+class CompositeIndicesClient {
+  public:
+    CompositeIndicesClient(std::shared_ptr<Channel> channel)
+        : stub_(StreamCompositeIndicesServiceV1::NewStub(channel)) {}
+
+    // Assembles the client's payload, sends it and presents the response back
+    // from the server.
+    std::string Subscribe() {
+      // Data we are sending to the server.
+      StreamCompositeIndicesServiceRequestV1 request;
+
+      // Wildcard "*" is also supported, refer to documentation for the available
+      // list.
+      request.set_index_code("<YOUR_INDEX_CODE>");
+
+      // Context for the client. It could be used to convey extra information to
+      // the server and/or tweak certain RPC behaviors.
+      ClientContext context;
+      setupContext(&context);
+
+      std::unique_ptr<ClientReader<StreamCompositeIndicesServiceResponseV1>> reader(
+          stub_->Subscribe(&context, request));
+
+      // Container for the data we expect from the server.
+      StreamCompositeIndicesServiceResponseV1 response;
+
+      while (reader->Read(&response)) {
+        std::cout << response.DebugString() << std::endl;
+      }
+
+      // Act upon its status.
+      Status status = reader->Finish();
+
+      if (!status.ok()) {
+        std::stringstream ss;
+        ss << "RPC error " << status.error_code() << ":" << status.error_message()
+           << std::endl;
+
+        return ss.str();
+      }
+
+      return "";
+    }
+
+  private:
+    std::unique_ptr<StreamCompositeIndicesServiceV1::Stub> stub_;
   };
 
 class StreamOrderbookL2Client {
@@ -848,10 +899,11 @@ int main(int argc, char **argv) {
   // AggregatesSpotExchangeRateClient(channel);
   // AggregatesDirectExchangeRateClient client =
   // AggregatesDirectExchangeRateClient(channel); 
-  // IvSviParametersClient client = IvSviParametersClient(channel); 
-  // DerivativesInstrumentMetricsClient client = DerivativesInstrumentMetricsClient(channel); 
+  // IvSviParametersClient client = IvSviParametersClient(channel);
+  // DerivativesInstrumentMetricsClient client = DerivativesInstrumentMetricsClient(channel);
   // ExoticIndicesClient client = ExoticIndicesClient(channel);
   // ConstantDurationIndicesClient client = ConstantDurationIndicesClient(channel);
+  // CompositeIndicesClient client = CompositeIndicesClient(channel);
 
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;

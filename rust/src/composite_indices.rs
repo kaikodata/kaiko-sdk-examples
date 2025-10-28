@@ -1,5 +1,5 @@
-use kaikosdk::stream_constant_duration_indices_service_v1_client::StreamConstantDurationIndicesServiceV1Client;
-use kaikosdk::{DataInterval, StreamConstantDurationIndicesServiceRequestV1};
+use kaikosdk::stream_composite_indices_service_v1_client::StreamCompositeIndicesServiceV1Client;
+use kaikosdk::{DataInterval, StreamCompositeIndicesServiceRequestV1};
 use pbjson_types::Timestamp;
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tokio_stream::StreamExt;
@@ -16,19 +16,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .map_err(|_| "KAIKO_INDEX_CODE environment variable not set")?;
 
     tokio::try_join!(
-        constant_duration_indices(&index_code, channel.clone(), &token),
-        constant_duration_indices_replay(&index_code, channel, &token)
+        composite_indices(&index_code, channel.clone(), &token),
+        composite_indices_replay(&index_code, channel, &token)
     )?;
 
     Ok(())
 }
 
-async fn constant_duration_indices(
+async fn composite_indices(
     index_code: &str,
     channel: Channel,
     token: &MetadataValue<Ascii>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = StreamConstantDurationIndicesServiceV1Client::with_interceptor(
+    let mut client = StreamCompositeIndicesServiceV1Client::with_interceptor(
         channel,
         move |mut req: Request<()>| {
             req.metadata_mut().insert("authorization", token.clone());
@@ -36,10 +36,9 @@ async fn constant_duration_indices(
         },
     );
 
-    let request = Request::new(StreamConstantDurationIndicesServiceRequestV1 {
-        index_code: index_code.into(),
-        commodities: vec![],
-        interval: None,
+    let request = Request::new(StreamCompositeIndicesServiceRequestV1 {
+        index_code: index_code.to_string(),
+        ..Default::default()
     });
 
     let mut stream = client.subscribe(request).await?.into_inner();
@@ -51,12 +50,12 @@ async fn constant_duration_indices(
     Ok(())
 }
 
-async fn constant_duration_indices_replay(
+async fn composite_indices_replay(
     index_code: &str,
     channel: Channel,
     token: &MetadataValue<Ascii>,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut client = StreamConstantDurationIndicesServiceV1Client::with_interceptor(
+    let mut client = StreamCompositeIndicesServiceV1Client::with_interceptor(
         channel,
         move |mut req: Request<()>| {
             req.metadata_mut().insert("authorization", token.clone());
@@ -72,7 +71,7 @@ async fn constant_duration_indices_replay(
         .duration_since(UNIX_EPOCH)?
         .as_secs() as i64;
 
-    let request = Request::new(StreamConstantDurationIndicesServiceRequestV1 {
+    let request = Request::new(StreamCompositeIndicesServiceRequestV1 {
         index_code: index_code.into(),
         commodities: vec![],
         interval: Some(DataInterval {
