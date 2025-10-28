@@ -9,6 +9,7 @@ import com.kaiko.sdk.StreamIndexServiceV1Grpc
 import com.kaiko.sdk.StreamIvSviParametersServiceV1Grpc
 import com.kaiko.sdk.StreamExoticIndicesServiceV1Grpc
 import com.kaiko.sdk.StreamConstantDurationIndicesServiceV1Grpc
+import com.kaiko.sdk.StreamCompositeIndicesServiceV1Grpc
 import com.kaiko.sdk.StreamMarketUpdateServiceV1Grpc
 import com.kaiko.sdk.StreamTradesServiceV1Grpc
 import com.kaiko.sdk.core.Assets
@@ -43,6 +44,7 @@ import com.kaiko.sdk.stream.derivatives_instrument_metrics_v1.StreamDerivativesI
 import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1
 import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1
+import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceRequestV1
 
 object Main {
 
@@ -117,6 +119,12 @@ object Main {
 
     // Create a streaming exotic indices request with SDK
     exotic_indices_v1(channel, callCredentials)
+
+    // Create a streaming constant duration indices request with SDK
+    constant_duration_indices_v1(channel, callCredentials)
+
+    // Create a streaming composite indices request with SDK
+    composite_indices_v1(channel, callCredentials)
   }
 
   def market_update_request(
@@ -464,6 +472,29 @@ object Main {
 
     // Create a request with SDK
     val request = StreamConstantDurationIndicesServiceRequestV1(
+      indexCode = "<YOUR_INDEX_CODE>",
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def composite_indices_v1(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamCompositeIndicesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Create a request with SDK
+    val request = StreamCompositeIndicesServiceRequestV1(
       indexCode = "<YOUR_INDEX_CODE>",
     )
 

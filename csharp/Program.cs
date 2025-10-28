@@ -16,6 +16,7 @@ using KaikoSdk.Stream.IvSviParameterV1;
 using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Stream.ExoticIndicesV1;
 using KaikoSdk.Stream.ConstantDurationIndicesV1;
+using KaikoSdk.Stream.CompositeIndicesV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
@@ -75,6 +76,9 @@ namespace TestSdk
 
             // constant duration indices
             await constantDurationIndicesV1(channel);
+
+            // composite indices
+            await compositeIndicesV1(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -675,6 +679,47 @@ namespace TestSdk
             try
             {
                 var req = new StreamConstantDurationIndicesServiceRequestV1
+                {
+                    IndexCode = "<YOUR_INDEX_CODE>"
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task compositeIndicesV1(GrpcChannel channel)
+        {
+            var client = new StreamCompositeIndicesServiceV1.StreamCompositeIndicesServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming composite indices request with SDK
+            try
+            {
+                var req = new StreamCompositeIndicesServiceRequestV1
                 {
                     IndexCode = "<YOUR_INDEX_CODE>"
                 };

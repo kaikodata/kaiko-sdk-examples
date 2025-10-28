@@ -34,6 +34,8 @@ import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceResponseV1;
 import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1;
 import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceResponseV1;
+import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceRequestV1;
+import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceResponseV1;
 
 import io.grpc.*;
 
@@ -116,6 +118,9 @@ public class Main {
 
                 // Create a streaming constant duration indices request with SDK
                 custom_duration_indices_v1(channel, callCredentials);
+
+                // Create a streaming composite indices request with SDK
+                composite_indices_v1(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -453,6 +458,29 @@ public class Main {
 
                 // Run the request and get results
                 List<StreamConstantDurationIndicesServiceResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void composite_indices_v1(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                StreamCompositeIndicesServiceRequestV1 request = StreamCompositeIndicesServiceRequestV1
+                        .newBuilder()
+                        .setIndexCode("<YOUR_INDEX_CODE>")
+                        .build();
+
+                StreamCompositeIndicesServiceV1Grpc.StreamCompositeIndicesServiceV1BlockingStub stub = StreamCompositeIndicesServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamCompositeIndicesServiceResponseV1> elts = StreamSupport.stream(
                                 Spliterators.spliteratorUnknownSize(
                                         stub.subscribe(request),
                                         Spliterator.ORDERED),
