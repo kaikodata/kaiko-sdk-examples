@@ -271,7 +271,7 @@ const indexRateRequest = (creds: grpc.CallCredentials): void => {
 
     let count = 0;
     call.on('data', (response: StreamIndexServiceResponseV1) => {
-        console.log(`[INDEX_RATE] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPercentagesList()?.map((e) => e.getPrice())}`);
+        console.log(`[INDEX_RATE] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPercentagesList()?.map((e) => e.getPrice())}, fallbackUsed: ${response.getFallbackInfo()?.getFallbackUsed()}, fallbackSource: ${response.getFallbackInfo()?.getFallbackSource()}`);
         // console.log(response);
         count++;
         if (count >= 5) {
