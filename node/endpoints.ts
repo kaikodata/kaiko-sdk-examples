@@ -55,6 +55,8 @@ import { StreamExoticIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/s
 import { StreamAggregatedStatePriceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_state_price_v1/request_pb';
 import { StreamAggregatedStatePriceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_state_price_v1/response_pb';
 import { StreamIndexCommodity } from '@kaiko-data/sdk-node/sdk/stream/index_v1/commodity_pb';
+import { DataInterval } from '@kaiko-data/sdk-node/sdk/core/data_interval_pb';
+import { Timestamp } from 'google-protobuf/google/protobuf/timestamp_pb';
 
 const main = () => {
 
@@ -84,6 +86,9 @@ const main = () => {
 
     // Create a request for streaming index rates with SDK
     indexRateRequest(creds);
+
+    // Create a request for streaming index rate fixing with SDK
+    indexRateIndexFixingRequest(creds);
 
     // Create a request for streaming index forex rates with SDK
     indexForexRateRequest(creds);
@@ -266,6 +271,47 @@ const indexRateRequest = (creds: grpc.CallCredentials): void => {
 
     request.setIndexCode("KK_BRR_BTCUSD");
 
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexServiceResponseV1) => {
+        console.log(`[INDEX_RATE] indexCode: ${response.getIndexCode()}, commodity: ${response.getCommodity()}, price: ${response.getPercentagesList()?.map((e) => e.getPrice())}`);
+        // console.log(response);
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX_RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const indexRateIndexFixingRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexServiceRequestV1();
+
+
+    const start = new Timestamp()
+    start.fromDate(new Date(Date.now() - 48 * 3600 * 1000)); // 48 hours ago
+
+    const end = new Timestamp()
+    end.fromDate(new Date()); // now
+
+    const dt = new DataInterval();
+    dt.setStartTime(start);
+    dt.setEndTime(end);
+
+    request.setIndexCode("KK_RFR_CHILLGUYUSD_SGP");
+    request.setInterval(dt);
+    
     // Run the request and get results
     const call = client.subscribe(request);
 

@@ -2,13 +2,14 @@ use kaikosdk::stream_index_forex_rate_service_v1_client::StreamIndexForexRateSer
 use kaikosdk::stream_index_multi_assets_service_v1_client::StreamIndexMultiAssetsServiceV1Client;
 use kaikosdk::stream_index_service_v1_client::StreamIndexServiceV1Client;
 use kaikosdk::{
-    StreamIndexCommodity, StreamIndexForexRateServiceRequestV1,
-    StreamIndexMultiAssetsServiceRequestV1, StreamIndexServiceRequestV1,
+    DataInterval, StreamIndexCommodity, StreamIndexForexRateServiceRequestV1, StreamIndexMultiAssetsServiceRequestV1, StreamIndexServiceRequestV1
 };
+use pbjson_types::Timestamp;
 use tokio_stream::StreamExt;
 use tonic::metadata::{Ascii, MetadataValue};
 use tonic::transport::Channel;
 use tonic::{Request, Streaming};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -17,7 +18,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tokio::try_join!(
         blue_chip_indices(channel.clone(), &token),
         digital_assets_rates(channel.clone(), &token),
-        index_forex_rate(channel.clone(), &token)
+        index_forex_rate(channel.clone(), &token),
+        digital_assets_rates_fixing(channel.clone(), &token),
     )?;
 
     Ok(())
@@ -81,6 +83,52 @@ async fn digital_assets_rates(
         commodities: vec![StreamIndexCommodity::SicRealTime.into()],
         index_code: "KK_BRR_BTCUSD".to_string(),
         interval: None,
+    });
+
+    let stream = client.subscribe(request).await?.into_inner();
+
+    process_stream_channel(stream, |item| {
+        println!("{:?}", item);
+    })
+    .await?;
+
+    Ok(())
+}
+
+/// Run an example of digital assets rates fixing
+/// 
+/// /!\ This example requires a Kaiko API key with access to the Kaiko Indices API
+/// 
+/// # Arguments
+/// 
+/// * `channel` - The channel to use to connect to the Kaiko Gateway
+/// * `token` - The token to use to authenticate to the Kaiko Gateway
+async fn digital_assets_rates_fixing(
+    channel: Channel,
+    token: &MetadataValue<Ascii>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut client =
+        StreamIndexServiceV1Client::with_interceptor(channel, move |mut req: Request<()>| {
+            req.metadata_mut().insert("authorization", token.clone());
+            Ok(req)
+        });
+
+    let start_time = SystemTime::now().duration_since(UNIX_EPOCH)?;
+    let end_time = start_time - Duration::from_hours(48);
+
+    let request = Request::new(StreamIndexServiceRequestV1 {
+        commodities: vec![StreamIndexCommodity::SicDailyFixing.into()],
+        index_code: "KK_RFR_CHILLGUYUSD_SGP".to_string(),
+        interval: Some(DataInterval {
+                start_time: Some(Timestamp {
+                    seconds: end_time.as_secs() as i64,
+                    nanos: 0,
+                }),
+                end_time: Some(Timestamp {
+                    seconds: start_time.as_secs() as i64,
+                    nanos: 0,
+                }),
+        }),
     });
 
     let stream = client.subscribe(request).await?.into_inner();

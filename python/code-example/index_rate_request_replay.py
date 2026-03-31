@@ -1,7 +1,7 @@
 # This is a code example. Configure your parameters below #
 
 from __future__ import print_function
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import logging
 import os
 from google.protobuf.timestamp_pb2 import Timestamp
@@ -14,9 +14,9 @@ def index_rate_request(channel: grpc.Channel):
     try:
         # start of date configuration #
         start = Timestamp()
-        start.FromDatetime(datetime.utcnow() - timedelta(days=2))
+        start.FromDatetime(datetime.now(timezone.utc) - timedelta(days=2))
         end = Timestamp()
-        end.FromDatetime(datetime.utcnow() - timedelta(days=1))
+        end.FromDatetime(datetime.now(timezone.utc) - timedelta(days=1))
         # end of date configuration #
         
         stub = sdk_pb2_grpc.StreamIndexServiceV1Stub(channel)

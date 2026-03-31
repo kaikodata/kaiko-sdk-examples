@@ -4,6 +4,7 @@
     "target": "es2018",
     "noImplicitAny": true,
     "noUnusedLocals": true,
+    "skipLibCheck": true,
     "outDir": "./dist",
     "sourceMap": true,
     "lib": [
