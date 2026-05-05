@@ -17,6 +17,7 @@ using KaikoSdk.Stream.TradesV1;
 using KaikoSdk.Stream.ExoticIndicesV1;
 using KaikoSdk.Stream.ConstantDurationIndicesV1;
 using KaikoSdk.Stream.CompositeIndicesV1;
+using KaikoSdk.Stream.StakingRatesV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
@@ -79,6 +80,9 @@ namespace TestSdk
 
             // composite indices
             await compositeIndicesV1(channel);
+
+            // staking rates
+            await stakingRatesV1(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -722,6 +726,58 @@ namespace TestSdk
                 var req = new StreamCompositeIndicesServiceRequestV1
                 {
                     IndexCode = "<YOUR_INDEX_CODE>"
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        // Staking rates are published once a day, so we query with the
+        // SicDailyFixing commodity and an interval covering the desired window.
+        private static async Task stakingRatesV1(GrpcChannel channel)
+        {
+            var client = new StreamStakingRatesServiceV1.StreamStakingRatesServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming staking rates request with SDK
+            try
+            {
+                var end = DateTimeOffset.UtcNow;
+                var start = end.AddHours(-48);
+
+                var req = new StreamStakingRatesServiceRequestV1
+                {
+                    IndexCode = "<YOUR_INDEX_CODE>",
+                    Commodities = { StreamIndexCommodity.SicDailyFixing },
+                    Interval = new DataInterval
+                    {
+                        StartTime = Timestamp.FromDateTimeOffset(start),
+                        EndTime = Timestamp.FromDateTimeOffset(end)
+                    }
                 };
                 var reply = client.Subscribe(req, null, null, sourcet.Token);
                 var stream = reply.ResponseStream;

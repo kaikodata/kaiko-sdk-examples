@@ -1,8 +1,10 @@
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
 
+#include <google/protobuf/timestamp.pb.h>
 #include <grpcpp/grpcpp.h>
 #include <sdk/sdk.grpc.pb.h>
 
@@ -42,6 +44,11 @@ using kaikosdk::StreamConstantDurationIndicesServiceV1;
 using kaikosdk::StreamCompositeIndicesServiceRequestV1;
 using kaikosdk::StreamCompositeIndicesServiceResponseV1;
 using kaikosdk::StreamCompositeIndicesServiceV1;
+using kaikosdk::DataInterval;
+using kaikosdk::SIC_DAILY_FIXING;
+using kaikosdk::StreamStakingRatesServiceRequestV1;
+using kaikosdk::StreamStakingRatesServiceResponseV1;
+using kaikosdk::StreamStakingRatesServiceV1;
 using kaikosdk::StreamIndexForexRateServiceRequestV1;
 using kaikosdk::StreamIndexForexRateServiceResponseV1;
 using kaikosdk::StreamIndexForexRateServiceV1;
@@ -828,6 +835,65 @@ class CompositeIndicesClient {
     std::unique_ptr<StreamCompositeIndicesServiceV1::Stub> stub_;
   };
 
+class StakingRatesClient {
+  public:
+    StakingRatesClient(std::shared_ptr<Channel> channel)
+        : stub_(StreamStakingRatesServiceV1::NewStub(channel)) {}
+
+    // Staking rates are published once a day, so we query with the
+    // SIC_DAILY_FIXING commodity and an interval covering the desired window.
+    std::string Subscribe() {
+      StreamStakingRatesServiceRequestV1 request;
+
+      request.set_index_code("<YOUR_INDEX_CODE>");
+      request.add_commodities(SIC_DAILY_FIXING);
+
+      auto end = std::chrono::system_clock::now();
+      auto start = end - std::chrono::hours(48);
+      auto end_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                          end.time_since_epoch())
+                          .count();
+      auto start_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                            start.time_since_epoch())
+                            .count();
+
+      DataInterval *interval = request.mutable_interval();
+      interval->mutable_start_time()->set_seconds(start_secs);
+      interval->mutable_end_time()->set_seconds(end_secs);
+
+      // Context for the client. It could be used to convey extra information to
+      // the server and/or tweak certain RPC behaviors.
+      ClientContext context;
+      setupContext(&context);
+
+      std::unique_ptr<ClientReader<StreamStakingRatesServiceResponseV1>> reader(
+          stub_->Subscribe(&context, request));
+
+      // Container for the data we expect from the server.
+      StreamStakingRatesServiceResponseV1 response;
+
+      while (reader->Read(&response)) {
+        std::cout << response.DebugString() << std::endl;
+      }
+
+      // Act upon its status.
+      Status status = reader->Finish();
+
+      if (!status.ok()) {
+        std::stringstream ss;
+        ss << "RPC error " << status.error_code() << ":" << status.error_message()
+           << std::endl;
+
+        return ss.str();
+      }
+
+      return "";
+    }
+
+  private:
+    std::unique_ptr<StreamStakingRatesServiceV1::Stub> stub_;
+  };
+
 class StreamOrderbookL2Client {
 public:
   StreamOrderbookL2Client(std::shared_ptr<Channel> channel)
@@ -904,6 +970,7 @@ int main(int argc, char **argv) {
   // ExoticIndicesClient client = ExoticIndicesClient(channel);
   // ConstantDurationIndicesClient client = ConstantDurationIndicesClient(channel);
   // CompositeIndicesClient client = CompositeIndicesClient(channel);
+  // StakingRatesClient client = StakingRatesClient(channel);
 
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;
