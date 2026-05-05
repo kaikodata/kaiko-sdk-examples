@@ -45,6 +45,12 @@ import com.kaiko.sdk.stream.iv_svi_parameters_v1.StreamIvSviParametersRequestV1
 import com.kaiko.sdk.stream.exotic_indices_v1.StreamExoticIndicesServiceRequestV1
 import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceRequestV1
 import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceRequestV1
+import com.kaiko.sdk.StreamStakingRatesServiceV1Grpc
+import com.kaiko.sdk.stream.staking_rates_v1.StreamStakingRatesServiceRequestV1
+import com.kaiko.sdk.stream.index_v1.StreamIndexCommodity
+import com.kaiko.sdk.core.DataInterval
+import com.google.protobuf.timestamp.Timestamp
+import java.time.Instant
 
 object Main {
 
@@ -125,6 +131,9 @@ object Main {
 
     // Create a streaming composite indices request with SDK
     composite_indices_v1(channel, callCredentials)
+
+    // Create a streaming staking rates request with SDK
+    staking_rates_v1(channel, callCredentials)
   }
 
   def market_update_request(
@@ -496,6 +505,38 @@ object Main {
     // Create a request with SDK
     val request = StreamCompositeIndicesServiceRequestV1(
       indexCode = "<YOUR_INDEX_CODE>",
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  // Staking rates are published once a day, so we query with the
+  // SIC_DAILY_FIXING commodity and an interval covering the desired window.
+  def staking_rates_v1(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamStakingRatesServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    val end = Instant.now()
+    val start = end.minusSeconds(48 * 3600)
+
+    val request = StreamStakingRatesServiceRequestV1(
+      indexCode = "<YOUR_INDEX_CODE>",
+      commodities = Seq(StreamIndexCommodity.SIC_DAILY_FIXING),
+      interval = Some(DataInterval(
+        startTime = Some(Timestamp(seconds = start.getEpochSecond)),
+        endTime = Some(Timestamp(seconds = end.getEpochSecond))
+      ))
     )
 
     // Run the request and get results

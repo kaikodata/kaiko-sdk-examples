@@ -57,8 +57,12 @@ path = "src/orderbookl2_replay.rs"
 name = "composite_indices"
 path = "src/composite_indices.rs"
 
+[[bin]]
+name = "staking_rates"
+path = "src/staking_rates.rs"
+
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.33.1" }
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.35.0" }
 tonic = { version = "0.14.5", features = [
     "tls-native-roots",
     "tls-aws-lc",

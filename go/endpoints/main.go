@@ -28,11 +28,13 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/iv_svi_parameters_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/orderbookl2_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/staking_rates_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func main() {
@@ -181,6 +183,14 @@ func main() {
 		err := indexCompositeIndices(ctx, conn)
 		if err != nil {
 			log.Printf("could not get composite indices: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming staking rates request with SDK
+		err := stakingRatesRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get staking rates: %v", err)
 		}
 	}()
 
@@ -496,6 +506,46 @@ func indexCompositeIndices(
 		}
 
 		fmt.Printf("[INDEX_COMPOSITE] %+v\n", elt)
+	}
+}
+
+// Staking rates are published once a day, so this endpoint must be queried
+// with the SIC_DAILY_FIXING commodity and an interval covering the desired
+// publication window.
+func stakingRatesRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamStakingRatesServiceV1Client(conn)
+
+	end := time.Now()
+	start := end.Add(-48 * time.Hour)
+
+	request := staking_rates_v1.StreamStakingRatesServiceRequestV1{
+		IndexCode:   "<YOUR_INDEX_CODE>",
+		Commodities: []index_v1.StreamIndexCommodity{index_v1.StreamIndexCommodity_SIC_DAILY_FIXING},
+		Interval: &core.DataInterval{
+			StartTime: timestamppb.New(start),
+			EndTime:   timestamppb.New(end),
+		},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[STAKING_RATES] %+v\n", elt)
 	}
 }
 

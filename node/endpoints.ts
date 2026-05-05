@@ -19,7 +19,8 @@ import {
     StreamExoticIndicesServiceV1Client,
     StreamAggregatedStatePriceServiceV1Client,
     StreamConstantDurationIndicesServiceV1Client,
-    StreamCompositeIndicesServiceV1Client
+    StreamCompositeIndicesServiceV1Client,
+    StreamStakingRatesServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -38,6 +39,8 @@ import { StreamConstantDurationIndicesServiceRequestV1 } from '@kaiko-data/sdk-n
 import { StreamConstantDurationIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/constant_duration_indices_v1/response_pb';
 import { StreamCompositeIndicesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/composite_indices_v1/request_pb';
 import { StreamCompositeIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/composite_indices_v1/response_pb';
+import { StreamStakingRatesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/staking_rates_v1/request_pb';
+import { StreamStakingRatesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/staking_rates_v1/response_pb';
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
 import { StreamAggregatesSpotExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/request_pb';
@@ -122,6 +125,9 @@ const main = () => {
 
     // Create a composite indices request with SDK
     compositeIndicesRequest(creds);
+
+    // Create a staking rates request with SDK
+    stakingRatesRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -679,6 +685,49 @@ const aggregatedStatePriceRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[AGGREGATED STATE PRICE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+// Staking rates are published once a day, so we query with the
+// SIC_DAILY_FIXING commodity and an interval covering the desired window.
+const stakingRatesRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamStakingRatesServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamStakingRatesServiceRequestV1();
+
+    const start = new Timestamp()
+    start.fromDate(new Date(Date.now() - 48 * 3600 * 1000)); // 48 hours ago
+
+    const end = new Timestamp()
+    end.fromDate(new Date()); // now
+
+    const dt = new DataInterval();
+    dt.setStartTime(start);
+    dt.setEndTime(end);
+
+    request.setIndexCode("<YOUR_INDEX_CODE>")
+    request.setCommoditiesList([StreamIndexCommodity.SIC_DAILY_FIXING])
+    request.setInterval(dt);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamStakingRatesServiceResponseV1) => {
+        console.log(`[STAKING RATES] value: ${JSON.stringify(response.toObject())}}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[STAKING RATES] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {

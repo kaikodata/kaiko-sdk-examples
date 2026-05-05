@@ -36,6 +36,11 @@ import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationI
 import com.kaiko.sdk.stream.constant_duration_indices_v1.StreamConstantDurationIndicesServiceResponseV1;
 import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceRequestV1;
 import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceResponseV1;
+import com.kaiko.sdk.stream.staking_rates_v1.StreamStakingRatesServiceRequestV1;
+import com.kaiko.sdk.stream.staking_rates_v1.StreamStakingRatesServiceResponseV1;
+import com.kaiko.sdk.core.DataInterval;
+import com.google.protobuf.Timestamp;
+import java.time.Instant;
 
 import io.grpc.*;
 
@@ -121,6 +126,9 @@ public class Main {
 
                 // Create a streaming composite indices request with SDK
                 composite_indices_v1(channel, callCredentials);
+
+                // Create a streaming staking rates request with SDK
+                staking_rates_v1(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -481,6 +489,39 @@ public class Main {
 
                 // Run the request and get results
                 List<StreamCompositeIndicesServiceResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        // Staking rates are published once a day, so we query with the
+        // SIC_DAILY_FIXING commodity and an interval covering the desired window.
+        public static void staking_rates_v1(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                Instant end = Instant.now();
+                Instant start = end.minusSeconds(48 * 3600);
+
+                StreamStakingRatesServiceRequestV1 request = StreamStakingRatesServiceRequestV1
+                        .newBuilder()
+                        .setIndexCode("<YOUR_INDEX_CODE>")
+                        .addCommodities(StreamIndexCommodity.SIC_DAILY_FIXING)
+                        .setInterval(DataInterval.newBuilder()
+                                .setStartTime(Timestamp.newBuilder().setSeconds(start.getEpochSecond()).build())
+                                .setEndTime(Timestamp.newBuilder().setSeconds(end.getEpochSecond()).build())
+                                .build())
+                        .build();
+
+                StreamStakingRatesServiceV1Grpc.StreamStakingRatesServiceV1BlockingStub stub = StreamStakingRatesServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamStakingRatesServiceResponseV1> elts = StreamSupport.stream(
                                 Spliterators.spliteratorUnknownSize(
                                         stub.subscribe(request),
                                         Spliterator.ORDERED),
