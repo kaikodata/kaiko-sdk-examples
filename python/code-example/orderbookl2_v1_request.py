@@ -1,15 +1,21 @@
 # This is a code example. Configure your parameters below #
 
-from __future__ import print_function
-from datetime import datetime, timedelta
 import logging
 import os
-from google.protobuf.timestamp_pb2 import Timestamp
-from google.protobuf.json_format import MessageToJson
+
 import grpc
+from google.protobuf.json_format import MessageToJson
 from kaikosdk import sdk_pb2_grpc
 from kaikosdk.core import instrument_criteria_pb2
 from kaikosdk.stream.orderbookl2_v1 import request_pb2 as pb_orderbookl2
+
+
+def to_json(message):
+    # protobuf >= 5.26 renamed including_default_value_fields
+    try:
+        return MessageToJson(message, always_print_fields_with_no_presence=True)
+    except TypeError:
+        return MessageToJson(message, including_default_value_fields=True)
 
 
 def orderbookl2_v1_request(channel: grpc.Channel):
@@ -20,17 +26,16 @@ def orderbookl2_v1_request(channel: grpc.Channel):
             responses = stub.Subscribe(
                 pb_orderbookl2.StreamOrderBookL2RequestV1(
                     instrument_criteria=instrument_criteria_pb2.InstrumentCriteria(
-                        exchange="cbse", instrument_class="spot", code="*"
+                        exchange="cbse",
+                        instrument_class="spot",
+                        code="btc-usd",
                     ),
                 )
             )
 
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print(
-                    "Received message %s"
-                    % (MessageToJson(response, including_default_value_fields=True))
-                )
+                print("Received message %s" % to_json(response))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
