@@ -7,7 +7,7 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-You will need to have Python 3.9 installed on your machine
+You will need Python 3.11 or later installed on your machine
 Installation can be done via this tutorial (<https://realpython.com/installing-python/>) if not already present.
 
 You will also need  dependency tools

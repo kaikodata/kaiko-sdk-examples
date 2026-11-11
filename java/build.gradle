@@ -5,8 +5,8 @@ plugins {
 }
 
 ext.versions = [
-        grpc: '1.59.0',
-        sdk : '1.35.0'
+        grpc: '1.85.1',
+        sdk : '1.41.0'
 ]
 
 repositories {
@@ -18,16 +18,17 @@ dependencies {
     implementation "com.kaiko:java-sdk:${versions.sdk}"
     implementation "io.grpc:grpc-netty:${versions.grpc}"
     implementation "io.grpc:grpc-stub:${versions.grpc}"
-    implementation 'com.google.protobuf:protobuf-java:3.21.12'
+    implementation 'com.google.protobuf:protobuf-java:3.25.9'
     implementation 'com.evanlennick:retry4j:0.15.0' // optional dependency only to demonstrate resubscribe
 
     testImplementation "io.grpc:grpc-testing:${versions.grpc}"
-    testImplementation 'org.mockito:mockito-core:3.7.7'
-    testImplementation 'junit:junit:4.13'
+    testImplementation "io.grpc:grpc-inprocess:${versions.grpc}"
+    testImplementation 'org.mockito:mockito-core:5.24.0'
+    testImplementation 'junit:junit:4.13.2'
 
     // for basic logging
-    implementation 'org.slf4j:slf4j-api:1.7.32'
-    implementation 'ch.qos.logback:logback-classic:1.2.6'
+    implementation 'org.slf4j:slf4j-api:2.0.20'
+    implementation 'ch.qos.logback:logback-classic:1.6.6'
 }
 
 repositories {

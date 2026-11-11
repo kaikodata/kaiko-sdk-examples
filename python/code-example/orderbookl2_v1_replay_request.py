@@ -13,11 +13,7 @@ from kaikosdk.stream.orderbookl2_v1 import request_pb2 as pb_orderbookl2
 
 
 def to_json(message):
-    # protobuf >= 5.26 renamed including_default_value_fields
-    try:
-        return MessageToJson(message, always_print_fields_with_no_presence=True)
-    except TypeError:
-        return MessageToJson(message, including_default_value_fields=True)
+    return MessageToJson(message, always_print_fields_with_no_presence=True)
 
 
 def orderbookl2replay_v1_request(channel: grpc.Channel):

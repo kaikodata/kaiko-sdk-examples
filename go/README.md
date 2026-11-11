@@ -7,7 +7,7 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-You will need a Golang 1.16+ installed on your machine.
+You will need Go 1.26 or later installed on your machine.
 Installation can be via <https://golang.org/doc/install> or through third-party tools like `brew` (<https://formulae.brew.sh/formula/go>).
 
 ## Run the example

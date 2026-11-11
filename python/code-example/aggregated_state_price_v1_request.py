@@ -20,7 +20,7 @@ def aggregated_state_price_v1_request(channel: grpc.Channel):
                 assets = ["ageur", "wsteth"]
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 

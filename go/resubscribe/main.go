@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff/v5"
 	pb "github.com/kaikodata/kaiko-go-sdk"
 	"github.com/kaikodata/kaiko-go-sdk/core"
 	"github.com/kaikodata/kaiko-go-sdk/stream/trades_v1"
@@ -91,27 +91,23 @@ func subscribe(
 	cli pb.StreamTradesServiceV1Client,
 	request *trades_v1.StreamTradesRequestV1,
 ) pb.StreamTradesServiceV1_SubscribeClient {
-	var subscription pb.StreamTradesServiceV1_SubscribeClient
-
 	fmt.Println("subscribing to trades: START")
 
 	b := backoff.NewExponentialBackOff()
 	b.InitialInterval = retryInitialInterval // set min time when doing retry loops
 
-	err := backoff.Retry(func() error {
+	subscription, err := backoff.Retry(ctx, func() (pb.StreamTradesServiceV1_SubscribeClient, error) {
 		time.Sleep(retryWaitMin) // give a bit of time before retry
 
 		sub, err := cli.Subscribe(ctx, request)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		fmt.Println("resub done")
 
-		subscription = sub
-
-		return nil
-	}, backoff.WithContext(b, ctx))
+		return sub, nil
+	}, backoff.WithBackOff(b))
 	if err != nil {
 		log.Fatalf("could not subscribe: %v", err)
 	}

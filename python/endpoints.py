@@ -41,7 +41,7 @@ def ohlcv_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
@@ -60,7 +60,7 @@ def vwap_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -79,7 +79,7 @@ def market_update_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -97,7 +97,7 @@ def trades_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -110,7 +110,7 @@ def index_rate_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -123,7 +123,7 @@ def index_multi_asset(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -136,7 +136,7 @@ def index_forex_rate(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -151,7 +151,7 @@ def aggregated_quote_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -176,7 +176,7 @@ def aggregates_spot_exchange_rate_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -201,7 +201,7 @@ def aggregates_direct_exchange_rate_request(channel: grpc.Channel):
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -218,7 +218,7 @@ def derivatives_instrument_metrics_request(channel: grpc.Channel):
                 )
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -235,7 +235,7 @@ def iv_svi_parameters_v1_request(channel: grpc.Channel):
                 exchanges = "drbt"
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -249,7 +249,7 @@ def exotic_indices_v1_request(channel: grpc.Channel):
                 index_code = "KT10TCUSD"
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -262,7 +262,7 @@ def constant_duration_indices_v1_request(channel: grpc.Channel):
                 index_code = "<YOUR_INDEX_CODE>"
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -277,7 +277,7 @@ def aggregated_state_price_v1_request(channel: grpc.Channel):
                 assets = ["ageur", "wsteth"]
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
@@ -306,7 +306,7 @@ def staking_rates_v1_request(channel: grpc.Channel):
                 }
             ))
             for response in responses:
-                print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
     except grpc.RpcError as e:
         print(e.details(), e.code())
 
