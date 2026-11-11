@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20231004
+FROM ubuntu:noble
 
 RUN apt update && \
     apt-get upgrade --yes && \

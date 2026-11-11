@@ -35,7 +35,7 @@ def ohlcv_request(channel: grpc.Channel):
             ))
         for response in responses:
             # for debug purpose only, don't use MessageToJson in the reading loop in production
-            print("Received message %s" % (MessageToJson(response, including_default_value_fields = True)))
+            print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
                 # print("Received message %s" % list(map(lambda o: o.string_value, response.data.values)))
     except grpc.RpcError as e:
         print(e.details(), e.code())

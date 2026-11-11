@@ -7,7 +7,7 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-You will need a Java 1.8+ JDK installed on your machine.
+You will need a Java 11+ JDK installed on your machine.
 Installation can be done through third-party tools like SDKMAN (<https://sdkman.io/>).
 
 ## Build the example

@@ -1,6 +1,6 @@
 import Dependencies._
 
-ThisBuild / scalaVersion := "2.13.14"
+ThisBuild / scalaVersion := "2.13.18"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "com.kaiko"
 ThisBuild / organizationName := "Kaiko"
@@ -12,7 +12,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation", "-feature")
 val testDependencies = Seq(
   scalaTest,
   grpcTesting,
-  scalaMock
+  grpcInprocess
 )
 
 val libDependencies = Seq(

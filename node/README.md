@@ -7,8 +7,8 @@ Disconnection can happen for lots of reasons (client or server side network, idl
 
 ## Requirements
 
-You will need to have Node.js runtime installed on your machine
-Installation can be done here (<https://nodejs.or>g) or through third-party tools like NVM (<https://github.com/nvm-sh/nvm>).
+You will need Node.js 26 (the current LTS) or later installed on your machine.
+Installation can be done here (<https://nodejs.org>) or through third-party tools like NVM (<https://github.com/nvm-sh/nvm>).
 
 The Node SDK offers both support for Node and Typescript/Node.
 
