@@ -12,6 +12,9 @@ jobs:
     - uses: actions/setup-python@v7
       with:
         python-version: '3.11'
+    - name: Install gcc 12
+      # ubuntu-latest (26.04) no longer ships gcc-12, which builds grpc 1.54.3 and its abseil.
+      run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends gcc-12 g++-12
     - run: >
         mkdir -p ~/.conan2/profiles &&
         cat cpp/conan_profile.conf > ~/.conan2/profiles/default &&
