@@ -49,6 +49,16 @@ using kaikosdk::SIC_DAILY_FIXING;
 using kaikosdk::StreamStakingRatesServiceRequestV1;
 using kaikosdk::StreamStakingRatesServiceResponseV1;
 using kaikosdk::StreamStakingRatesServiceV1;
+using kaikosdk::StreamIndexAggregatedOBReplayRequestV1;
+using kaikosdk::StreamIndexAggregatedOBReplayServiceV1;
+using kaikosdk::StreamIndexAggregatedOBRequestV1;
+using kaikosdk::StreamIndexAggregatedOBResponseV1;
+using kaikosdk::StreamIndexAggregatedOBServiceV1;
+using kaikosdk::StreamIndexOBRateReplayRequestV1;
+using kaikosdk::StreamIndexOBRateReplayServiceV1;
+using kaikosdk::StreamIndexOBRateRequestV1;
+using kaikosdk::StreamIndexOBRateResponseV1;
+using kaikosdk::StreamIndexOBRateServiceV1;
 using kaikosdk::StreamIndexForexRateServiceRequestV1;
 using kaikosdk::StreamIndexForexRateServiceResponseV1;
 using kaikosdk::StreamIndexForexRateServiceV1;
@@ -894,6 +904,209 @@ class StakingRatesClient {
     std::unique_ptr<StreamStakingRatesServiceV1::Stub> stub_;
   };
 
+// Order-book rates are computed from a consolidated order book (the "feed").
+// Request a rate by its code, and the book by its feed name, which each rate
+// message carries (source_feed).
+class IndexOBRateClient {
+public:
+  IndexOBRateClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexOBRateServiceV1::NewStub(channel)) {}
+
+  std::string Subscribe() {
+    StreamIndexOBRateRequestV1 request;
+
+    request.add_index_codes("<YOUR_OB_RATE_CODE>");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexOBRateResponseV1>> reader(
+        stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexOBRateResponseV1 response;
+
+    while (reader->Read(&response)) {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok()) {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message()
+         << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexOBRateServiceV1::Stub> stub_;
+};
+
+class IndexOBRateReplayClient {
+public:
+  IndexOBRateReplayClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexOBRateReplayServiceV1::NewStub(channel)) {}
+
+  std::string Subscribe() {
+    StreamIndexOBRateReplayRequestV1 request;
+
+    request.add_index_codes("<YOUR_OB_RATE_CODE>");
+
+    // Replays cover the last 48 hours: here, one minute ending one hour ago.
+    auto end = std::chrono::system_clock::now() - std::chrono::hours(1);
+    auto start = end - std::chrono::minutes(1);
+    auto end_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                        end.time_since_epoch())
+                        .count();
+    auto start_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                          start.time_since_epoch())
+                          .count();
+
+    DataInterval *interval = request.mutable_interval();
+    interval->mutable_start_time()->set_seconds(start_secs);
+    interval->mutable_end_time()->set_seconds(end_secs);
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexOBRateResponseV1>> reader(
+        stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexOBRateResponseV1 response;
+
+    while (reader->Read(&response)) {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok()) {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message()
+         << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexOBRateReplayServiceV1::Stub> stub_;
+};
+
+class IndexAggregatedOBClient {
+public:
+  IndexAggregatedOBClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexAggregatedOBServiceV1::NewStub(channel)) {}
+
+  std::string Subscribe() {
+    StreamIndexAggregatedOBRequestV1 request;
+
+    request.add_feed_names("<YOUR_FEED_NAME>");
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexAggregatedOBResponseV1>> reader(
+        stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexAggregatedOBResponseV1 response;
+
+    while (reader->Read(&response)) {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok()) {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message()
+         << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexAggregatedOBServiceV1::Stub> stub_;
+};
+
+class IndexAggregatedOBReplayClient {
+public:
+  IndexAggregatedOBReplayClient(std::shared_ptr<Channel> channel)
+      : stub_(StreamIndexAggregatedOBReplayServiceV1::NewStub(channel)) {}
+
+  std::string Subscribe() {
+    StreamIndexAggregatedOBReplayRequestV1 request;
+
+    request.add_feed_names("<YOUR_FEED_NAME>");
+
+    // Replays cover the last 48 hours: here, one minute ending one hour ago.
+    auto end = std::chrono::system_clock::now() - std::chrono::hours(1);
+    auto start = end - std::chrono::minutes(1);
+    auto end_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                        end.time_since_epoch())
+                        .count();
+    auto start_secs = std::chrono::duration_cast<std::chrono::seconds>(
+                          start.time_since_epoch())
+                          .count();
+
+    DataInterval *interval = request.mutable_interval();
+    interval->mutable_start_time()->set_seconds(start_secs);
+    interval->mutable_end_time()->set_seconds(end_secs);
+
+    // Context for the client. It could be used to convey extra information to
+    // the server and/or tweak certain RPC behaviors.
+    ClientContext context;
+    setupContext(&context);
+
+    std::unique_ptr<ClientReader<StreamIndexAggregatedOBResponseV1>> reader(
+        stub_->Subscribe(&context, request));
+
+    // Container for the data we expect from the server.
+    StreamIndexAggregatedOBResponseV1 response;
+
+    while (reader->Read(&response)) {
+      std::cout << response.DebugString() << std::endl;
+    }
+
+    // Act upon its status.
+    Status status = reader->Finish();
+
+    if (!status.ok()) {
+      std::stringstream ss;
+      ss << "RPC error " << status.error_code() << ":" << status.error_message()
+         << std::endl;
+
+      return ss.str();
+    }
+
+    return "";
+  }
+
+private:
+  std::unique_ptr<StreamIndexAggregatedOBReplayServiceV1::Stub> stub_;
+};
+
 class StreamOrderbookL2Client {
 public:
   StreamOrderbookL2Client(std::shared_ptr<Channel> channel)
@@ -971,6 +1184,10 @@ int main(int argc, char **argv) {
   // ConstantDurationIndicesClient client = ConstantDurationIndicesClient(channel);
   // CompositeIndicesClient client = CompositeIndicesClient(channel);
   // StakingRatesClient client = StakingRatesClient(channel);
+  // IndexOBRateClient client = IndexOBRateClient(channel);
+  // IndexOBRateReplayClient client = IndexOBRateReplayClient(channel);
+  // IndexAggregatedOBClient client = IndexAggregatedOBClient(channel);
+  // IndexAggregatedOBReplayClient client = IndexAggregatedOBReplayClient(channel);
 
   std::string reply = client.Subscribe();
   std::cout << "Subscribe received: " << reply << std::endl;

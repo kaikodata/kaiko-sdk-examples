@@ -18,6 +18,8 @@ using KaikoSdk.Stream.ExoticIndicesV1;
 using KaikoSdk.Stream.ConstantDurationIndicesV1;
 using KaikoSdk.Stream.CompositeIndicesV1;
 using KaikoSdk.Stream.StakingRatesV1;
+using KaikoSdk.Stream.IndexOBRateV1;
+using KaikoSdk.Stream.IndexAggregatedOBV1;
 using KaikoSdk.Core;
 using System;
 using System.Threading;
@@ -83,6 +85,18 @@ namespace TestSdk
 
             // staking rates
             await stakingRatesV1(channel);
+
+            // order-book rates
+            await indexOBRateRequest(channel);
+
+            // order-book rates replay
+            await indexOBRateReplayRequest(channel);
+
+            // aggregated order book
+            await indexAggregatedOBRequest(channel);
+
+            // aggregated order book replay
+            await indexAggregatedOBReplayRequest(channel);
 
             channel.ShutdownAsync().Wait();
         }
@@ -773,6 +787,191 @@ namespace TestSdk
                 {
                     IndexCode = "<YOUR_INDEX_CODE>",
                     Commodities = { StreamIndexCommodity.SicDailyFixing },
+                    Interval = new DataInterval
+                    {
+                        StartTime = Timestamp.FromDateTimeOffset(start),
+                        EndTime = Timestamp.FromDateTimeOffset(end)
+                    }
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        // Order-book rates are computed from a consolidated order book (the "feed").
+        // Request a rate by its code, and the book by its feed name, which each rate
+        // message carries (SourceFeed).
+        private static async Task indexOBRateRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexOBRateServiceV1.StreamIndexOBRateServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming order-book rates request with SDK
+            try
+            {
+                var req = new StreamIndexOBRateRequestV1
+                {
+                    IndexCodes = { "<YOUR_OB_RATE_CODE>" }
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indexOBRateReplayRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexOBRateReplayServiceV1.StreamIndexOBRateReplayServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create an order-book rates replay request with SDK
+            try
+            {
+                // Replays cover the last 48 hours: here, one minute ending one hour ago.
+                var end = DateTimeOffset.UtcNow.AddHours(-1);
+                var start = end.AddMinutes(-1);
+
+                var req = new StreamIndexOBRateReplayRequestV1
+                {
+                    IndexCodes = { "<YOUR_OB_RATE_CODE>" },
+                    Interval = new DataInterval
+                    {
+                        StartTime = Timestamp.FromDateTimeOffset(start),
+                        EndTime = Timestamp.FromDateTimeOffset(end)
+                    }
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indexAggregatedOBRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexAggregatedOBServiceV1.StreamIndexAggregatedOBServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create a streaming aggregated order book request with SDK
+            try
+            {
+                var req = new StreamIndexAggregatedOBRequestV1
+                {
+                    FeedNames = { "<YOUR_FEED_NAME>" }
+                };
+                var reply = client.Subscribe(req, null, null, sourcet.Token);
+                var stream = reply.ResponseStream;
+
+                var i = 0;
+                while (await stream.MoveNext())
+                {
+                    var response = stream.Current;
+                    Console.WriteLine(response);
+
+                    if (i > 4)
+                    {
+                        sourcet.Cancel();
+                    }
+
+                    i++;
+                }
+            }
+            catch (RpcException e)
+            {
+                if (e.StatusCode != StatusCode.Cancelled)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task indexAggregatedOBReplayRequest(GrpcChannel channel)
+        {
+            var client = new StreamIndexAggregatedOBReplayServiceV1.StreamIndexAggregatedOBReplayServiceV1Client(channel);
+
+            // Setup runtime (run for few seconds or stop after receiving some results)
+            var sourcet = new CancellationTokenSource();
+            sourcet.CancelAfter(TimeSpan.FromSeconds(20));
+
+            // Create an aggregated order book replay request with SDK
+            try
+            {
+                // Replays cover the last 48 hours: here, one minute ending one hour ago.
+                var end = DateTimeOffset.UtcNow.AddHours(-1);
+                var start = end.AddMinutes(-1);
+
+                var req = new StreamIndexAggregatedOBReplayRequestV1
+                {
+                    FeedNames = { "<YOUR_FEED_NAME>" },
                     Interval = new DataInterval
                     {
                         StartTime = Timestamp.FromDateTimeOffset(start),

@@ -38,6 +38,12 @@ import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceRe
 import com.kaiko.sdk.stream.composite_indices_v1.StreamCompositeIndicesServiceResponseV1;
 import com.kaiko.sdk.stream.staking_rates_v1.StreamStakingRatesServiceRequestV1;
 import com.kaiko.sdk.stream.staking_rates_v1.StreamStakingRatesServiceResponseV1;
+import com.kaiko.sdk.stream.index_ob_rate_v1.StreamIndexOBRateRequestV1;
+import com.kaiko.sdk.stream.index_ob_rate_v1.StreamIndexOBRateReplayRequestV1;
+import com.kaiko.sdk.stream.index_ob_rate_v1.StreamIndexOBRateResponseV1;
+import com.kaiko.sdk.stream.index_aggregated_ob_v1.StreamIndexAggregatedOBRequestV1;
+import com.kaiko.sdk.stream.index_aggregated_ob_v1.StreamIndexAggregatedOBReplayRequestV1;
+import com.kaiko.sdk.stream.index_aggregated_ob_v1.StreamIndexAggregatedOBResponseV1;
 import com.kaiko.sdk.core.DataInterval;
 import com.google.protobuf.Timestamp;
 import java.time.Instant;
@@ -129,6 +135,18 @@ public class Main {
 
                 // Create a streaming staking rates request with SDK
                 staking_rates_v1(channel, callCredentials);
+
+                // Create a streaming order-book rate request with SDK
+                index_ob_rate_request(channel, callCredentials);
+
+                // Create an order-book rate replay request with SDK
+                index_ob_rate_replay_request(channel, callCredentials);
+
+                // Create a streaming aggregated order book request with SDK
+                index_aggregated_ob_request(channel, callCredentials);
+
+                // Create an aggregated order book replay request with SDK
+                index_aggregated_ob_replay_request(channel, callCredentials);
         }
 
         public static void ohlcv_request(ManagedChannel channel, CallCredentials callCredentials) {
@@ -522,6 +540,117 @@ public class Main {
 
                 // Run the request and get results
                 List<StreamStakingRatesServiceResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        // Order-book rates are computed from a consolidated order book (the "feed").
+        // Request a rate by its code, and the book it is computed from by its feed name:
+        // the feed name is in each rate message (source_feed).
+        public static void index_ob_rate_request(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                StreamIndexOBRateRequestV1 request = StreamIndexOBRateRequestV1
+                        .newBuilder()
+                        .addIndexCodes("<YOUR_OB_RATE_CODE>")
+                        .build();
+
+                StreamIndexOBRateServiceV1Grpc.StreamIndexOBRateServiceV1BlockingStub stub = StreamIndexOBRateServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamIndexOBRateResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void index_ob_rate_replay_request(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                // Replays cover the last 48 hours.
+                Instant end = Instant.now().minusSeconds(3600);
+                Instant start = end.minusSeconds(60);
+
+                StreamIndexOBRateReplayRequestV1 request = StreamIndexOBRateReplayRequestV1
+                        .newBuilder()
+                        .addIndexCodes("<YOUR_OB_RATE_CODE>")
+                        .setInterval(DataInterval.newBuilder()
+                                .setStartTime(Timestamp.newBuilder().setSeconds(start.getEpochSecond()).build())
+                                .setEndTime(Timestamp.newBuilder().setSeconds(end.getEpochSecond()).build())
+                                .build())
+                        .build();
+
+                StreamIndexOBRateReplayServiceV1Grpc.StreamIndexOBRateReplayServiceV1BlockingStub stub = StreamIndexOBRateReplayServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamIndexOBRateResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void index_aggregated_ob_request(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                StreamIndexAggregatedOBRequestV1 request = StreamIndexAggregatedOBRequestV1
+                        .newBuilder()
+                        .addFeedNames("<YOUR_FEED_NAME>")
+                        .build();
+
+                StreamIndexAggregatedOBServiceV1Grpc.StreamIndexAggregatedOBServiceV1BlockingStub stub = StreamIndexAggregatedOBServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamIndexAggregatedOBResponseV1> elts = StreamSupport.stream(
+                                Spliterators.spliteratorUnknownSize(
+                                        stub.subscribe(request),
+                                        Spliterator.ORDERED),
+                                        false
+                                )
+                                .limit(10)
+                                .collect(Collectors.toList());
+
+                System.out.println(elts);
+        }
+
+        public static void index_aggregated_ob_replay_request(ManagedChannel channel,
+        CallCredentials callCredentials) {
+                // Replays cover the last 48 hours.
+                Instant end = Instant.now().minusSeconds(3600);
+                Instant start = end.minusSeconds(60);
+
+                StreamIndexAggregatedOBReplayRequestV1 request = StreamIndexAggregatedOBReplayRequestV1
+                        .newBuilder()
+                        .addFeedNames("<YOUR_FEED_NAME>")
+                        .setInterval(DataInterval.newBuilder()
+                                .setStartTime(Timestamp.newBuilder().setSeconds(start.getEpochSecond()).build())
+                                .setEndTime(Timestamp.newBuilder().setSeconds(end.getEpochSecond()).build())
+                                .build())
+                        .build();
+
+                StreamIndexAggregatedOBReplayServiceV1Grpc.StreamIndexAggregatedOBReplayServiceV1BlockingStub stub = StreamIndexAggregatedOBReplayServiceV1Grpc
+                        .newBlockingStub(channel).withCallCredentials(callCredentials);
+
+                // Run the request and get results
+                List<StreamIndexAggregatedOBResponseV1> elts = StreamSupport.stream(
                                 Spliterators.spliteratorUnknownSize(
                                         stub.subscribe(request),
                                         Spliterator.ORDERED),

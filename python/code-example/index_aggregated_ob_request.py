@@ -1,0 +1,37 @@
+# This is a code example. Configure your parameters below #
+
+from __future__ import print_function
+from datetime import datetime, timedelta, timezone
+import logging
+import os
+from google.protobuf.timestamp_pb2 import Timestamp
+import grpc
+from google.protobuf.json_format import MessageToJson
+from kaikosdk import sdk_pb2_grpc
+from kaikosdk.stream.index_aggregated_ob_v1 import request_pb2 as pb_index_aggregated_ob
+
+# Order-book rates are computed from a consolidated order book (the "feed").
+# Request a rate by its code, and the book it is computed from by its feed name:
+# the feed name is in each rate message (source_feed).
+def index_aggregated_ob_request(channel: grpc.Channel):
+    try:
+        stub = sdk_pb2_grpc.StreamIndexAggregatedOBServiceV1Stub(channel)
+        responses = stub.Subscribe(pb_index_aggregated_ob.StreamIndexAggregatedOBRequestV1(
+            feed_names = ["<YOUR_FEED_NAME>"]
+        ))
+        for response in responses:
+            # for debug purpose only, don't use MessageToJson in the reading loop in production
+            print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+def run():
+    credentials = grpc.ssl_channel_credentials(root_certificates=None)
+    call_credentials = grpc.access_token_call_credentials(os.environ['KAIKO_API_KEY'])
+    composite_credentials = grpc.composite_channel_credentials(credentials, call_credentials)
+    channel = grpc.secure_channel('gateway-v0-grpc.kaiko.ovh', composite_credentials)
+    index_aggregated_ob_request(channel)
+
+if __name__ == '__main__':
+    logging.basicConfig()
+    run()

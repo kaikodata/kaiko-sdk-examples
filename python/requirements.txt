@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 grpcio==1.85.1
-kaikosdk==1.41.0
+kaikosdk==1.43.0
 protobuf==7.36.2
 retrying==1.4.2
 typing-extensions==4.16.0
