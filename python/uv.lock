@@ -55,11 +55,11 @@ wheels = [
 
 [[package]]
 name = "kaikosdk"
-version = "1.41.0"
+version = "1.43.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/9f/24/8ddb5955d0d40b0999da637f3d3c66124be9d5b96e0b8dfc20b9392c5329/kaikosdk-1.41.0.tar.gz", hash = "sha256:3f03e4ae8f8ac9949512e46569f1814f6cf77569fd123e26cae34b40f696e931", size = 29538, upload-time = "2026-10-30T15:49:32.727Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4f/2f/c5786eb9b3a397984082fb20055aec41b7785fb532b0b4af470df2e357cd/kaikosdk-1.43.0.tar.gz", hash = "sha256:a1b32776efec5f2a2dcbdc781d61852b035f766945be51205eaff8b694158ad8", size = 31941, upload-time = "2026-11-26T15:35:33.565Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d9/5e/b0a44da3e2a1b028fbf35a0c7e27b169171e1953f8369ab9996a0d28b089/kaikosdk-1.41.0-py3-none-any.whl", hash = "sha256:6362c3e6d48bc197f55e2a81fa6cae011b87bf3cea8bed0935cd20bac1a083d5", size = 94165, upload-time = "2026-10-30T15:49:31.725Z" },
+    { url = "https://files.pythonhosted.org/packages/80/25/64804b1002f0f040f15a43f962d15c54950ff179bc2bc11a4b6649d72746/kaikosdk-1.43.0-py3-none-any.whl", hash = "sha256:a63cc6442d0641ac8477433c88c58f6959b64ab6a2451549b4a00340416142f0", size = 100975, upload-time = "2026-11-26T15:35:32.376Z" },
 ]
 
 [[package]]
@@ -91,7 +91,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "grpcio", specifier = "==1.85.1" },
-    { name = "kaikosdk", specifier = "==1.41.0" },
+    { name = "kaikosdk", specifier = "==1.43.0" },
     { name = "protobuf", specifier = "==7.36.2" },
     { name = "retrying", specifier = "==1.4.2" },
 ]

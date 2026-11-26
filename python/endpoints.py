@@ -16,6 +16,8 @@ from kaikosdk.stream.trades_v1 import request_pb2 as pb_trades
 from kaikosdk.stream.index_v1 import request_pb2 as pb_index
 from kaikosdk.stream.index_multi_assets_v1 import request_pb2 as pb_index_multi_assets
 from kaikosdk.stream.index_forex_rate_v1 import request_pb2 as pb_index_forex_rate
+from kaikosdk.stream.index_ob_rate_v1 import request_pb2 as pb_index_ob_rate
+from kaikosdk.stream.index_aggregated_ob_v1 import request_pb2 as pb_index_aggregated_ob
 from kaikosdk.stream.aggregated_quote_v2 import request_pb2 as pb_aggregated_quote
 from kaikosdk.stream.aggregates_spot_exchange_rate_v2 import request_pb2 as pb_spot_exchange_rate
 from kaikosdk.stream.aggregates_direct_exchange_rate_v2 import request_pb2 as pb_direct_exchange_rate
@@ -133,6 +135,35 @@ def index_forex_rate(channel: grpc.Channel):
             stub = sdk_pb2_grpc.StreamIndexForexRateServiceV1Stub(channel)
             responses = stub.Subscribe(pb_index_forex_rate.StreamIndexForexRateServiceRequestV1(
                 index_code = "KK_BRR_BTCUSD_EUR"
+            ))
+            for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+# Order-book rates are computed from a consolidated order book (the "feed").
+# Request a rate by its code, and the book it is computed from by its feed name:
+# the feed name is in each rate message (source_feed).
+def index_ob_rate_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamIndexOBRateServiceV1Stub(channel)
+            responses = stub.Subscribe(pb_index_ob_rate.StreamIndexOBRateRequestV1(
+                index_codes = ["<YOUR_OB_RATE_CODE>"]
+            ))
+            for response in responses:
+                # for debug purpose only, don't use MessageToJson in the reading loop in production
+                print("Received message %s" % (MessageToJson(response, always_print_fields_with_no_presence=True)))
+    except grpc.RpcError as e:
+        print(e.details(), e.code())
+
+def index_aggregated_ob_request(channel: grpc.Channel):
+    try:
+        with channel:
+            stub = sdk_pb2_grpc.StreamIndexAggregatedOBServiceV1Stub(channel)
+            responses = stub.Subscribe(pb_index_aggregated_ob.StreamIndexAggregatedOBRequestV1(
+                feed_names = ["<YOUR_FEED_NAME>"]
             ))
             for response in responses:
                 # for debug purpose only, don't use MessageToJson in the reading loop in production
@@ -325,6 +356,8 @@ def run():
     # index_rate_request(channel)
     # index_multi_asset(channel)
     # index_forex_rate(channel)
+    # index_ob_rate_request(channel)
+    # index_aggregated_ob_request(channel)
     # aggregated_quote_request(channel)
     # market_update_request(channel)
     # aggregates_spot_exchange_rate_request(channel)

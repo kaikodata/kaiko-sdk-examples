@@ -4,7 +4,7 @@ go 1.26.0
 
 require (
 	github.com/cenkalti/backoff/v5 v5.0.3
-	github.com/kaikodata/kaiko-go-sdk v1.41.0
+	github.com/kaikodata/kaiko-go-sdk v1.43.0
 	google.golang.org/grpc v1.85.0
 	google.golang.org/protobuf v1.36.12
 )

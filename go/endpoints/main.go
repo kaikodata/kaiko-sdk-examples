@@ -22,8 +22,10 @@ import (
 	"github.com/kaikodata/kaiko-go-sdk/stream/constant_duration_indices_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/derivatives_instrument_metrics_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/exotic_indices_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/index_aggregated_ob_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_forex_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_multi_assets_v1"
+	"github.com/kaikodata/kaiko-go-sdk/stream/index_ob_rate_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/index_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/iv_svi_parameters_v1"
 	"github.com/kaikodata/kaiko-go-sdk/stream/market_update_v1"
@@ -183,6 +185,38 @@ func main() {
 		err := indexCompositeIndices(ctx, conn)
 		if err != nil {
 			log.Printf("could not get composite indices: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming order-book rate request with SDK
+		err := indexOBRateRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get order-book rates: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create an order-book rate replay request with SDK
+		err := indexOBRateReplayRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not replay order-book rates: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create a streaming aggregated order book request with SDK
+		err := indexAggregatedOBRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not get aggregated order book: %v", err)
+		}
+	}()
+
+	go func() {
+		// Create an aggregated order book replay request with SDK
+		err := indexAggregatedOBReplayRequest(ctx, conn)
+		if err != nil {
+			log.Printf("could not replay aggregated order book: %v", err)
 		}
 	}()
 
@@ -768,5 +802,134 @@ func orderbookl2Request(
 		}
 
 		fmt.Printf("[ORDERBOOK L2] %+v\n", elt)
+	}
+}
+
+// Order-book rates are computed from a consolidated order book (the "feed").
+// Request a rate by its code, and the book it is computed from by its feed name:
+// the feed name is in each rate message (SourceFeed).
+func indexOBRateRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexOBRateServiceV1Client(conn)
+	request := index_ob_rate_v1.StreamIndexOBRateRequestV1{
+		IndexCodes: []string{"<YOUR_OB_RATE_CODE>"},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX OB RATE] %+v\n", elt)
+	}
+}
+
+func indexOBRateReplayRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexOBRateReplayServiceV1Client(conn)
+	// Replays cover the last 48 hours.
+	end := time.Now().Add(-time.Hour)
+	start := end.Add(-time.Minute)
+	request := index_ob_rate_v1.StreamIndexOBRateReplayRequestV1{
+		IndexCodes: []string{"<YOUR_OB_RATE_CODE>"},
+		Interval: &core.DataInterval{
+			StartTime: timestamppb.New(start),
+			EndTime:   timestamppb.New(end),
+		},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX OB RATE REPLAY] %+v\n", elt)
+	}
+}
+
+func indexAggregatedOBRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexAggregatedOBServiceV1Client(conn)
+	request := index_aggregated_ob_v1.StreamIndexAggregatedOBRequestV1{
+		FeedNames: []string{"<YOUR_FEED_NAME>"},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX AGGREGATED OB] %+v\n", elt)
+	}
+}
+
+func indexAggregatedOBReplayRequest(
+	ctx context.Context,
+	conn *grpc.ClientConn,
+) error {
+	cli := pb.NewStreamIndexAggregatedOBReplayServiceV1Client(conn)
+	// Replays cover the last 48 hours.
+	end := time.Now().Add(-time.Hour)
+	start := end.Add(-time.Minute)
+	request := index_aggregated_ob_v1.StreamIndexAggregatedOBReplayRequestV1{
+		FeedNames: []string{"<YOUR_FEED_NAME>"},
+		Interval: &core.DataInterval{
+			StartTime: timestamppb.New(start),
+			EndTime:   timestamppb.New(end),
+		},
+	}
+
+	sub, err := cli.Subscribe(ctx, &request)
+	if err != nil {
+		log.Fatalf("could not subscribe: %v", err)
+	}
+
+	for {
+		elt, err := sub.Recv()
+		if err == io.EOF {
+			return nil
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("[INDEX AGGREGATED OB REPLAY] %+v\n", elt)
 	}
 }
