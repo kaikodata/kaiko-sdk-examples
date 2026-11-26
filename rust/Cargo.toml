@@ -61,8 +61,24 @@ path = "src/composite_indices.rs"
 name = "staking_rates"
 path = "src/staking_rates.rs"
 
+[[bin]]
+name = "index_ob_rate"
+path = "src/index_ob_rate.rs"
+
+[[bin]]
+name = "index_ob_rate_replay"
+path = "src/index_ob_rate_replay.rs"
+
+[[bin]]
+name = "index_aggregated_ob"
+path = "src/index_aggregated_ob.rs"
+
+[[bin]]
+name = "index_aggregated_ob_replay"
+path = "src/index_aggregated_ob_replay.rs"
+
 [dependencies]
-kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.41.0" }
+kaikosdk = { git = "https://github.com/kaikodata/kaiko-rust-sdk.git", tag = "1.43.0" }
 tonic = { version = "0.14.5", features = [
     "tls-native-roots",
     "tls-aws-lc",

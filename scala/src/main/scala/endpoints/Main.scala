@@ -51,6 +51,14 @@ import com.kaiko.sdk.stream.index_v1.StreamIndexCommodity
 import com.kaiko.sdk.core.DataInterval
 import com.google.protobuf.timestamp.Timestamp
 import java.time.Instant
+import com.kaiko.sdk.StreamIndexOBRateServiceV1Grpc
+import com.kaiko.sdk.StreamIndexOBRateReplayServiceV1Grpc
+import com.kaiko.sdk.StreamIndexAggregatedOBServiceV1Grpc
+import com.kaiko.sdk.StreamIndexAggregatedOBReplayServiceV1Grpc
+import com.kaiko.sdk.stream.index_ob_rate_v1.StreamIndexOBRateRequestV1
+import com.kaiko.sdk.stream.index_ob_rate_v1.StreamIndexOBRateReplayRequestV1
+import com.kaiko.sdk.stream.index_aggregated_ob_v1.StreamIndexAggregatedOBRequestV1
+import com.kaiko.sdk.stream.index_aggregated_ob_v1.StreamIndexAggregatedOBReplayRequestV1
 
 object Main {
 
@@ -134,6 +142,18 @@ object Main {
 
     // Create a streaming staking rates request with SDK
     staking_rates_v1(channel, callCredentials)
+
+    // Create a streaming order-book rate request with SDK
+    index_ob_rate_request(channel, callCredentials)
+
+    // Create an order-book rate replay request with SDK
+    index_ob_rate_replay_request(channel, callCredentials)
+
+    // Create a streaming aggregated order book request with SDK
+    index_aggregated_ob_request(channel, callCredentials)
+
+    // Create an aggregated order book replay request with SDK
+    index_aggregated_ob_replay_request(channel, callCredentials)
   }
 
   def market_update_request(
@@ -533,6 +553,113 @@ object Main {
     val request = StreamStakingRatesServiceRequestV1(
       indexCode = "<YOUR_INDEX_CODE>",
       commodities = Seq(StreamIndexCommodity.SIC_DAILY_FIXING),
+      interval = Some(DataInterval(
+        startTime = Some(Timestamp(seconds = start.getEpochSecond)),
+        endTime = Some(Timestamp(seconds = end.getEpochSecond))
+      ))
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  // Order-book rates are computed from a consolidated order book (the "feed").
+  // Request a rate by its code, and the book it is computed from by its feed name:
+  // the feed name is in each rate message (source_feed).
+  def index_ob_rate_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexOBRateServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    val request = StreamIndexOBRateRequestV1(
+      indexCodes = Seq("<YOUR_OB_RATE_CODE>")
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def index_ob_rate_replay_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexOBRateReplayServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Replays cover the last 48 hours.
+    val end = Instant.now().minusSeconds(3600)
+    val start = end.minusSeconds(60)
+
+    val request = StreamIndexOBRateReplayRequestV1(
+      indexCodes = Seq("<YOUR_OB_RATE_CODE>"),
+      interval = Some(DataInterval(
+        startTime = Some(Timestamp(seconds = start.getEpochSecond)),
+        endTime = Some(Timestamp(seconds = end.getEpochSecond))
+      ))
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def index_aggregated_ob_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexAggregatedOBServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    val request = StreamIndexAggregatedOBRequestV1(
+      feedNames = Seq("<YOUR_FEED_NAME>")
+    )
+
+    // Run the request and get results
+    val results = stub
+      .subscribe(request)
+      .take(10)
+      .toSeq
+      .map(JsonFormat.toJsonString)
+
+    println(results)
+  }
+
+  def index_aggregated_ob_replay_request(
+      channel: Channel,
+      callCredentials: CallCredentials
+  ) = {
+    val stub = StreamIndexAggregatedOBReplayServiceV1Grpc
+      .blockingStub(channel)
+      .withCallCredentials(callCredentials)
+
+    // Replays cover the last 48 hours.
+    val end = Instant.now().minusSeconds(3600)
+    val start = end.minusSeconds(60)
+
+    val request = StreamIndexAggregatedOBReplayRequestV1(
+      feedNames = Seq("<YOUR_FEED_NAME>"),
       interval = Some(DataInterval(
         startTime = Some(Timestamp(seconds = start.getEpochSecond)),
         endTime = Some(Timestamp(seconds = end.getEpochSecond))

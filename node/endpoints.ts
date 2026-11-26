@@ -20,7 +20,11 @@ import {
     StreamAggregatedStatePriceServiceV1Client,
     StreamConstantDurationIndicesServiceV1Client,
     StreamCompositeIndicesServiceV1Client,
-    StreamStakingRatesServiceV1Client
+    StreamStakingRatesServiceV1Client,
+    StreamIndexOBRateServiceV1Client,
+    StreamIndexOBRateReplayServiceV1Client,
+    StreamIndexAggregatedOBServiceV1Client,
+    StreamIndexAggregatedOBReplayServiceV1Client
 } from '@kaiko-data/sdk-node/sdk/sdk_grpc_pb';
 import { StreamAggregatesVWAPRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/request_pb';
 import { StreamAggregatesVWAPResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_vwap_v1/response_pb';
@@ -41,6 +45,10 @@ import { StreamCompositeIndicesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk
 import { StreamCompositeIndicesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/composite_indices_v1/response_pb';
 import { StreamStakingRatesServiceRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/staking_rates_v1/request_pb';
 import { StreamStakingRatesServiceResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/staking_rates_v1/response_pb';
+import { StreamIndexOBRateRequestV1, StreamIndexOBRateReplayRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_ob_rate_v1/request_pb';
+import { StreamIndexOBRateResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_ob_rate_v1/response_pb';
+import { StreamIndexAggregatedOBRequestV1, StreamIndexAggregatedOBReplayRequestV1 } from '@kaiko-data/sdk-node/sdk/stream/index_aggregated_ob_v1/request_pb';
+import { StreamIndexAggregatedOBResponseV1 } from '@kaiko-data/sdk-node/sdk/stream/index_aggregated_ob_v1/response_pb';
 import { StreamAggregatedQuoteRequestV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/request_pb';
 import { StreamAggregatedQuoteResponseV2 } from '@kaiko-data/sdk-node/sdk/stream/aggregated_quote_v2/response_pb';
 import { StreamAggregatesSpotExchangeRateV2RequestV1 } from '@kaiko-data/sdk-node/sdk/stream/aggregates_spot_exchange_rate_v2/request_pb';
@@ -128,6 +136,18 @@ const main = () => {
 
     // Create a staking rates request with SDK
     stakingRatesRequest(creds);
+
+    // Create an order-book rate request with SDK
+    indexOBRateRequest(creds);
+
+    // Create an order-book rate replay request with SDK
+    indexOBRateReplayRequest(creds);
+
+    // Create an aggregated order book request with SDK
+    indexAggregatedOBRequest(creds);
+
+    // Create an aggregated order book replay request with SDK
+    indexAggregatedOBReplayRequest(creds);
 }
 
 const ohlcvRequest = (creds: grpc.CallCredentials): void => {
@@ -728,6 +748,157 @@ const stakingRatesRequest = (creds: grpc.CallCredentials): void => {
 
     call.on('end', () => {
         console.log('[STAKING RATES] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+// Order-book rates are computed from a consolidated order book (the "feed").
+// Request a rate by its code, and the book it is computed from by its feed name:
+// the feed name is in each rate message (source_feed).
+const indexOBRateRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexOBRateServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexOBRateRequestV1();
+
+    request.setIndexCodesList(["<YOUR_OB_RATE_CODE>"]);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexOBRateResponseV1) => {
+        console.log(`[INDEX OB RATE] value: ${JSON.stringify(response.toObject())}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX OB RATE] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+// Replay one minute of order-book rates, one hour ago.
+const indexOBRateReplayRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexOBRateReplayServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexOBRateReplayRequestV1();
+
+    // Replays cover the last 48 hours.
+    const endDate = new Date(Date.now() - 3600 * 1000); // 1 hour ago
+    const startDate = new Date(endDate.getTime() - 60 * 1000); // 1 minute before end
+
+    const start = new Timestamp()
+    start.fromDate(startDate);
+
+    const end = new Timestamp()
+    end.fromDate(endDate);
+
+    const dt = new DataInterval();
+    dt.setStartTime(start);
+    dt.setEndTime(end);
+
+    request.setIndexCodesList(["<YOUR_OB_RATE_CODE>"]);
+    request.setInterval(dt);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexOBRateResponseV1) => {
+        console.log(`[INDEX OB RATE REPLAY] value: ${JSON.stringify(response.toObject())}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX OB RATE REPLAY] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+const indexAggregatedOBRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexAggregatedOBServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexAggregatedOBRequestV1();
+
+    request.setFeedNamesList(["<YOUR_FEED_NAME>"]);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexAggregatedOBResponseV1) => {
+        console.log(`[INDEX AGGREGATED OB] value: ${JSON.stringify(response.toObject())}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX AGGREGATED OB] Stream ended')
+    });
+
+    call.on('error', (error: grpc.ServiceError) => {
+        if (error.code === grpc.status.CANCELLED) { return; }
+        console.error(error);
+    })
+}
+
+// Replay one minute of the aggregated order book, one hour ago.
+const indexAggregatedOBReplayRequest = (creds: grpc.CallCredentials): void => {
+    const client = new StreamIndexAggregatedOBReplayServiceV1Client('gateway-v0-grpc.kaiko.ovh:443', creds as any);
+    const request = new StreamIndexAggregatedOBReplayRequestV1();
+
+    // Replays cover the last 48 hours.
+    const endDate = new Date(Date.now() - 3600 * 1000); // 1 hour ago
+    const startDate = new Date(endDate.getTime() - 60 * 1000); // 1 minute before end
+
+    const start = new Timestamp()
+    start.fromDate(startDate);
+
+    const end = new Timestamp()
+    end.fromDate(endDate);
+
+    const dt = new DataInterval();
+    dt.setStartTime(start);
+    dt.setEndTime(end);
+
+    request.setFeedNamesList(["<YOUR_FEED_NAME>"]);
+    request.setInterval(dt);
+
+    // Run the request and get results
+    const call = client.subscribe(request);
+
+    let count = 0;
+    call.on('data', (response: StreamIndexAggregatedOBResponseV1) => {
+        console.log(`[INDEX AGGREGATED OB REPLAY] value: ${JSON.stringify(response.toObject())}`);
+
+        count++;
+        if (count >= 5) {
+            call.cancel();
+        }
+    });
+
+    call.on('end', () => {
+        console.log('[INDEX AGGREGATED OB REPLAY] Stream ended')
     });
 
     call.on('error', (error: grpc.ServiceError) => {
